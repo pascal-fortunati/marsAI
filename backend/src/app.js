@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/api/health", (_req, res) => {
-  res.json({ ok: true, service: "marsAIV2-backend" });
+  res.json({ ok: true, service: "marsAI-backend" });
 });
 
 export { app };
