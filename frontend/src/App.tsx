@@ -1,3 +1,5 @@
+import { CataloguePage } from "./pages/CataloguePage";
+
 function App() {
   return (
     <main style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>
