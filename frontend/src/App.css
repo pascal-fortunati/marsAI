@@ -336,3 +336,17 @@ select.submit-input option {
     background: #0d0a1f;
     color: #fff;
 }
+
+/*pour un effet violet sur les videos miniatures */
+.shadow-neon {
+    box-shadow: 0 0 15px rgba(125, 113, 251, 0.3),
+        0 0 30px rgba(125, 113, 251, 0.1);
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+/* Accentuation de l'effet au survol */
+.group:hover .shadow-neon,
+.shadow-neon:hover {
+    box-shadow: 0 0 10px rgba(125, 113, 251, 0.6),
+        0 0 25px rgba(125, 113, 251, 0.2);
+}
