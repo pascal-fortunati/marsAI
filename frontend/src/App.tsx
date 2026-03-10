@@ -1,11 +1,12 @@
-import { CataloguePage } from "./pages/CataloguePage";
+import { Route, Routes, Navigate } from 'react-router-dom'
+import { CataloguePage } from './pages/CataloguePage';
 
 function App() {
   return (
-    <main style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>
-      <h1>marsAI</h1>
-      <p>Frontend skeleton prêt.</p>
-    </main>
+    <Routes>
+      <Route path="/catalogue" element={<CataloguePage />} />
+      <Route path="/" element={<Navigate to="/catalogue" replace />} />
+    </Routes>
   );
 }
 

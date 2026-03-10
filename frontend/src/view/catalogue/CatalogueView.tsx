@@ -22,7 +22,7 @@ const MOCK_MOVIES: Movie[] = Array.from({ length: 50 }, (_, i) => ({
   category: "Sélection Officielle",
 }));
 
-export default function CatalogueView() {
+export function CatalogueView() {
   // États pour la pagination et la modal
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
