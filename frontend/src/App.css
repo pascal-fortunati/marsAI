@@ -1,0 +1,235 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap');
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
+
+@theme {
+  --color-background:         hsl(var(--background));
+  --color-foreground:         hsl(var(--foreground));
+  --color-card:               hsl(var(--card));
+  --color-card-foreground:    hsl(var(--card-foreground));
+  --color-popover:            hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary:            hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary:          hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted:              hsl(var(--muted));
+  --color-muted-foreground:   hsl(var(--muted-foreground));
+  --color-accent:             hsl(var(--accent));
+  --color-accent-foreground:  hsl(var(--accent-foreground));
+  --color-destructive:        hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border:             hsl(var(--border));
+  --color-input:              hsl(var(--input));
+  --color-ring:               hsl(var(--ring));
+  --radius:                   var(--radius);
+}
+
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  font-size: 16px;
+  background: var(--col-bg);
+  color: #fff;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(125, 113, 251, 0.75) rgba(255, 255, 255, 0.06);
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(125, 113, 251, 0.9), rgba(255, 92, 53, 0.85));
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(125, 113, 251, 1), rgba(255, 92, 53, 1));
+}
+
+:root {
+  --col-vi: #7d71fb;
+  --col-or: #ff5c35;
+  --col-bg: #05030d;
+  color-scheme: dark;
+  --background:    255 67% 3%;
+  --foreground:    0   0%  96%;
+  --card:              255 40% 5%;
+  --card-foreground:   0   0%  96%;
+  --popover:           255 40% 5%;
+  --popover-foreground: 0  0%  96%;
+  --primary:            246 94% 71%;
+  --primary-foreground: 0   0% 100%;
+  --secondary:             255 30% 9%;
+  --secondary-foreground:  0   0% 85%;
+  --muted:             255 25% 9%;
+  --muted-foreground:  0   0% 55%;
+  --accent:            14  100% 60%;
+  --accent-foreground: 0   0%  100%;
+  --destructive:            0  84% 60%;
+  --destructive-foreground: 0   0% 100%;
+  --border: 255 20% 13%;
+  --input: 255 30% 10%;
+  --ring: 246 94% 71%;
+  --radius: 0.75rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* Input shadcn */
+  input[data-slot="input"],
+  textarea[data-slot="input"] {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.875rem;
+  }
+
+  /* Select option dark bg */
+  option {
+    background: #05030d;
+    color: #fff;
+  }
+}
+
+/* Card — s'assure qu'elle prend bien le bon bg sans sur-teinte */
+.card-marsai {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+}
+
+/* Tabs — override l'indicateur actif en violet */
+[data-slot="tabs-indicator"] {
+  background: hsl(var(--primary)) !important;
+}
+
+[data-state="active"][data-slot="tabs-trigger"] {
+  color: hsl(var(--primary)) !important;
+  background: hsl(var(--primary) / 0.12) !important;
+}
+
+/* Badge / Tag inline dans AlertDescription */
+[data-slot="alert"] {
+  border-color: hsl(var(--border));
+  background: hsl(var(--secondary));
+}
+
+/* AlertDialog — fond dark, pas de blanc */
+[data-slot="alert-dialog-content"] {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+}
+
+.f-orb  { font-family: 'Orbitron', monospace; }
+.f-mono { font-family: 'Share Tech Mono', monospace; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scanH {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(200vh); }
+}
+@keyframes shimText {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes flipNum {
+  from { transform: rotateX(-80deg); opacity: 0; }
+  to   { transform: rotateX(0deg);   opacity: 1; }
+}
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(125,113,251,.4), 0 0 60px rgba(125,113,251,.1);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(125,113,251,.7), 0 0 80px rgba(255,92,53,.2);
+  }
+}
+@keyframes rotateSlow {
+  from { transform: translate(-50%,-50%) rotate(0deg); }
+  to   { transform: translate(-50%,-50%) rotate(360deg); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+@keyframes countUp {
+  from { opacity: 0; transform: scale(.7); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes borderFlow {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.panel-input {
+  width: 100%;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  padding: 10px 14px;
+  color: rgba(255,255,255,.8);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  outline: none;
+  transition: border-color .2s, background .2s;
+}
+.panel-input:focus {
+  border-color: rgba(125,113,251,.5);
+  background: rgba(125,113,251,.05);
+}
+.panel-input::placeholder { color: rgba(255,255,255,.2); }
+
+.submit-input {
+  width: 100%;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  padding: 11px 14px;
+  color: rgba(255,255,255,.85);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  outline: none;
+  transition: border-color .2s, background .2s, box-shadow .2s;
+}
+.submit-input:focus {
+  border-color: rgba(125,113,251,.5);
+  background: rgba(125,113,251,.04);
+  box-shadow: 0 0 0 3px rgba(125,113,251,.08);
+}
+.submit-input::placeholder { color: rgba(255,255,255,.18); }
+.submit-input.error {
+  border-color: rgba(255,92,53,.5);
+  background: rgba(255,92,53,.04);
+}
+select.submit-input option { background: #0d0a1f; color: #fff; }

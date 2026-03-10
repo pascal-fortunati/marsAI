@@ -1,9 +1,11 @@
+import { Navigate, Route, Routes} from 'react-router-dom'
+import { JuryPage } from './pages/JuryPage'
+
 function App() {
   return (
-    <main style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>
-      <h1>marsAI</h1>
-      <p>Frontend skeleton prêt.</p>
-    </main>
+    <Routes>
+      <Route path="/jury" element={<JuryPage />} />
+    </Routes>
   );
 }
 
