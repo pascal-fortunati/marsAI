@@ -1,9 +1,14 @@
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { PalmaresPages } from './pages/PalmaresPages'; // On appelle ta page
+
 function App() {
   return (
-    <main style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>
-      <h1>marsAI</h1>
-      <p>Frontend skeleton prêt.</p>
-    </main>
+    <div className="App">
+      <Routes>
+          <Route path='/' element={<Navigate to="/" replace />} />
+          <Route path='/palmares' element={<PalmaresPages />} />
+      </Routes>
+    </div>
   );
 }
 
