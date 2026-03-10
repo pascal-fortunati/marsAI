@@ -1,8 +1,8 @@
-export function JuryView() {
+export function VotePanel() {
     return (
     <div className="bg-gray-900 text-white p-8 rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold mb-4">Jury View (Layout)</h2>
-      <p className="mb-6">Espace Jury Complet</p>
+      <h2 className="text-2xl font-bold mb-4">Vote Panel</h2>
+      <p className="mb-6">Bas</p>
       {/* Ajoute ici tes composants shadcn/ui */}
     </div>
   );
