@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import Progression from "./Progression";
-// import Step1Author from "./Etape1";
+import Progress from "./Progress";
+// import Step1Author from "./Step1";
 // import StepPlaceholder from "./Placeholder";
 
 export default function SubmitPage() {
-    const [etape, setEtape] = useState(1);
-    const goNext = () => setEtape((s) => Math.min(s + 1, 4));
-    const goPrev = () => setEtape((s) => Math.max(s - 1, 1));
+    const [step, setStep] = useState(1);
+    const goNext = () => setStep((s) => Math.min(s + 1, 4));
+    const goPrev = () => setStep((s) => Math.max(s - 1, 1));
 
     return (
         <div className="min-h-screen relative overflow-hidden" style={{ background: "var(--col-bg)" }}>
@@ -46,22 +46,19 @@ export default function SubmitPage() {
                 </p>
 
                 { /* Barre de progression */}
-                <Progression currentEtape={etape} />
+                <Progress currentStep={step} />
 
                 { /* Formulaire */}
                 <div className="rounded-xl p-6 mt-2" style={{ background: "var(--col-bg-2)", border: "1px solid var(--col-bg-3)", backdropFilter: "blur(8px)" }}>
 
-                    {/* {etape === 1 && <Etape1 onNext={goNext} />}
-                    {etape === 2 && <Placeholder label="Film" onPrev={goPrev} onNext={goNext} />}
-                    {etape === 3 && <Placeholder label="Fichiers" onPrev={goPrev} onNext={goNext} />}
-                    {etape === 4 && <Placeholder label="Consentements" onPrev={goPrev} onNext={() => alert("Soumis !")} />} */}
-
-                    <p className="text-white">Étape {etape}</p>
+                    {/* {step === 1 && <Step1 onNext={goNext} />}
+                    {step === 2 && <Placeholder label="Film" onPrev={goPrev} onNext={goNext} />}
+                    {step === 3 && <Placeholder label="Fichiers" onPrev={goPrev} onNext={goNext} />}
+                    {step === 4 && <Placeholder label="Consentements" onPrev={goPrev} onNext={() => alert("Soumis !")} />} */}
 
                 </div>
 
             </div>
-
         </div>
 
     );
