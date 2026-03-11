@@ -642,7 +642,6 @@ export const resources = {
             "Bhoutan",
             "Biélorussie",
             "Birmanie",
-            "Birmanie",
             "Bolivie",
             "Bosnie-Herzégovine",
             "Botswana",
