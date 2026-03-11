@@ -1,13 +1,12 @@
-import React from "react";
-// import Progression from "./components/Progression";
-// import Etape1 from "./Etape1";
-// import Etape2 from "./Etape2";
-// import Etape3 from "./Etape3";
+import React, { useState } from "react";
+import Progression from "./Progression";
+// import Step1Author from "./Etape1";
+// import StepPlaceholder from "./Placeholder";
 
 export default function SubmitPage() {
-    // const [etape, setEtape] = useState(1);
-    // const goNext = () => setEtape((s) => Math.min(s + 1, 4));
-    // const goBack = () => setEtape((s) => Math.max(s - 1, 1));
+    const [etape, setEtape] = useState(1);
+    const goNext = () => setEtape((s) => Math.min(s + 1, 4));
+    const goPrev = () => setEtape((s) => Math.max(s - 1, 1));
 
     return (
         <div className="min-h-screen relative overflow-hidden" style={{ background: "var(--col-bg)" }}>
@@ -45,6 +44,21 @@ export default function SubmitPage() {
                 <p className="f-mono text-[11px] text-white/25 mb-8 tracking-wide">
                     Aucune inscription. Délai max : 2 minutes.
                 </p>
+
+                { /* Barre de progression */}
+                <Progression currentEtape={etape} />
+
+                { /* Formulaire */}
+                <div className="rounded-xl p-6 mt-2" style={{ background: "var(--col-bg-2)", border: "1px solid var(--col-bg-3)", backdropFilter: "blur(8px)" }}>
+
+                    {/* {etape === 1 && <Etape1 onNext={goNext} />}
+                    {etape === 2 && <Placeholder label="Film" onPrev={goPrev} onNext={goNext} />}
+                    {etape === 3 && <Placeholder label="Fichiers" onPrev={goPrev} onNext={goNext} />}
+                    {etape === 4 && <Placeholder label="Consentements" onPrev={goPrev} onNext={() => alert("Soumis !")} />} */}
+
+                    <p className="text-white">Étape {etape}</p>
+
+                </div>
 
             </div>
 
