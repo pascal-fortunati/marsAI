@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Progress from "./Progress";
-// import Step1Author from "./Step1";
-// import StepPlaceholder from "./Placeholder";
+import Step1 from "./Step1";
 
 export default function SubmitPage() {
     const [step, setStep] = useState(1);
@@ -51,10 +50,7 @@ export default function SubmitPage() {
                 { /* Formulaire */}
                 <div className="rounded-xl p-6 mt-2" style={{ background: "var(--col-bg-2)", border: "1px solid var(--col-bg-3)", backdropFilter: "blur(8px)" }}>
 
-                    {/* {step === 1 && <Step1 onNext={goNext} />}
-                    {step === 2 && <Placeholder label="Film" onPrev={goPrev} onNext={goNext} />}
-                    {step === 3 && <Placeholder label="Fichiers" onPrev={goPrev} onNext={goNext} />}
-                    {step === 4 && <Placeholder label="Consentements" onPrev={goPrev} onNext={() => alert("Soumis !")} />} */}
+                    {step === 1 && <Step1 onNext={goNext} />}
 
                 </div>
 
