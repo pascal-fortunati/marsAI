@@ -298,7 +298,7 @@ export const resources = {
           noData: "Aucune donnée chargée.",
           save: "Sauvegarder",
           saving: "Sauvegarde…",
-          refresh: "Raffraichir",
+          refresh: "Rafraichir",
           phase1: "Phase 1 · Clôture",
           phase2: "Phase 2 · Catalogue",
           phase3: "Phase 3 · Palmarès",
