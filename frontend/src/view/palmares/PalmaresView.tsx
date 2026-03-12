@@ -2,6 +2,7 @@ import React from 'react';
 import { Trophy, Star, Zap } from "lucide-react";
 
 // --- DONNÉES ---
+// Images de "seed" pour simuler les avatars de la maquette
 const GRAND_PRIX = [
   { id: 2, rank: 2, title: "Le monstre", director: "Pauline Hiez", country: "France", duration: "0:06", gradient: "from-[#1a202c]/40 to-[#0A0A10]/60", borderColor: "border-gray-500/30", rankBg: "bg-[#8A9BB2]", avatar: "https://picsum.photos/seed/monstre/150" },
   { id: 1, rank: 1, title: "dwmm's life", director: "s m", country: "Autre", duration: "1:02", gradient: "from-[#423812]/40 to-[#0A0A10]/60", borderColor: "border-yellow-500/50", highlight: true, rankBg: "bg-[#EAB308]", avatar: "https://picsum.photos/seed/dwmm/150" },
@@ -122,7 +123,7 @@ export const PalmaresView = () => {
                 <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent via-yellow-500/20 to-yellow-500/10" />
             </div>
 
-            {/* PODIUM : Cartes agrandies */}
+            {/* PODIUM : Cartes agrandies et ajustées */}
             <section className="mb-24">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {GRAND_PRIX.map((film) => (
@@ -143,7 +144,7 @@ export const PalmaresView = () => {
                             </div>
                             
                             {/* Informations agrandies */}
-                            <div className="flex flex-col flex-1 pr-4">
+                            <div className="flex flex-col flex-1 pr-4 overflow-hidden">
                                 <h3 className="text-lg md:text-xl font-black uppercase tracking-tight leading-tight mb-1.5 truncate">{film.title}</h3>
                                 <div className="text-[11px] text-white/50 font-bold tracking-wider truncate mb-1">
                                   {film.director}
