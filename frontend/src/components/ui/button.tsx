@@ -15,12 +15,16 @@ export const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground hover:opacity-90",
         link: "text-primary underline-offset-4 hover:underline",
+        /* navbar-friendly link: light text, transparent bg, custom hover */
+        nav: "text-white bg-transparent hover:text-[#FF5C35] px-2 py-1",
       },
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",
         lg: "h-11 rounded-md px-8",
         icon: "h-10 w-10",
+        /* smaller height for nav buttons */
+        nav: "h-8 px-2",
       },
     },
     defaultVariants: {

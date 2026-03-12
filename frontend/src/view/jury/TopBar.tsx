@@ -1,12 +1,13 @@
+import { useState } from "react";
 import logo from "../../assets/mars_ai_logo.png";
 import { Button } from "../../components/ui/button";
 
 export function TopBar() {
+  const [lang, setLang] = useState<"fr" | "en">("fr");
+  const toggleLang = (l: "fr" | "en") => setLang(l);
+
   return (
-    <div
-      alt="Header"
-      className="h-[84px] w-full bg-blue-500 grid grid-cols-12 items-center px-4"
-    >
+    <div className="h-[84px] w-full bg-blue-500 grid grid-cols-12 items-center px-4">
       {/* Bloc logo */}
       <div className="col-span-2 flex items-center">
         <img src={logo} className="h-[60px] w-[60px]" alt="Logomark" />
@@ -27,19 +28,27 @@ export function TopBar() {
       <div className="col-span-4 flex items-center justify-end gap-4">
         {/* Onglets/menu (exemple) */}
         <nav className="flex gap-2">
-          <button className="text-white hover:text-[#FF5C35]">Accueil</button>
-          <button className="text-white hover:text-[#FF5C35]">Films</button>
-          <button className="text-white hover:text-[#FF5C35]">Jury</button>
+          <Button variant="nav" size="nav">
+            Accueil
+          </Button>
+          <Button variant="nav" size="nav">
+            Films
+          </Button>
+          <Button variant="nav" size="nav">
+            Jury
+          </Button>
         </nav>
         {/* Boutons FR/EN */}
         <Button
           variant={lang === "fr" ? "default" : "ghost"}
+          size="sm"
           onClick={() => toggleLang("fr")}
         >
           FR
         </Button>
         <Button
           variant={lang === "en" ? "default" : "ghost"}
+          size="sm"
           onClick={() => toggleLang("en")}
         >
           EN
