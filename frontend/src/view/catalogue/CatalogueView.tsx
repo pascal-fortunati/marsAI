@@ -6,9 +6,9 @@ interface Movie {
     author: string;
     authorDescription: string;
     posterUrl: string;
-    embedId: string; 
+    embedId: string;
     category: string;
-    ia_models: string[]; 
+    ia_models: string[];
 }
 
 const MOCK_MOVIES: Movie[] = Array.from({ length: 50 }, (_, i) => ({
@@ -33,13 +33,13 @@ export function CatalogueView() {
     return (
         /* Le conteneur extérieur qui prend tout l'écran avec un fond sombre */
         <div className="min-h-screen bg-[#0a0a0c] text-foreground relative overflow-x-hidden">
-            
+
             {/* Effet de flare en arrière-plan (fixe) */}
             <div className="fixed top-1/4 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-            {/* --- LA BOX CENTRALE --- */}
-            <div className="max-w-[1400px] mx-auto bg-background min-h-screen shadow-[0_0_100px_rgba(0,0,0,0.5)] border-x border-border/30 p-8 md:p-16 relative z-10">
-                
+            {/* Contenu principal */}
+            <div className="relative mx-auto max-w-7xl px-5 py-12">
+
                 {/* Header */}
                 <header className="mb-16">
                     <div className="flex items-center gap-3 text-sm text-primary uppercase font-bold tracking-widest f-orb mb-4">
@@ -50,12 +50,12 @@ export function CatalogueView() {
                         Catalogue <span className="bg-gradient-to-r from-[#7d71fb] to-[#ff5c35] text-transparent bg-clip-text">2026</span>
                     </h1>
                     <p className="f-mono text-muted-foreground uppercase text-sm tracking-widest">
-                       {"//"} {MOCK_MOVIES.length} fichiers identifiés
+                        {"//"} {MOCK_MOVIES.length} fichiers identifiés
                     </p>
                 </header>
 
-                {/* Grille de cartes (on passe en 3 colonnes pour le mode boxed) */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {/* Grille de cartes (on passe en 4 colonnes pour le mode boxed) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {currentMovies.map((movie) => (
                         <div
                             key={movie.id}
@@ -65,7 +65,7 @@ export function CatalogueView() {
                             <div className="relative aspect-video overflow-hidden">
                                 <img src={movie.posterUrl} alt={movie.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent group-hover:via-background/20 transition-all"></div>
-                                
+
                                 {/* Bouton Play Dégradé 135deg */}
                                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                     <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-neon transform group-hover:scale-110 transition-transform duration-300 bg-gradient-to-br from-[#7d71fb] to-[#ff5c35]">
@@ -127,7 +127,7 @@ export function CatalogueView() {
                         >
                             ✕
                         </button>
-                        
+
                         <div className="aspect-video w-full bg-black">
                             <iframe
                                 width="100%"
