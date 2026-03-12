@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Progress from "./Progress";
 import Step1 from "./Step1";
+import Step2 from "./Step2";
 
 export default function SubmitPage() {
     const [step, setStep] = useState(1);
@@ -51,7 +52,7 @@ export default function SubmitPage() {
                 <div className="rounded-xl p-6 mt-2" style={{ background: "var(--col-bg-2)", border: "1px solid var(--col-bg-3)", backdropFilter: "blur(8px)" }}>
 
                     {step === 1 && <Step1 onNext={goNext} />}
-
+                    {step === 2 && <Step2 onNext={goNext} onPrev={goPrev} />}
                 </div>
 
             </div>
