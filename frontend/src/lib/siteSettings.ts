@@ -1,5 +1,11 @@
-import type { FestivalSettings } from '../config/festival'
 import { apiUrl } from './api'
+
+// Structure minimale des paramètres du festival (front uniquement)
+export type FestivalSettings = {
+  name?: string
+  year?: string
+  // Ajoute d'autres champs selon ce dont l'UI a besoin
+}
 
 // Options de soumission disponibles pour les utilisateurs
 export type SubmissionOptions = {
