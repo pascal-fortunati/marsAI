@@ -1,8 +1,8 @@
 import { useState } from "react";
 import logo from "../../assets/mars_ai_logo.png";
-import { Button } from "../../components/ui/button";
+import { Button } from "./Button";
 
-export function TopBar() {
+export function NavBar() {
   const [lang, setLang] = useState<"fr" | "en">("fr");
   const toggleLang = (l: "fr" | "en") => setLang(l);
 

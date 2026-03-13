@@ -1,4 +1,4 @@
-export function Login() {
+export function LoginView() {
     return (
     <div className="bg-gray-900 text-white p-8 rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold mb-4">Login</h2>
