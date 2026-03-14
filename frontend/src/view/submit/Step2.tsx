@@ -28,6 +28,8 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
     const [synopsisLen, setSynopsisLen] = useState(0);
     const [selectedTools, setSelectedTools] = useState<string[]>([]);
     const [customTool, setCustomTool] = useState("");
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [rights, setRights] = useState(false);
 
     const toggleTool = (tool: string) => {
         setSelectedTools((prev) =>
@@ -40,6 +42,12 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
             setSelectedTools((prev) => [...prev, customTool.trim()]);
             setCustomTool("");
         }
+    };
+
+    const toggleTag = (tag: string) => {
+        setSelectedTags((prev) =>
+            prev.includes(tag) ? prev.filter((item) => item !== tag) : [...prev, tag]
+        );
     };
 
     return (
@@ -139,6 +147,76 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
                     </button>
                 </div>
             </FormField>
+
+            {/* Tags sémantiques */}
+            <FormField label="Tags sémantiques (lien avec 'futurs souhaitables')" required>
+                <div className="flex flex-wrap gap-2 mt-1">
+                    {TAGS.map((tag) => {
+                        const active = selectedTags.includes(tag);
+                        return (
+                            <button
+                                key={tag}
+                                type="button"
+                                onClick={() => toggleTag(tag)}
+                                className="f-mono text-[9px] tracking-wider px-2.5 py-1 rounded-full border transition-all"
+                                style={{
+                                    borderColor: active ? "var(--col-or)" : "rgba(255,255,255,.12)",
+                                    background: active ? "rgba(255,92,53,.12)" : "rgba(255,255,255,.03)",
+                                    color: active ? "var(--col-or)" : "rgba(255,255,255,.45)",
+                                }}
+                            >
+                                {tag}
+                            </button>
+                        );
+                    })}
+                </div>
+            </FormField>
+
+            {/* Mentions musiques et sons */}
+            <FormField label="Mentions des musiques et sons" required>
+                <textarea
+                    className="submit-input resize-none h-20"
+                    placeholder="> Ex. Musique générée par Suno AI. Sons : ElevenLabs + bibliothèque libre de droits"
+                />
+            </FormField>
+
+            {/* Checkbox droits */}
+            <label className="flex items-start gap-3 cursor-pointer group">
+                <div
+                    className="mt-0.5 w-4 h-4 rounded border shrink-0 flex items-center justify-center transition-all"
+                    style={{
+                        borderColor: rights ? "var(--col-vi)" : "rgba(255,255,255,.2)",
+                        background: rights ? "rgba(125,113,251,.2)" : "transparent",
+                    }}
+                    onClick={() => setRights((r) => !r)}
+                >
+                    {rights && (
+                        <svg width="8" height="6" viewBox="0 0 8 6" fill="none">
+                            <path d="M1 3L3 5L7 1" stroke="var(--col-vi)" strokeWidth="1.5" strokeLinecap="round" />
+                        </svg>
+                    )}
+                </div>
+                <span className="f-mono text-[10px] text-white/50 leading-relaxed">
+                    Je confirme détenir l'ensemble des droits sur les éléments soumis (images, sons, musiques, voix)
+                    et être en mesure de les céder pour la durée du festival.{" "}
+                    <span style={{ color: "var(--col-or)" }}>*</span>
+                </span>
+            </label>
+
+            {/* Navigation */}
+            <div className="flex justify-between items-center pt-2">
+                <button
+                    onClick={onPrev}
+                    className="f-mono text-[10px] tracking-widest uppercase px-5 py-2.5 rounded-xl transition-opacity hover:opacity-70"
+                    style={{ border: "1px solid rgba(255,255,255,.15)", color: "rgba(255,255,255,.4)" }}
+                >
+                    ← Précédent
+                </button>
+                <button onClick={onNext} className="f-mono text-[11px] tracking-widest uppercase px-6 py-3 rounded-xl text-white font-bold transition-all hover:opacity-90 active-scale-95" style={{ background: "linear-gradient(90deg, var(--col-vi), var(--col-or))" }}>
+                    Étape suivante →
+                </button>
+
+            </div>
 
         </div>
     )
