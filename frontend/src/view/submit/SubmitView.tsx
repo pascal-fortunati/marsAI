@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import Progress from "./Progress";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
+import { Combobox } from "../../components/ui/combobox";
 
-export default function SubmitPage() {
+export function SubmitView() {
     const [step, setStep] = useState(1);
     const goNext = () => setStep((s) => Math.min(s + 1, 4));
     const goPrev = () => setStep((s) => Math.max(s - 1, 1));

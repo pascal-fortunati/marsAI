@@ -1,4 +1,4 @@
-import SubmitPage from "./view/submit/SubmitPage";
+import SubmitPage from "./pages/SubmitPage";
 
 function App() {
   return (

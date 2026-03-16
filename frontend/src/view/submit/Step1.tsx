@@ -1,5 +1,7 @@
 // Etape 1 - Auteur
+import { useState } from "react";
 import { FormField } from "../../components/FormField";
+import { Combobox } from "../../components/ui/combobox";
 
 interface Step1Props {
     onNext: () => void;
@@ -11,7 +13,20 @@ const HOW_FOUND = ["Réseaux sociaux", "Bouche à oreille", "Presse/Médias", "P
 
 const SOCIAL = ["Instagram", "Youtube", "LinkedIn", "X/Twitter", "Facebook", "Tumblr", "Autre"];
 
+const COUNTRY_OPTIONS = [
+    { value: "FR", label: "France" },
+    { value: "BE", label: "Belgique" },
+    { value: "CH", label: "Suisse" },
+    { value: "CA", label: "Canada" },
+];
+
+const JOB_OPTIONS = JOBS.map((job) => ({ value: job, label: job }));
+
 export default function Step1({ onNext }: Step1Props) {
+    const [country, setCountry] = useState("");
+    const [howFound, setHowFound] = useState("");
+    const [job, setJob] = useState("");
+
     return (
         <div className="space-y-6">
 
@@ -59,37 +74,32 @@ export default function Step1({ onNext }: Step1Props) {
                     <input className="submit-input" placeholder="Marseille" type="text" />
                 </FormField>
                 <FormField label="Pays" required>
-                    <select className="submit-input">
-                        <option value="">Sélectionner...</option>
-                        <option value="FR">France</option>
-                        <option value="BE">Belgique</option>
-                        <option value="CH">Suisse</option>
-                        <option value="CA">Canada</option>
-                    </select>
+                    <Combobox
+                        value={country}
+                        onChange={setCountry}
+                        options={COUNTRY_OPTIONS}
+                        placeholder="Sélectionner..."
+                    />
                 </FormField>
             </div>
 
             {/* Profession + Réseaux sociaux */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField label="Métier actuel" required>
-                    <select className="submit-input">
-                        <option value="">Sélectionner...</option>
-                        {JOBS.map((job) => (
-                            <option key={job} value={job}>
-                                {job}
-                            </option>
-                        ))}
-                    </select>
+                    <Combobox
+                        value={job}
+                        onChange={setJob}
+                        options={JOB_OPTIONS}
+                        placeholder="Sélectionner..."
+                    />
                 </FormField>
                 <FormField label="Comment avez-vous connu MarsAI ?" required>
-                    <select className="submit-input">
-                        <option value="">Sélectionner...</option>
-                        {HOW_FOUND.map((method) => (
-                            <option key={method} value={method}>
-                                {method}
-                            </option>
-                        ))}
-                    </select>
+                    <Combobox
+                        value={howFound}
+                        onChange={setHowFound}
+                        options={HOW_FOUND.map((method) => ({ value: method, label: method }))}
+                        placeholder="Sélectionner..."
+                    />
                 </FormField>
             </div>
 

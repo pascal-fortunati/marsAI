@@ -1,5 +1,6 @@
 import { FormField } from "../../components/FormField";
 import { useState } from "react";
+import { Combobox } from "../../components/ui/combobox";
 
 interface Step2Props {
     onNext: () => void;
@@ -24,12 +25,19 @@ const CATEGORIES = ["Animation", "Documentaire", "Fiction", "Experimental", "Cli
 
 const COUNTRIES = ["France", "Belgique", "Suisse", "Canada", "Autre"];
 
+const COUNTRY_OPTIONS = COUNTRIES.map((country) => ({ value: country, label: country }));
+const LANGUAGE_OPTIONS = LANGUAGES.map((language) => ({ value: language, label: language }));
+const CATEGORY_OPTIONS = CATEGORIES.map((category) => ({ value: category, label: category }));
+
 export default function Step2({ onNext, onPrev }: Step2Props) {
     const [synopsisLen, setSynopsisLen] = useState(0);
     const [selectedTools, setSelectedTools] = useState<string[]>([]);
     const [customTool, setCustomTool] = useState("");
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [rights, setRights] = useState(false);
+    const [productionCountry, setProductionCountry] = useState("");
+    const [language, setLanguage] = useState("");
+    const [category, setCategory] = useState("");
 
     const toggleTool = (tool: string) => {
         setSelectedTools((prev) =>
@@ -86,34 +94,28 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
             {/* Pays de production, langue, catégorie */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField label="Pays de production" required>
-                    <select className="submit-input">
-                        <option value="">Sélectionner...</option>
-                        {COUNTRIES.map((country) => (
-                            <option key={country} value={country}>
-                                {country}
-                            </option>
-                        ))}
-                    </select>
+                    <Combobox
+                        value={productionCountry}
+                        onChange={setProductionCountry}
+                        options={COUNTRY_OPTIONS}
+                        placeholder="Sélectionner..."
+                    />
                 </FormField>
                 <FormField label="Langue" required>
-                    <select className="submit-input">
-                        <option value="">Sélectionner...</option>
-                        {LANGUAGES.map((language) => (
-                            <option key={language} value={language}>
-                                {language}
-                            </option>
-                        ))}
-                    </select>
+                    <Combobox
+                        value={language}
+                        onChange={setLanguage}
+                        options={LANGUAGE_OPTIONS}
+                        placeholder="Sélectionner..."
+                    />
                 </FormField>
                 <FormField label="Catégorie" required>
-                    <select className="submit-input">
-                        <option value="">Sélectionner...</option>
-                        {CATEGORIES.map((category) => (
-                            <option key={category} value={category}>
-                                {category}
-                            </option>
-                        ))}
-                    </select>
+                    <Combobox
+                        value={category}
+                        onChange={setCategory}
+                        options={CATEGORY_OPTIONS}
+                        placeholder="Sélectionner..."
+                    />
                 </FormField>
             </div>
 
