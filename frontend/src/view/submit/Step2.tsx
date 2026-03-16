@@ -1,6 +1,7 @@
 import { FormField } from "../../components/FormField";
 import { useState } from "react";
 import { Combobox } from "../../components/ui/combobox";
+import * as Flags from "country-flag-icons/react/3x2";
 
 interface Step2Props {
     onNext: () => void;
@@ -19,13 +20,19 @@ const TAGS = [
     "Innovation sociale", "Diversité", "Éducation", "Santé", "Liberté", "Mémoire"
 ];
 
+
 const LANGUAGES = ["Français", "Anglais", "Espagnol", "Arabe", "Autre", "Sans dialogue"];
 
 const CATEGORIES = ["Animation", "Documentaire", "Fiction", "Experimental", "Clip"];
 
-const COUNTRIES = ["France", "Belgique", "Suisse", "Canada", "Autre"];
+const COUNTRIES = [
+    { value: "FR", label: "France", EN: "France" },
+    { value: "BE", label: "Belgique", EN: "Belgium" },
+    { value: "CH", label: "Suisse", EN: "Switzerland" },
+    { value: "CA", label: "Canada", EN: "Canada" },
+];
 
-const COUNTRY_OPTIONS = COUNTRIES.map((country) => ({ value: country, label: country }));
+const COUNTRY_OPTIONS = COUNTRIES.map((country) => ({ value: country.value, label: country.label, EN: country.EN }));
 const LANGUAGE_OPTIONS = LANGUAGES.map((language) => ({ value: language, label: language }));
 const CATEGORY_OPTIONS = CATEGORIES.map((category) => ({ value: category, label: category }));
 
@@ -35,7 +42,7 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
     const [customTool, setCustomTool] = useState("");
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [rights, setRights] = useState(false);
-    const [productionCountry, setProductionCountry] = useState("");
+    const [country, setCountry] = useState("");
     const [language, setLanguage] = useState("");
     const [category, setCategory] = useState("");
 
@@ -59,7 +66,7 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 relative overflow-hidden rounded-3xl p-6" style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px  solid rgba(255, 255, 255, 0.07)" }}>
 
             {/* En-tête étape 2 */}
             <div className="flex justify-between items-center border-b border-white/10 pb-3">
@@ -93,12 +100,30 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
 
             {/* Pays de production, langue, catégorie */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <FormField label="Pays de production" required>
+                <FormField label="Pays" required>
                     <Combobox
-                        value={productionCountry}
-                        onChange={setProductionCountry}
+                        value={country}
+                        onChange={setCountry}
                         options={COUNTRY_OPTIONS}
                         placeholder="Sélectionner..."
+                        renderOption={(opt) => {
+                            const Flag = (Flags as Record<string, React.ComponentType<{ className?: string }>>)[opt.value];
+                            return (
+                                <span className="flex items-center gap-2">
+                                    {Flag && <Flag className="w-4 h-3 rounded-sm" />}
+                                    {opt.label}
+                                </span>
+                            );
+                        }}
+                        renderValue={(opt) => {
+                            const Flag = (Flags as Record<string, React.ComponentType<{ className?: string }>>)[opt.value];
+                            return (
+                                <span className="flex items-center gap-2">
+                                    {Flag && <Flag className="w-4 h-3 rounded-sm" />}
+                                    {opt.label}
+                                </span>
+                            );
+                        }}
                     />
                 </FormField>
                 <FormField label="Langue" required>

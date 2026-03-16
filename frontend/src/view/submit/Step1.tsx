@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { FormField } from "../../components/FormField";
 import { Combobox } from "../../components/ui/combobox";
+import * as Flags from "country-flag-icons/react/3x2";
 
 interface Step1Props {
     onNext: () => void;
@@ -14,13 +15,15 @@ const HOW_FOUND = ["Réseaux sociaux", "Bouche à oreille", "Presse/Médias", "P
 const SOCIAL = ["Instagram", "Youtube", "LinkedIn", "X/Twitter", "Facebook", "Tumblr", "Autre"];
 
 const COUNTRY_OPTIONS = [
-    { value: "FR", label: "France" },
-    { value: "BE", label: "Belgique" },
-    { value: "CH", label: "Suisse" },
-    { value: "CA", label: "Canada" },
+    { value: "FR", label: "France", EN: "France" },
+    { value: "BE", label: "Belgique", EN: "Belgium" },
+    { value: "CH", label: "Suisse", EN: "Switzerland" },
+    { value: "CA", label: "Canada", EN: "Canada" },
 ];
 
 const JOB_OPTIONS = JOBS.map((job) => ({ value: job, label: job }));
+
+
 
 export default function Step1({ onNext }: Step1Props) {
     const [country, setCountry] = useState("");
@@ -28,7 +31,7 @@ export default function Step1({ onNext }: Step1Props) {
     const [job, setJob] = useState("");
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 relative overflow-hidden rounded-3xl p-6" style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px  solid rgba(255, 255, 255, 0.07)" }}>
 
             {/* En-tête */}
             <div className="flex justify-between items-center border-b border-white/10 pb-3">
@@ -79,6 +82,24 @@ export default function Step1({ onNext }: Step1Props) {
                         onChange={setCountry}
                         options={COUNTRY_OPTIONS}
                         placeholder="Sélectionner..."
+                        renderOption={(opt) => {
+                            const Flag = (Flags as Record<string, React.ComponentType<{ className?: string }>>)[opt.value];
+                            return (
+                                <span className="flex items-center gap-2">
+                                    {Flag && <Flag className="w-4 h-3 rounded-sm" />}
+                                    {opt.label}
+                                </span>
+                            );
+                        }}
+                        renderValue={(opt) => {
+                            const Flag = (Flags as Record<string, React.ComponentType<{ className?: string }>>)[opt.value];
+                            return (
+                                <span className="flex items-center gap-2">
+                                    {Flag && <Flag className="w-4 h-3 rounded-sm" />}
+                                    {opt.label}
+                                </span>
+                            );
+                        }}
                     />
                 </FormField>
             </div>

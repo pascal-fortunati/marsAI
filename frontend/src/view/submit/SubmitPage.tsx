@@ -3,34 +3,25 @@ import Progress from "./Progress";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
 import Step3 from "./Step3";
-import { Combobox } from "../../components/ui/combobox";
-import * as Flags from "country-flag-icons/react/3x2";
-import { marsaiGradients } from "../../theme/marsai";
 
-function AccentTitle({ children }: { children: React.ReactNode }) {
-    return (
-        <span
-            className="bg-clip-text text-transparent"
-            style={{
-                backgroundImage: marsaiGradients.primaryToAccent,
-                backgroundSize: "200% auto",
-                animation: "shimText 3s linear infinite",
-            }}
-        >
-            {children}
-        </span>
-    );
-}
-
-export function SubmitView() {
+export default function SubmitPage() {
     const [step, setStep] = useState(1);
     const goNext = () => setStep((s) => Math.min(s + 1, 4));
     const goPrev = () => setStep((s) => Math.max(s - 1, 1));
 
     return (
-        <div className="min-h-screen relative overflow-hidden">
+        <div className="min-h-screen relative overflow-hidden" style={{ background: "var(--col-bg)" }}>
 
-            <div className="relative mx-auto max-w-6xl px-5 py-12">
+            <div className="pointer-events-none absolute inset-0" style={{
+                background: `
+            radial-gradient(ellipse 60% 40% at 15% 15%, rgba(125,113,251,0.07) 0%, transparent 70%),
+            radial-gradient(ellipse 50% 35% at 85% 85%, rgba(255,92,53,0.05) 0%, transparent 70%)
+          `,
+            }}>
+
+            </div>
+
+            <div className="relative z-10 max-3xl mx-auto px-4 py-10">
 
                 {/* Soumission - Courts-métrages IA */}
                 <div className="flex items-center gap-2 mb-6">
@@ -41,12 +32,15 @@ export function SubmitView() {
                 </div>
 
                 {/* Titre principal Soumettre */}
-                <h1 className="f-orb text-3xl md:text-4xl font-bold tracking-tight mb-1">Soumettre{" "}
-
-                    <AccentTitle>
-                        UN FILM
-                    </AccentTitle>
-                </h1>
+                <h1 className="f-orb text-3xl md:text-4xl font-bold tracking-tight mb-1">Soumettre{" "} <span
+                    style={{
+                        background: "linear-gradient(90deg, var(--col-vi), var(--col-or))",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                    }}
+                >
+                    UN FILM
+                </span></h1>
 
                 <p className="f-mono text-[11px] text-white/25 mb-8 tracking-wide">
                     Aucune inscription. Délai max : 2 minutes.
