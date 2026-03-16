@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Command as CommandPrimitive } from 'cmdk'
 import { Search } from 'lucide-react'
 import { cn } from '../../lib/utils'
-import { Dialog, DialogContent } from './dialog'
+import { AlertDialog, AlertDialogContent } from './alert-dialog'
 
 export const Command = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive>,
@@ -16,10 +16,10 @@ export const Command = React.forwardRef<
 ))
 Command.displayName = CommandPrimitive.displayName
 
-export function CommandDialog({ children, ...props }: React.ComponentPropsWithoutRef<typeof Dialog>) {
+export function CommandDialog({ children, ...props }: React.ComponentPropsWithoutRef<typeof AlertDialog>) {
   return (
-    <Dialog {...props}>
-      <DialogContent className="overflow-hidden p-0">
+    <AlertDialog {...props}>
+      <AlertDialogContent className="overflow-hidden p-0">
         <div className="border-b px-3 py-2">
           <div className="flex items-center gap-2">
             <Search className="h-4 w-4 opacity-60" />
@@ -27,8 +27,8 @@ export function CommandDialog({ children, ...props }: React.ComponentPropsWithou
           </div>
         </div>
         {children}
-      </DialogContent>
-    </Dialog>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }
 
@@ -92,4 +92,3 @@ export const CommandItem = React.forwardRef<
   />
 ))
 CommandItem.displayName = CommandPrimitive.Item.displayName
-
