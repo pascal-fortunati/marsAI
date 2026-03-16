@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
-import { NavBar } from "../../components/ui/NavBar";
+import { useTranslation } from "react-i18next";
+import i18n, { setLanguage } from "../../lib/i18n";
+import NavBar from "../../components/ui/NavBar";
 import { LoginView } from "./LoginView";
 import { FilmSearchBar } from "./FilmSearchBar";
 import { FilmDetail } from "./FilmDetail";
@@ -8,6 +10,10 @@ import { VotePanel } from "./VotePanel";
 import type { Film } from "./types";
 
 export function JuryView() {
+  const [currentLang, setCurrentLang] = useState<"fr" | "en">(() =>
+    i18n.language?.toLowerCase().startsWith("en") ? "en" : "fr",
+  );
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Film[]>([]);
@@ -16,9 +22,11 @@ export function JuryView() {
     "idle" | "submitting" | "success" | "error"
   >("idle");
 
+  const { t } = useTranslation();
+
   const selectedFilmTitle = useMemo(
-    () => selectedFilm?.title ?? "Aucun film sélectionné",
-    [selectedFilm],
+    () => selectedFilm?.title ?? t("jury.noFilm"),
+    [selectedFilm, t],
   );
 
   const handleLogin = async (token: string) => {
@@ -59,15 +67,18 @@ export function JuryView() {
     }
   };
 
+  const handleLangChange = (lang: "fr" | "en") => {
+    setCurrentLang(lang);
+    setLanguage(lang);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-      <NavBar />
+      <NavBar currentLang={currentLang} onLangChange={handleLangChange} />
       <div className="mx-auto flex max-w-6xl flex-col gap-6 p-4">
         <header className="rounded-lg bg-gray-900 p-6 shadow-lg">
-          <h2 className="text-2xl font-bold">Espace Jury</h2>
-          <p className="mt-2 text-gray-300">
-            Connecte-toi, choisis un film, regarde l&apos;extrait et vote.
-          </p>
+          <h2 className="text-2xl font-bold">{t("nav.jurySpace")}</h2>
+          <p className="mt-2 text-gray-300">{t("jury.loginPrompt")}</p>
         </header>
 
         <section className="grid gap-6 lg:grid-cols-12">

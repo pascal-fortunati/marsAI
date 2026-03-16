@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { Film } from "./types";
 
 type FilmDetailProps = {
@@ -5,13 +6,15 @@ type FilmDetailProps = {
 };
 
 export function FilmDetail({ film }: FilmDetailProps) {
+  const { t } = useTranslation();
+
   if (!film) {
     return (
       <div className="bg-gray-900 text-white p-8 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold mb-4">Détails du film</h2>
-        <p className="text-gray-400">
-          Sélectionne un film pour voir les détails.
-        </p>
+        <h2 className="text-2xl font-bold mb-4">
+          {t("jury.filmDetailsTitle")}
+        </h2>
+        <p className="text-gray-400">{t("jury.filmSelectPrompt")}</p>
       </div>
     );
   }
@@ -20,13 +23,19 @@ export function FilmDetail({ film }: FilmDetailProps) {
   return (
     <div className="bg-gray-900 text-white p-8 rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold mb-4">{film.title}</h2>
-      <p className="text-sm text-gray-400">{film.year ?? "Année inconnue"}</p>
+      <p className="text-sm text-gray-400">
+        {film.year ?? t("jury.unknownYear", { defaultValue: "Année inconnue" })}
+      </p>
       <div className="mt-4 space-y-2">
         <p className="text-gray-200">
-          {film.synopsis ?? "(Synopsis non disponible)"}
+          {film.synopsis ??
+            t("jury.synopsisUnavailable", {
+              defaultValue: "(Synopsis non disponible)",
+            })}
         </p>
         <p className="text-sm text-gray-400">
-          Réalisateur : {film.director ?? "—"}
+          {t("jury.directorLabel", { defaultValue: "Réalisateur" })} :{" "}
+          {film.director ?? "—"}
         </p>
       </div>
 

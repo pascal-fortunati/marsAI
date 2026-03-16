@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "../../components/ui/Button";
 import type { Film } from "./types";
 
@@ -10,6 +11,7 @@ type VotePanelProps = {
 };
 
 export function VotePanel({ film, status, onVote, disabled }: VotePanelProps) {
+  const { t } = useTranslation();
   const [score, setScore] = useState<number>(0);
   const [comment, setComment] = useState<string>("");
 
@@ -22,19 +24,21 @@ export function VotePanel({ film, status, onVote, disabled }: VotePanelProps) {
 
   return (
     <div className="bg-gray-900 text-white p-8 rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold mb-4">Mon vote</h2>
+      <h2 className="text-2xl font-bold mb-4">{t("jury.voteTitle")}</h2>
 
       {!film ? (
-        <p className="text-gray-400">Sélectionne un film pour pouvoir voter.</p>
+        <p className="text-gray-400">{t("jury.pendingStatus")}</p>
       ) : (
         <>
           <p className="text-sm text-gray-300">
-            Film sélectionné : <strong>{film.title}</strong>
+            {t("jury.selectFilm")} : <strong>{film.title}</strong>
           </p>
 
           <div className="mt-4 space-y-3">
             <div>
-              <label className="text-sm text-gray-300">Note (0-10)</label>
+              <label className="text-sm text-gray-300">
+                {t("jury.scoreLabel", { defaultValue: "Note (0-10)" })}
+              </label>
               <input
                 type="number"
                 min={0}
@@ -48,7 +52,7 @@ export function VotePanel({ film, status, onVote, disabled }: VotePanelProps) {
 
             <div>
               <label className="text-sm text-gray-300">
-                Commentaire (facultatif)
+                {t("jury.commentLabel")}
               </label>
               <textarea
                 value={comment}
@@ -65,17 +69,22 @@ export function VotePanel({ film, status, onVote, disabled }: VotePanelProps) {
               onClick={handleSubmit}
               disabled={disabled || isSubmitting || !film}
             >
-              {isSubmitting ? "Envoi..." : "Valider"}
+              {isSubmitting ? t("jury.sending") : t("jury.sendVote")}
             </Button>
 
             {status === "success" && (
               <p className="text-sm text-emerald-300">
-                Vote envoyé avec succès !
+                {t("jury.voteAlreadySubmitted", {
+                  defaultValue: "Vote envoyé avec succès !",
+                })}
               </p>
             )}
             {status === "error" && (
               <p className="text-sm text-rose-300">
-                Erreur lors de l&apos;envoi du vote. Essaie à nouveau.
+                {t("jury.errorSending", {
+                  defaultValue:
+                    "Erreur lors de l'envoi du vote. Essaie à nouveau.",
+                })}
               </p>
             )}
 
