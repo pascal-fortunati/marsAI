@@ -62,7 +62,7 @@ export function SubmitView() {
                     {step === 1 && <Step1 onNext={goNext} />}
                     {step === 2 && <Step2 onNext={goNext} onPrev={goPrev} />}
                     {step === 3 && <Step3 onNext={goNext} onPrev={goPrev} />}
-                    {step === 4 && <Step4 onPrev={goPrev} />}
+                    {step === 4 && <Step4 onSubmit={goNext} onPrev={goPrev} />}
                 </div>
 
             </div>
