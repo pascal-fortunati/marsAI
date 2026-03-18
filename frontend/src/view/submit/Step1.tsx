@@ -118,7 +118,7 @@ export default function Step1({ onNext }: Step1Props) {
                 <FormField label="Nom complet" required>
                     <input
                         className={getInputClassName(missing.fullName)}
-                        placeholder="Prénom Nom"
+                        placeholder="> Prénom Nom"
                         type="text"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
@@ -128,7 +128,7 @@ export default function Step1({ onNext }: Step1Props) {
                 <FormField label="Email" required>
                     <input
                         className={getInputClassName(missing.email)}
-                        placeholder="email@domain.com"
+                        placeholder="> email@domain.com"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -140,7 +140,7 @@ export default function Step1({ onNext }: Step1Props) {
                 <FormField label="Téléphone" required>
                     <input
                         className={getInputClassName(missing.phone)}
-                        placeholder="+33 6 00 00 00 00"
+                        placeholder="> +33 6 00 00 00 00"
                         type="tel"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
@@ -168,7 +168,7 @@ export default function Step1({ onNext }: Step1Props) {
             <FormField label="Adresse" required>
                 <input
                     className={getInputClassName(missing.address)}
-                    placeholder="Rue, numéro..."
+                    placeholder="> Rue, numéro..."
                     type="text"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
@@ -179,7 +179,7 @@ export default function Step1({ onNext }: Step1Props) {
                 <FormField label="Code postal" required>
                     <input
                         className={getInputClassName(missing.postalCode)}
-                        placeholder="13000"
+                        placeholder="> 13000"
                         type="text"
                         value={postalCode}
                         onChange={(e) => setPostalCode(e.target.value)}
@@ -282,7 +282,7 @@ export default function Step1({ onNext }: Step1Props) {
                     <FormField label="Nom du référent légal" required>
                         <input
                             className={getInputClassName(missing.legalName)}
-                            placeholder="Prénom Nom"
+                            placeholder="> Prénom Nom"
                             type="text"
                             required
                             value={legalName}
@@ -292,7 +292,7 @@ export default function Step1({ onNext }: Step1Props) {
                     <FormField label="Email du référent légal" required>
                         <input
                             className={getInputClassName(missing.legalEmail)}
-                            placeholder="email@domain.com"
+                            placeholder="> email@domain.com"
                             type="email"
                             required
                             value={legalEmail}

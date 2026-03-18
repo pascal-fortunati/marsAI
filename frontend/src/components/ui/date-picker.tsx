@@ -18,10 +18,12 @@ type DayCell = {
     isCurrentMonth: boolean;
 };
 
+// Libellés statiques utilisés par le calendrier.
 const MONTHS = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
 const WEEK_DAYS = ["lu", "ma", "me", "je", "ve", "sa", "di"];
 const YEARS = Array.from({ length: new Date().getFullYear() - 1899 }, (_, i) => new Date().getFullYear() - i);
 
+// Styles inline partagés pour conserver une apparence homogène.
 const styles = {
     panel: {
         background: "rgba(5, 3, 13, 0.95)",
@@ -73,6 +75,7 @@ const styles = {
     } satisfies React.CSSProperties,
 };
 
+// Convertit une date JS en format ISO simplifié yyyy-mm-dd.
 const toYmd = (date: Date) => {
     const y = date.getFullYear();
     const m = String(date.getMonth() + 1).padStart(2, "0");
@@ -80,6 +83,7 @@ const toYmd = (date: Date) => {
     return `${y}-${m}-${d}`;
 };
 
+// Formate une date au format français dd/mm/yyyy pour l'affichage.
 const formatFr = (date: Date | string) => {
     const d = typeof date === "string" ? new Date(date) : date;
     const dd = String(d.getDate()).padStart(2, "0");
@@ -87,6 +91,7 @@ const formatFr = (date: Date | string) => {
     return `${dd}/${mm}/${d.getFullYear()}`;
 };
 
+// Construit les 42 cellules (6 semaines) affichées dans la grille du calendrier.
 const buildDays = (currentMonth: Date): DayCell[] => {
     const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
     const lastDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
@@ -94,15 +99,18 @@ const buildDays = (currentMonth: Date): DayCell[] => {
 
     const cells: DayCell[] = [];
 
+    // 1) Complète le début de grille avec les jours du mois précédent.
     for (let i = 0; i < start; i++) {
         const prev = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), -i);
         cells.unshift({ date: prev.getDate(), fullDate: new Date(prev.getFullYear(), prev.getMonth(), prev.getDate()), isCurrentMonth: false });
     }
 
+    // 2) Ajoute tous les jours du mois courant.
     for (let day = 1; day <= lastDay.getDate(); day++) {
         cells.push({ date: day, fullDate: new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day), isCurrentMonth: true });
     }
 
+    // 3) Complète la fin de grille avec les premiers jours du mois suivant.
     for (let day = 1; cells.length < 42; day++) {
         cells.push({ date: day, fullDate: new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, day), isCurrentMonth: false });
     }
@@ -133,12 +141,14 @@ function SelectorMenu<T extends string | number>({
 }) {
     return (
         <div className="relative">
+            {/* Bouton qui ouvre/ferme le menu de sélection (mois ou année). */}
             <button type="button" onClick={onToggle} style={{ ...styles.pickerBtn, minWidth }}>
                 {label}
                 <ChevronRight size={14} style={{ transform: open ? "rotate(90deg)" : "rotate(0deg)", transition: "transform .15s ease" }} />
             </button>
 
             {open && (
+                // Liste déroulante des options disponibles.
                 <div className="date-picker-year-scroll" style={{ ...styles.menu, width, maxHeight }}>
                     {items.map((item, index) => {
                         const active = isActive(item, index);
@@ -163,16 +173,19 @@ function SelectorMenu<T extends string | number>({
 }
 
 export function DatePicker({ value, onChange, placeholder = "> Sélectionnez une date", className = "submit-input", triggerStyle }: DatePickerProps) {
+    // État global du popover, état du menu actif (mois/année) et ref du header.
     const [open, setOpen] = useState(false);
     const [menuOpen, setMenuOpen] = useState<MenuType>(null);
     const wrapRef = useRef<HTMLDivElement | null>(null);
 
+    // Initialisation du mois affiché: date sélectionnée si présente, sinon aujourd'hui.
     const [currentMonth, setCurrentMonth] = useState(() => {
         if (!value) return new Date();
         const selected = new Date(value);
         return new Date(selected.getFullYear(), selected.getMonth(), 1);
     });
 
+    // Données dérivées pour l'affichage de la grille et des libellés.
     const days = useMemo(() => buildDays(currentMonth), [currentMonth]);
     const selectedDate = value ? new Date(value) : null;
     const selectedDateString = selectedDate ? formatFr(selectedDate) : "";
@@ -180,6 +193,7 @@ export function DatePicker({ value, onChange, placeholder = "> Sélectionnez une
     const monthLabel = MONTHS[monthIndex];
     const year = currentMonth.getFullYear();
 
+    // Ferme les menus (mois/année) lors d'un clic à l'extérieur de l'en-tête.
     useEffect(() => {
         const onMouseDown = (event: MouseEvent) => {
             if (wrapRef.current && !wrapRef.current.contains(event.target as Node)) {
@@ -191,8 +205,10 @@ export function DatePicker({ value, onChange, placeholder = "> Sélectionnez une
     }, []);
 
     return (
+        // Conteneur principal du sélecteur de date.
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
+                {/* Champ déclencheur affichant la date sélectionnée ou le placeholder. */}
                 <button className={className} style={{ textAlign: "left", ...triggerStyle }} onClick={() => setOpen(true)}>
                     {value ? formatFr(value) : placeholder}
                 </button>
@@ -200,6 +216,7 @@ export function DatePicker({ value, onChange, placeholder = "> Sélectionnez une
 
             <PopoverContent className="w-fit" align="start" style={styles.panel}>
                 <div style={{ minWidth: "280px" }}>
+                    {/* Barre de navigation: mois précédent/suivant + menus mois/année. */}
                     <div className="flex items-center justify-between gap-3 mb-4" ref={wrapRef}>
                         <button
                             onClick={() => setCurrentMonth(new Date(year, monthIndex - 1, 1))}
@@ -210,6 +227,7 @@ export function DatePicker({ value, onChange, placeholder = "> Sélectionnez une
                         </button>
 
                         <div className="flex gap-3 flex-1 justify-center">
+                            {/* Sélecteur de mois. */}
                             <SelectorMenu
                                 open={menuOpen === "month"}
                                 label={monthLabel}
@@ -225,6 +243,7 @@ export function DatePicker({ value, onChange, placeholder = "> Sélectionnez une
                                 maxHeight="220px"
                             />
 
+                            {/* Sélecteur d'année. */}
                             <SelectorMenu
                                 open={menuOpen === "year"}
                                 label={`${year}`}
@@ -250,12 +269,15 @@ export function DatePicker({ value, onChange, placeholder = "> Sélectionnez une
                         </button>
                     </div>
 
+                    {/* Titre du mois courant affiché au centre. */}
                     <div className="text-center font-semibold mb-4" style={{ fontSize: "14px", color: "rgb(255, 255, 255)", textTransform: "capitalize", letterSpacing: "0.5px" }}>
                         {monthLabel} {year}
                     </div>
 
+                    {/* Séparateur visuel entre navigation et grille. */}
                     <div style={{ height: "1px", background: "rgba(125, 113, 251, 0.2)", margin: "0 0 16px 0" }} />
 
+                    {/* En-têtes des jours de la semaine. */}
                     <div className="grid grid-cols-7 gap-2 text-center mb-3" style={{ color: "rgba(255, 255, 255, 0.45)", fontSize: "11px", fontFamily: "'Share Tech Mono', monospace", fontWeight: "500" }}>
                         {WEEK_DAYS.map((day) => (
                             <div key={day} className="flex items-center justify-center h-6">
@@ -264,8 +286,10 @@ export function DatePicker({ value, onChange, placeholder = "> Sélectionnez une
                         ))}
                     </div>
 
+                    {/* Grille des jours (mois précédent/courant/suivant). */}
                     <div className="grid grid-cols-7 gap-2">
                         {days.map((day, index) => {
+                            // Détermine si la cellule correspond à la date actuellement sélectionnée.
                             const isSelected =
                                 !!selectedDate &&
                                 day.fullDate.getDate() === selectedDate.getDate() &&
@@ -276,7 +300,9 @@ export function DatePicker({ value, onChange, placeholder = "> Sélectionnez une
                                 <button
                                     key={index}
                                     onClick={() => {
+                                        // N'autorise la sélection que sur les jours du mois courant.
                                         if (!day.isCurrentMonth) return;
+                                        // Remonte la date au parent puis ferme le calendrier.
                                         onChange(toYmd(day.fullDate));
                                         setOpen(false);
                                     }}
@@ -300,6 +326,7 @@ export function DatePicker({ value, onChange, placeholder = "> Sélectionnez une
                         })}
                     </div>
 
+                    {/* Rappel textuel de la date choisie en bas du composant. */}
                     {selectedDate && (
                         <div className="text-center mt-4 pt-3" style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "12px", fontFamily: "'Share Tech Mono', monospace", borderTop: "1px solid rgba(125, 113, 251, 0.15)" }}>
                             {selectedDateString}
