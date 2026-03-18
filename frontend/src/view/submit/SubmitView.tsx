@@ -26,7 +26,7 @@ function AccentTitle({ children }: { children: React.ReactNode }) {
 
 export function SubmitView() {
     const [step, setStep] = useState(1);
-    const goNext = () => setStep((s) => Math.min(s + 1, 4));
+    const goNext = () => setStep((s) => Math.min(s + 1, 5));
     const goPrev = () => setStep((s) => Math.max(s - 1, 1));
 
     if (step === 5) {

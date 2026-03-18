@@ -46,7 +46,7 @@ export default function Confirmation({
 
                 {/* Carte ID */}
                 <div
-                    className="w-full rounded-2xl px-5 py-4 space-y-2 mt-1"
+                    className="w-full rounded-2xl px-6 py-4 space-y-2 mt-1"
                     style={{
                         border: "1px solid rgba(125,113,251,.24)",
                         background: "rgba(16,10,38,.85)",
@@ -55,7 +55,7 @@ export default function Confirmation({
                     <p className="f-mono text-[8px] tracking-[0.24em] uppercase text-white/28">
                         Identifiant de soumission
                     </p>
-                    <p className="f-orb text-[18px] leading-snug font-bold text-white tracking-wider break-all">
+                    <p className="f-orb text-[16px] md:text-[18px] leading-snug font-bold text-white tracking-normal whitespace-nowrap px-1">
                         {resolvedSubmissionId}
                     </p>
                     <p className="f-mono text-[9px] text-white/28">
