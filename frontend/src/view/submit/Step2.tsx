@@ -2,6 +2,7 @@ import { FormField } from "../../components/FormField";
 import { useState } from "react";
 import { Combobox } from "../../components/ui/combobox";
 import * as Flags from "country-flag-icons/react/3x2";
+import type { ComponentType } from "react";
 
 interface Step2Props {
     onNext: () => void;
@@ -37,14 +38,53 @@ const LANGUAGE_OPTIONS = LANGUAGES.map((language) => ({ value: language, label: 
 const CATEGORY_OPTIONS = CATEGORIES.map((category) => ({ value: category, label: category }));
 
 export default function Step2({ onNext, onPrev }: Step2Props) {
+    const [title, setTitle] = useState("");
+    const [duration, setDuration] = useState("");
+    const [synopsis, setSynopsis] = useState("");
     const [synopsisLen, setSynopsisLen] = useState(0);
     const [selectedTools, setSelectedTools] = useState<string[]>([]);
     const [customTool, setCustomTool] = useState("");
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [soundMentions, setSoundMentions] = useState("");
     const [rights, setRights] = useState(false);
     const [country, setCountry] = useState("");
     const [language, setLanguage] = useState("");
     const [category, setCategory] = useState("");
+    const [showValidation, setShowValidation] = useState(false);
+
+    const missing = {
+        title: !title.trim(),
+        duration: !duration.trim(),
+        synopsis: !synopsis.trim(),
+        country: !country.trim(),
+        language: !language.trim(),
+        category: !category.trim(),
+        tools: selectedTools.length === 0,
+        tags: selectedTags.length === 0,
+        soundMentions: !soundMentions.trim(),
+        rights: !rights,
+    };
+
+    const hasMissingRequired = Object.values(missing).some(Boolean);
+
+    const getInputClassName = (hasError: boolean) =>
+        `submit-input${showValidation && hasError ? " error" : ""}`;
+
+    const getComboboxTriggerStyle = (hasError: boolean) => {
+        if (!(showValidation && hasError)) return undefined;
+        return {
+            borderColor: "rgba(255, 92, 53, 0.65)",
+            background: "rgba(255, 92, 53, 0.04)",
+        };
+    };
+
+    const handleNext = () => {
+        setShowValidation(true);
+
+        if (!hasMissingRequired) {
+            onNext();
+        }
+    };
 
     const toggleTool = (tool: string) => {
         setSelectedTools((prev) =>
@@ -77,20 +117,36 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
             {/* Titre, durée, synopsis */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField label="Titre du film" required>
-                    <input className="submit-input" placeholder="> Titre de votre court-métrage" type="text" />
+                    <input
+                        className={getInputClassName(missing.title)}
+                        placeholder="> Titre de votre court-métrage"
+                        type="text"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                    />
                 </FormField>
                 <FormField label="Durée exacte (ex. 1:30 ou 1')" required>
-                    <input className="submit-input" placeholder="> 1:30" type="text" />
+                    <input
+                        className={getInputClassName(missing.duration)}
+                        placeholder="> 1:30"
+                        type="text"
+                        value={duration}
+                        onChange={(e) => setDuration(e.target.value)}
+                    />
                 </FormField>
             </div>
 
             <FormField label="Synopsis (max 180 caractères)" required>
                 <div className="relative">
                     <textarea
-                        className="submit-input resize-none h-28"
+                        className={`${getInputClassName(missing.synopsis)} resize-none h-28`}
                         placeholder="> Décrivez votre film en quelques lignes..."
                         maxLength={180}
-                        onChange={(e) => setSynopsisLen(e.target.value.length)}
+                        value={synopsis}
+                        onChange={(e) => {
+                            setSynopsis(e.target.value);
+                            setSynopsisLen(e.target.value.length);
+                        }}
                     />
                     <span className="absolute bottom-2 right-3 f-mono text-[9px] text-white/25">
                         {synopsisLen}/180
@@ -104,10 +160,11 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
                     <Combobox
                         value={country}
                         onChange={setCountry}
+                        triggerStyle={getComboboxTriggerStyle(missing.country)}
                         options={COUNTRY_OPTIONS}
                         placeholder="Sélectionner..."
                         renderOption={(opt) => {
-                            const Flag = (Flags as Record<string, React.ComponentType<{ className?: string }>>)[opt.value];
+                            const Flag = (Flags as Record<string, ComponentType<{ className?: string }>>)[opt.value];
                             return (
                                 <span className="flex items-center gap-2">
                                     {Flag && <Flag className="w-4 h-3 rounded-sm" />}
@@ -116,7 +173,7 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
                             );
                         }}
                         renderValue={(opt) => {
-                            const Flag = (Flags as Record<string, React.ComponentType<{ className?: string }>>)[opt.value];
+                            const Flag = (Flags as Record<string, ComponentType<{ className?: string }>>)[opt.value];
                             return (
                                 <span className="flex items-center gap-2">
                                     {Flag && <Flag className="w-4 h-3 rounded-sm" />}
@@ -130,6 +187,7 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
                     <Combobox
                         value={language}
                         onChange={setLanguage}
+                        triggerStyle={getComboboxTriggerStyle(missing.language)}
                         options={LANGUAGE_OPTIONS}
                         placeholder="Sélectionner..."
                     />
@@ -138,6 +196,7 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
                     <Combobox
                         value={category}
                         onChange={setCategory}
+                        triggerStyle={getComboboxTriggerStyle(missing.category)}
                         options={CATEGORY_OPTIONS}
                         placeholder="Sélectionner..."
                     />
@@ -146,64 +205,76 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
 
             {/* Outils IA utilisés */}
             <FormField label="Outils IA utilisés" required>
-                <div className="flex flex-wrap gap-2 mt-1">
-                    {AI_TOOLS.map((tool) => {
-                        const active = selectedTools.includes(tool);
-                        return (
-                            <button key={tool} type="button" onClick={() => toggleTool(tool)} className="f-mono text-[9px] tracking-wider px-2.5 py-1 rounded-full border transition-all" style={{
-                                borderColor: active ? "var(--col-vi)" : "rgba(255,255,255,.12)",
-                                background: active ? "rgba(125,113,251,.15)" : "rgba(255,255,255,.03)",
-                                color: active ? "var(--col-vi)" : "rgba(255,255,255,.45)"
-                            }}>
-                                {tool}
-                            </button>
-                        );
-                    })}
-                </div>
-                <div className="flex gap-2 mt-2">
-                    <input className="submit-input flex-1" placeholder="> Autre outil IA non listé..." value={customTool}
-                        onChange={(e) => setCustomTool(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && addCustomTool()} />
-                    <button
-                        type="button"
-                        onClick={addCustomTool}
-                        className="f-mono text-[9px] tracking-widest px-3 py-2 rounded-xl border transition-opacity hover:opacity-80"
-                        style={{ borderColor: "rgba(125,113,251,.4)", color: "var(--col-vi)" }}
-                    >
-                        + Ajouter
-                    </button>
+                <div
+                    className="rounded-xl p-2"
+                    style={showValidation && missing.tools ? { border: "1px solid rgba(255, 92, 53, .65)", background: "rgba(255, 92, 53, .04)" } : undefined}
+                >
+                    <div className="flex flex-wrap gap-2 mt-1">
+                        {AI_TOOLS.map((tool) => {
+                            const active = selectedTools.includes(tool);
+                            return (
+                                <button key={tool} type="button" onClick={() => toggleTool(tool)} className="f-mono text-[9px] tracking-wider px-2.5 py-1 rounded-full border transition-all" style={{
+                                    borderColor: active ? "var(--col-vi)" : "rgba(255,255,255,.12)",
+                                    background: active ? "rgba(125,113,251,.15)" : "rgba(255,255,255,.03)",
+                                    color: active ? "var(--col-vi)" : "rgba(255,255,255,.45)"
+                                }}>
+                                    {tool}
+                                </button>
+                            );
+                        })}
+                    </div>
+                    <div className="flex gap-2 mt-2">
+                        <input className="submit-input flex-1" placeholder="> Autre outil IA non listé..." value={customTool}
+                            onChange={(e) => setCustomTool(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && addCustomTool()} />
+                        <button
+                            type="button"
+                            onClick={addCustomTool}
+                            className="f-mono text-[9px] tracking-widest px-3 py-2 rounded-xl border transition-opacity hover:opacity-80"
+                            style={{ borderColor: "rgba(125,113,251,.4)", color: "var(--col-vi)" }}
+                        >
+                            + Ajouter
+                        </button>
+                    </div>
                 </div>
             </FormField>
 
             {/* Tags sémantiques */}
             <FormField label="Tags sémantiques (lien avec 'futurs souhaitables')" required>
-                <div className="flex flex-wrap gap-2 mt-1">
-                    {TAGS.map((tag) => {
-                        const active = selectedTags.includes(tag);
-                        return (
-                            <button
-                                key={tag}
-                                type="button"
-                                onClick={() => toggleTag(tag)}
-                                className="f-mono text-[9px] tracking-wider px-2.5 py-1 rounded-full border transition-all"
-                                style={{
-                                    borderColor: active ? "var(--col-or)" : "rgba(255,255,255,.12)",
-                                    background: active ? "rgba(255,92,53,.12)" : "rgba(255,255,255,.03)",
-                                    color: active ? "var(--col-or)" : "rgba(255,255,255,.45)",
-                                }}
-                            >
-                                {tag}
-                            </button>
-                        );
-                    })}
+                <div
+                    className="rounded-xl p-2"
+                    style={showValidation && missing.tags ? { border: "1px solid rgba(255, 92, 53, .65)", background: "rgba(255, 92, 53, .04)" } : undefined}
+                >
+                    <div className="flex flex-wrap gap-2 mt-1">
+                        {TAGS.map((tag) => {
+                            const active = selectedTags.includes(tag);
+                            return (
+                                <button
+                                    key={tag}
+                                    type="button"
+                                    onClick={() => toggleTag(tag)}
+                                    className="f-mono text-[9px] tracking-wider px-2.5 py-1 rounded-full border transition-all"
+                                    style={{
+                                        borderColor: active ? "var(--col-or)" : "rgba(255,255,255,.12)",
+                                        background: active ? "rgba(255,92,53,.12)" : "rgba(255,255,255,.03)",
+                                        color: active ? "var(--col-or)" : "rgba(255,255,255,.45)",
+                                    }}
+                                >
+                                    {tag}
+                                </button>
+                            );
+                        })}
+                    </div>
                 </div>
             </FormField>
 
             {/* Mentions musiques et sons */}
             <FormField label="Mentions des musiques et sons" required>
                 <textarea
-                    className="submit-input resize-none h-20"
+                    className={`${getInputClassName(missing.soundMentions)} resize-none h-20`}
                     placeholder="> Ex. Musique générée par Suno AI. Sons : ElevenLabs + bibliothèque libre de droits"
+                    value={soundMentions}
+                    onChange={(e) => setSoundMentions(e.target.value)}
                 />
             </FormField>
 
@@ -212,8 +283,8 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
                 <div
                     className="mt-0.5 w-4 h-4 rounded border shrink-0 flex items-center justify-center transition-all"
                     style={{
-                        borderColor: rights ? "var(--col-vi)" : "rgba(255,255,255,.2)",
-                        background: rights ? "rgba(125,113,251,.2)" : "transparent",
+                        borderColor: showValidation && missing.rights ? "rgba(255, 92, 53, .8)" : rights ? "var(--col-vi)" : "rgba(255,255,255,.2)",
+                        background: rights ? "rgba(125,113,251,.2)" : showValidation && missing.rights ? "rgba(255, 92, 53, .08)" : "transparent",
                     }}
                     onClick={() => setRights((r) => !r)}
                 >
@@ -226,7 +297,7 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
                 <span className="f-mono text-[10px] text-white/50 leading-relaxed">
                     Je confirme détenir l'ensemble des droits sur les éléments soumis (images, sons, musiques, voix)
                     et être en mesure de les céder pour la durée du festival.{" "}
-                    <span style={{ color: "var(--col-or)" }}>*</span>
+                    <span style={{ color: showValidation && missing.rights ? "rgba(255, 92, 53, .95)" : "var(--col-or)" }}>*</span>
                 </span>
             </label>
 
@@ -239,7 +310,7 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
                 >
                     ← Précédent
                 </button>
-                <button onClick={onNext} className="f-mono text-[11px] tracking-widest uppercase px-6 py-3 rounded-xl text-white font-bold transition-all hover:opacity-90 active-scale-95" style={{ background: "linear-gradient(90deg, var(--col-vi), var(--col-or))" }}>
+                <button onClick={handleNext} className="f-mono text-[11px] tracking-widest uppercase px-6 py-3 rounded-xl text-white font-bold transition-all hover:opacity-90 active-scale-95" style={{ background: "linear-gradient(90deg, var(--col-vi), var(--col-or))" }}>
                     Étape suivante →
                 </button>
 

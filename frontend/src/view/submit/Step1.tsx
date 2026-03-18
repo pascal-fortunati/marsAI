@@ -1,5 +1,5 @@
 // Etape 1 - Auteur
-import { useState } from "react";
+import { useState, type ComponentType } from "react";
 import { FormField } from "../../components/FormField";
 import { Combobox } from "../../components/ui/combobox";
 import * as Flags from "country-flag-icons/react/3x2";
@@ -26,9 +26,55 @@ const JOB_OPTIONS = JOBS.map((job) => ({ value: job, label: job }));
 
 
 export default function Step1({ onNext }: Step1Props) {
+    const [fullName, setFullName] = useState("");
+    const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
+    const [birthDate, setBirthDate] = useState("");
+    const [address, setAddress] = useState("");
+    const [postalCode, setPostalCode] = useState("");
+    const [city, setCity] = useState("");
     const [country, setCountry] = useState("");
-    const [howFound, setHowFound] = useState("");
     const [job, setJob] = useState("");
+    const [howFound, setHowFound] = useState("");
+    const [legalName, setLegalName] = useState("");
+    const [legalEmail, setLegalEmail] = useState("");
+    const [showValidation, setShowValidation] = useState(false);
+
+    const missing = {
+        fullName: !fullName.trim(),
+        email: !email.trim(),
+        phone: !phone.trim(),
+        birthDate: !birthDate.trim(),
+        address: !address.trim(),
+        postalCode: !postalCode.trim(),
+        city: !city.trim(),
+        country: !country.trim(),
+        job: !job.trim(),
+        howFound: !howFound.trim(),
+        legalName: !legalName.trim(),
+        legalEmail: !legalEmail.trim(),
+    };
+
+    const hasMissingRequired = Object.values(missing).some(Boolean);
+
+    const getInputClassName = (hasError: boolean) =>
+        `submit-input${showValidation && hasError ? " error" : ""}`;
+
+    const getComboboxTriggerStyle = (hasError: boolean) => {
+        if (!(showValidation && hasError)) return undefined;
+        return {
+            borderColor: "rgba(255, 92, 53, 0.65)",
+            background: "rgba(255, 92, 53, 0.04)",
+        };
+    };
+
+    const handleNext = () => {
+        setShowValidation(true);
+
+        if (!hasMissingRequired) {
+            onNext();
+        }
+    };
 
     return (
         <div className="space-y-6 relative overflow-hidden rounded-3xl p-6" style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px  solid rgba(255, 255, 255, 0.07)" }}>
@@ -47,43 +93,85 @@ export default function Step1({ onNext }: Step1Props) {
             {/* Identité et coordonnées */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField label="Nom complet" required>
-                    <input className="submit-input" placeholder="Prénom Nom" type="text" />
+                    <input
+                        className={getInputClassName(missing.fullName)}
+                        placeholder="Prénom Nom"
+                        type="text"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                    />
                 </FormField>
 
                 <FormField label="Email" required>
-                    <input className="submit-input" placeholder="email@domain.com" type="email" />
+                    <input
+                        className={getInputClassName(missing.email)}
+                        placeholder="email@domain.com"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
                 </FormField>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField label="Téléphone" >
-                    <input className="submit-input" placeholder="+33 6 00 00 00 00" type="tel" />
+                <FormField label="Téléphone" required>
+                    <input
+                        className={getInputClassName(missing.phone)}
+                        placeholder="+33 6 00 00 00 00"
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                    />
                 </FormField>
 
-                <FormField label="Date de naissance" >
-                    <input className="submit-input" type="date" />
+                <FormField label="Date de naissance" required>
+                    <input
+                        className={getInputClassName(missing.birthDate)}
+                        type="date"
+                        value={birthDate}
+                        onChange={(e) => setBirthDate(e.target.value)}
+                    />
                 </FormField>
             </div>
 
             <FormField label="Adresse" required>
-                <input className="submit-input" placeholder="Rue, numéro..." type="text" />
+                <input
+                    className={getInputClassName(missing.address)}
+                    placeholder="Rue, numéro..."
+                    type="text"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                />
             </FormField>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <FormField label="Code postal" required>
-                    <input className="submit-input" placeholder="13000" type="text" />
+                    <input
+                        className={getInputClassName(missing.postalCode)}
+                        placeholder="13000"
+                        type="text"
+                        value={postalCode}
+                        onChange={(e) => setPostalCode(e.target.value)}
+                    />
                 </FormField>
                 <FormField label="Ville" required>
-                    <input className="submit-input" placeholder="Marseille" type="text" />
+                    <input
+                        className={getInputClassName(missing.city)}
+                        placeholder="Marseille"
+                        type="text"
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                    />
                 </FormField>
                 <FormField label="Pays" required>
                     <Combobox
                         value={country}
                         onChange={setCountry}
+                        triggerStyle={getComboboxTriggerStyle(missing.country)}
                         options={COUNTRY_OPTIONS}
                         placeholder="Sélectionner..."
                         renderOption={(opt) => {
-                            const Flag = (Flags as Record<string, React.ComponentType<{ className?: string }>>)[opt.value];
+                            const Flag = (Flags as Record<string, ComponentType<{ className?: string }>>)[opt.value];
                             return (
                                 <span className="flex items-center gap-2">
                                     {Flag && <Flag className="w-4 h-3 rounded-sm" />}
@@ -92,7 +180,7 @@ export default function Step1({ onNext }: Step1Props) {
                             );
                         }}
                         renderValue={(opt) => {
-                            const Flag = (Flags as Record<string, React.ComponentType<{ className?: string }>>)[opt.value];
+                            const Flag = (Flags as Record<string, ComponentType<{ className?: string }>>)[opt.value];
                             return (
                                 <span className="flex items-center gap-2">
                                     {Flag && <Flag className="w-4 h-3 rounded-sm" />}
@@ -110,6 +198,7 @@ export default function Step1({ onNext }: Step1Props) {
                     <Combobox
                         value={job}
                         onChange={setJob}
+                        triggerStyle={getComboboxTriggerStyle(missing.job)}
                         options={JOB_OPTIONS}
                         placeholder="Sélectionner..."
                     />
@@ -118,6 +207,7 @@ export default function Step1({ onNext }: Step1Props) {
                     <Combobox
                         value={howFound}
                         onChange={setHowFound}
+                        triggerStyle={getComboboxTriggerStyle(missing.howFound)}
                         options={HOW_FOUND.map((method) => ({ value: method, label: method }))}
                         placeholder="Sélectionner..."
                     />
@@ -154,17 +244,31 @@ export default function Step1({ onNext }: Step1Props) {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField label="Nom du référent légal" required>
-                        <input className="submit-input" placeholder="Prénom Nom" type="text" required />
+                        <input
+                            className={getInputClassName(missing.legalName)}
+                            placeholder="Prénom Nom"
+                            type="text"
+                            required
+                            value={legalName}
+                            onChange={(e) => setLegalName(e.target.value)}
+                        />
                     </FormField>
                     <FormField label="Email du référent légal" required>
-                        <input className="submit-input" placeholder="email@domain.com" type="email" required />
+                        <input
+                            className={getInputClassName(missing.legalEmail)}
+                            placeholder="email@domain.com"
+                            type="email"
+                            required
+                            value={legalEmail}
+                            onChange={(e) => setLegalEmail(e.target.value)}
+                        />
                     </FormField>
                 </div>
             </div>
 
             {/* Bouton Suivant */}
             <div className="flex justify-end pt-2">
-                <button onClick={onNext} className="f-mono text-[11px] tracking-widest uppercase px-6 py-3 rounded-xl text-white font-bold transition-all hover:opacity-90 active-scale-95" style={{ background: "linear-gradient(90deg, var(--col-vi), var(--col-or))" }}>
+                <button onClick={handleNext} className="f-mono text-[11px] tracking-widest uppercase px-6 py-3 rounded-xl text-white font-bold transition-all hover:opacity-90 active-scale-95" style={{ background: "linear-gradient(90deg, var(--col-vi), var(--col-or))" }}>
                     Étape suivante →
                 </button>
             </div>

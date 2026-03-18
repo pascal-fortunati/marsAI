@@ -13,10 +13,12 @@ interface DropZoneProps {
     accept: string;
     hint: string;
     formats: string;
+    file: File | null;
+    onFileChange: (file: File | null) => void;
+    hasError?: boolean;
 }
 
-function DropZone({ label, required, accept, hint, formats }: DropZoneProps) {
-    const [file, setFile] = useState<File | null>(null);
+function DropZone({ label, required, accept, hint, formats, file, onFileChange, hasError = false }: DropZoneProps) {
     const [dragging, setDragging] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -24,11 +26,11 @@ function DropZone({ label, required, accept, hint, formats }: DropZoneProps) {
         e.preventDefault();
         setDragging(false);
         const dropped = e.dataTransfer.files[0];
-        if (dropped) setFile(dropped);
+        if (dropped) onFileChange(dropped);
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files?.[0]) setFile(e.target.files[0]);
+        if (e.target.files?.[0]) onFileChange(e.target.files[0]);
     };
 
     return (
@@ -47,12 +49,14 @@ function DropZone({ label, required, accept, hint, formats }: DropZoneProps) {
                 onDrop={handleDrop}
                 className="rounded-xl cursor-pointer transition-all flex flex-col items-center justify-center gap-2 py-10"
                 style={{
-                    border: `1px dashed ${dragging ? "var(--col-vi)" : file ? "rgba(125,113,251,.4)" : "rgba(255,255,255,.1)"}`,
+                    border: `1px dashed ${hasError ? "rgba(255, 92, 53, .75)" : dragging ? "var(--col-vi)" : file ? "rgba(125,113,251,.4)" : "rgba(255,255,255,.1)"}`,
                     background: dragging
                         ? "rgba(125,113,251,.07)"
-                        : file
-                            ? "rgba(125,113,251,.04)"
-                            : "rgba(255,255,255,.02)",
+                        : hasError
+                            ? "rgba(255, 92, 53, .06)"
+                            : file
+                                ? "rgba(125,113,251,.04)"
+                                : "rgba(255,255,255,.02)",
                 }}
             >
                 <input ref={inputRef} type="file" accept={accept} className="hidden" onChange={handleChange} />
@@ -86,6 +90,26 @@ function DropZone({ label, required, accept, hint, formats }: DropZoneProps) {
 }
 
 export default function Step3({ onNext, onPrev }: Step3Props) {
+    const [videoFile, setVideoFile] = useState<File | null>(null);
+    const [posterFile, setPosterFile] = useState<File | null>(null);
+    const [subtitleFile, setSubtitleFile] = useState<File | null>(null);
+    const [showValidation, setShowValidation] = useState(false);
+
+    const missing = {
+        videoFile: !videoFile,
+        posterFile: !posterFile,
+    };
+
+    const hasMissingRequired = Object.values(missing).some(Boolean);
+
+    const handleNext = () => {
+        setShowValidation(true);
+
+        if (!hasMissingRequired) {
+            onNext();
+        }
+    };
+
     return (
         <div className="space-y-6 relative overflow-hidden rounded-3xl p-6" style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px  solid rgba(255, 255, 255, 0.07)" }}>
 
@@ -113,6 +137,9 @@ export default function Step3({ onNext, onPrev }: Step3Props) {
                 accept="video/mp4,video/quicktime"
                 formats="MP4, MOV — Max 3000 Mo"
                 hint="Format 16:9 · Formats min · son min · Max 3000 Mo"
+                file={videoFile}
+                onFileChange={setVideoFile}
+                hasError={showValidation && missing.videoFile}
             />
 
             {/* Poster / Affiche */}
@@ -122,6 +149,9 @@ export default function Step3({ onNext, onPrev }: Step3Props) {
                 accept="image/png,image/jpeg,image/gif,image/webp"
                 formats="PNG, JPEG, GIF, ZIP — Max 5 Mo"
                 hint="Format 2:3 (portrait) · Min 2 Mo · Ratio 2:3 recommandé"
+                file={posterFile}
+                onFileChange={setPosterFile}
+                hasError={showValidation && missing.posterFile}
             />
 
             {/* Sous-titres */}
@@ -130,6 +160,8 @@ export default function Step3({ onNext, onPrev }: Step3Props) {
                 accept=".srt,.vtt"
                 formats="SRT, VTT — Max 5 Mo"
                 hint="Format · .srt · langue basée sur votre choix · Non requis si film muet/international"
+                file={subtitleFile}
+                onFileChange={setSubtitleFile}
             />
 
             {/* Récapitulatif des contraintes */}
@@ -160,7 +192,7 @@ export default function Step3({ onNext, onPrev }: Step3Props) {
                 >
                     ← Précédent
                 </button>
-                <button onClick={onNext} className="f-mono text-[11px] tracking-widest uppercase px-6 py-3 rounded-xl text-white font-bold transition-all hover:opacity-90 active-scale-95" style={{ background: "linear-gradient(90deg, var(--col-vi), var(--col-or))" }}>
+                <button onClick={handleNext} className="f-mono text-[11px] tracking-widest uppercase px-6 py-3 rounded-xl text-white font-bold transition-all hover:opacity-90 active-scale-95" style={{ background: "linear-gradient(90deg, var(--col-vi), var(--col-or))" }}>
                     Étape suivante →
                 </button>
             </div>
