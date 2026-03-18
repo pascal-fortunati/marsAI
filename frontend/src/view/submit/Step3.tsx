@@ -114,9 +114,12 @@ export default function Step3({ onNext, onPrev }: Step3Props) {
         <div className="space-y-6 relative overflow-hidden rounded-3xl p-6" style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px  solid rgba(255, 255, 255, 0.07)" }}>
 
             {/* En-tête étape */}
-            <div className="flex justify-between items-center border-b border-white/10 pb-3">
-                <span className="f-mono text-sm tracking-widest text-white/30">Étape 3/4</span>
-                <span className="f-mono text-sm tracking-widest uppercase" style={{ color: "var(--col-vi)" }}>
+            <div className="flex items-center gap-4 pb-2">
+                <span className="f-mono text-[11px] tracking-[0.28em] uppercase shrink-0" style={{ color: "rgba(162, 151, 255, .9)" }}>
+                    Étape 3/4
+                </span>
+                <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, rgba(125,113,251,.55) 0%, rgba(125,113,251,.22) 55%, rgba(5,3,13,0) 100%)" }} />
+                <span className="f-orb text-sm md:text-[15px] leading-none tracking-[0.03em] uppercase text-white whitespace-nowrap shrink-0">
                     Fichiers
                 </span>
             </div>

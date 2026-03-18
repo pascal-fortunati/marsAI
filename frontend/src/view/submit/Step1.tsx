@@ -2,11 +2,30 @@
 import { useState, type ComponentType } from "react";
 import { FormField } from "../../components/FormField";
 import { Combobox } from "../../components/ui/combobox";
+import { DatePicker } from "../../components/ui/date-picker";
 import * as Flags from "country-flag-icons/react/3x2";
 
 interface Step1Props {
     onNext: () => void;
 }
+
+// Fonction pour calculer l'âge
+const calculateAge = (birthDate: string): number => {
+    if (!birthDate) return 0;
+    const birth = new Date(birthDate);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        age--;
+    }
+    return age;
+};
+
+// Fonction pour valider l'âge minimum
+const isAgeValid = (birthDate: string): boolean => {
+    return calculateAge(birthDate) >= 18;
+};
 
 const JOBS = ["Réalisateur·rice", "Scénariste", "Producteur·rice", "Monteur·euse", "Autre"];
 
@@ -45,6 +64,7 @@ export default function Step1({ onNext }: Step1Props) {
         email: !email.trim(),
         phone: !phone.trim(),
         birthDate: !birthDate.trim(),
+        age: birthDate.trim() ? !isAgeValid(birthDate) : false,
         address: !address.trim(),
         postalCode: !postalCode.trim(),
         city: !city.trim(),
@@ -56,6 +76,8 @@ export default function Step1({ onNext }: Step1Props) {
     };
 
     const hasMissingRequired = Object.values(missing).some(Boolean);
+
+    const birthDateHasError = missing.age || (showValidation && missing.birthDate);
 
     const getInputClassName = (hasError: boolean) =>
         `submit-input${showValidation && hasError ? " error" : ""}`;
@@ -80,11 +102,12 @@ export default function Step1({ onNext }: Step1Props) {
         <div className="space-y-6 relative overflow-hidden rounded-3xl p-6" style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px  solid rgba(255, 255, 255, 0.07)" }}>
 
             {/* En-tête */}
-            <div className="flex justify-between items-center border-b border-white/10 pb-3">
-                <span className="f-mono text-sm tracking-widest text-white/30">
-                    Étape 1 sur 4
+            <div className="flex items-center gap-4 pb-2">
+                <span className="f-mono text-[11px] tracking-[0.28em] uppercase shrink-0" style={{ color: "rgba(162, 151, 255, .9)" }}>
+                    Étape 1/4
                 </span>
-                <span className="f-mono text-sm tracking-widest uppercase" style={{ color: "var(--col-vi)" }}>
+                <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, rgba(125,113,251,.55) 0%, rgba(125,113,251,.22) 55%, rgba(5,3,13,0) 100%)" }} />
+                <span className="f-orb text-sm md:text-[15px] leading-none tracking-[0.03em] uppercase text-white whitespace-nowrap shrink-0">
                     Fiche Réalisateur
                 </span>
             </div>
@@ -125,12 +148,20 @@ export default function Step1({ onNext }: Step1Props) {
                 </FormField>
 
                 <FormField label="Date de naissance" required>
-                    <input
-                        className={getInputClassName(missing.birthDate)}
-                        type="date"
-                        value={birthDate}
-                        onChange={(e) => setBirthDate(e.target.value)}
-                    />
+                    <div className="relative">
+                        <DatePicker
+                            value={birthDate}
+                            onChange={setBirthDate}
+                            placeholder="> Sélectionnez une date"
+                            className={`${getInputClassName(birthDateHasError)} submit-input`}
+                            triggerStyle={getComboboxTriggerStyle(birthDateHasError)}
+                        />
+                        {birthDate.trim() && missing.age && (
+                            <p className="text-[12px] mt-1" style={{ color: "rgba(255, 92, 53, 0.8)" }}>
+                                Vous devez avoir au moins 18 ans
+                            </p>
+                        )}
+                    </div>
                 </FormField>
             </div>
 
@@ -233,16 +264,21 @@ export default function Step1({ onNext }: Step1Props) {
                 <textarea className="submit-input resize-none h-24" placeholder="Notes, contexte de création" />
             </FormField>
 
-            <div className="rounded-xl p-4 space-y-4" style={{ border: "1px solid var(--col-bg-3)", background: "rgba(255,255,255,.02)" }}>
-                <p className="f-mono text-[10px] tracking-widest uppercase" style={{ color: "var(--col-vi)" }}>
-                    &gt; Référent légal {" "}
-
-                    <span style={{ color: "var(--col-vi)" }}>
+            <div
+                className="rounded-2xl px-5 py-5 space-y-4"
+                style={{
+                    border: "1px solid rgba(125,113,251,.28)",
+                    background: "rgba(16,10,38,.42)",
+                }}
+            >
+                <p className="f-mono text-[10px] tracking-[0.26em] uppercase" style={{ color: "rgba(162,151,255,.92)" }}>
+                    &gt; Référent légal
+                    <span className="ml-2" style={{ color: "rgba(162,151,255,.72)" }}>
                         (obligatoire par film)
                     </span>
                 </p>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <FormField label="Nom du référent légal" required>
                         <input
                             className={getInputClassName(missing.legalName)}
