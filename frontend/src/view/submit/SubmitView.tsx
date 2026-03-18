@@ -4,6 +4,7 @@ import Step1 from "./Step1";
 import Step2 from "./Step2";
 import Step3 from "./Step3";
 import Step4 from "./Step4";
+import Confirmation from "./Confirmation";
 import { Combobox } from "../../components/ui/combobox";
 import * as Flags from "country-flag-icons/react/3x2";
 import { marsaiGradients } from "../../theme/marsai";
@@ -63,7 +64,7 @@ export function SubmitView() {
                     {step === 2 && <Step2 onNext={goNext} onPrev={goPrev} />}
                     {step === 3 && <Step3 onNext={goNext} onPrev={goPrev} />}
                     {step === 4 && <Step4 onSubmit={goNext} onPrev={goPrev} />}
-
+                    {step === 5 && <Confirmation />}
                 </div>
 
             </div>
