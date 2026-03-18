@@ -29,6 +29,19 @@ export function SubmitView() {
     const goNext = () => setStep((s) => Math.min(s + 1, 4));
     const goPrev = () => setStep((s) => Math.max(s - 1, 1));
 
+    if (step === 5) {
+        return (
+            <div className="min-h-screen relative overflow-hidden">
+                <Confirmation
+                    submissionId="9adf0ea3-59d3-4eb1-9324-1519e4f11152"
+                    email="pauline.alex@laplateforme.io"
+                    onHome={() => setStep(1)}
+                    onSubmitAnother={() => setStep(1)}
+                />
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen relative overflow-hidden">
 
@@ -64,7 +77,6 @@ export function SubmitView() {
                     {step === 2 && <Step2 onNext={goNext} onPrev={goPrev} />}
                     {step === 3 && <Step3 onNext={goNext} onPrev={goPrev} />}
                     {step === 4 && <Step4 onSubmit={goNext} onPrev={goPrev} />}
-                    {step === 5 && <Confirmation />}
                 </div>
 
             </div>
