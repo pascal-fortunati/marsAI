@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 
@@ -10,143 +10,199 @@ interface DatePickerProps {
     triggerStyle?: React.CSSProperties;
 }
 
-export function DatePicker({
-    value,
-    onChange,
-    placeholder = "> Sélectionnez une date",
-    className = "submit-input",
-    triggerStyle,
-}: DatePickerProps) {
-    const [open, setOpen] = useState(false);
-    const [monthMenuOpen, setMonthMenuOpen] = useState(false);
-    const [yearMenuOpen, setYearMenuOpen] = useState(false);
-    const monthMenuRef = useRef<HTMLDivElement | null>(null);
-    const yearMenuRef = useRef<HTMLDivElement | null>(null);
-    const [currentMonth, setCurrentMonth] = useState(() => {
-        if (value) {
-            const date = new Date(value);
-            return new Date(date.getFullYear(), date.getMonth(), 1);
-        }
-        return new Date();
-    });
+type MenuType = "month" | "year" | null;
 
-    const monthNames = [
-        "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-        "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
-    ];
-    const month = monthNames[currentMonth.getMonth()];
-    const year = currentMonth.getFullYear();
-    const years = Array.from({ length: new Date().getFullYear() - 1899 }, (_, i) => new Date().getFullYear() - i);
+type DayCell = {
+    date: number;
+    fullDate: Date;
+    isCurrentMonth: boolean;
+};
 
-    // Récupérer le premier jour du mois et le nombre de jours
+const MONTHS = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+const WEEK_DAYS = ["lu", "ma", "me", "je", "ve", "sa", "di"];
+const YEARS = Array.from({ length: new Date().getFullYear() - 1899 }, (_, i) => new Date().getFullYear() - i);
+
+const styles = {
+    panel: {
+        background: "rgba(5, 3, 13, 0.95)",
+        border: "1px solid rgba(125, 113, 251, 0.35)",
+        borderRadius: "20px",
+        padding: "20px 24px",
+    } satisfies React.CSSProperties,
+    pickerBtn: {
+        background: "rgba(255, 255, 255, 0.05)",
+        border: "1px solid rgba(125, 113, 251, 0.25)",
+        color: "rgb(255, 255, 255)",
+        padding: "8px 12px",
+        borderRadius: "10px",
+        cursor: "pointer",
+        fontSize: "13px",
+        fontFamily: "'Share Tech Mono', monospace",
+        fontWeight: "500",
+        textAlign: "left",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: "8px",
+    } satisfies React.CSSProperties,
+    menu: {
+        position: "absolute",
+        top: "calc(100% + 8px)",
+        left: 0,
+        overflowY: "auto",
+        background: "rgba(12, 9, 28, 0.98)",
+        border: "1px solid rgba(125, 113, 251, 0.25)",
+        borderRadius: "14px",
+        zIndex: 90,
+        padding: "6px",
+        boxShadow: "0 10px 30px rgba(0, 0, 0, 0.45)",
+    } satisfies React.CSSProperties,
+    option: {
+        width: "100%",
+        display: "flex",
+        alignItems: "center",
+        gap: "10px",
+        padding: "8px 10px",
+        borderRadius: "10px",
+        border: "none",
+        color: "rgba(255, 255, 255, 0.92)",
+        fontSize: "13px",
+        fontFamily: "'Share Tech Mono', monospace",
+        cursor: "pointer",
+        textAlign: "left",
+    } satisfies React.CSSProperties,
+};
+
+const toYmd = (date: Date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+};
+
+const formatFr = (date: Date | string) => {
+    const d = typeof date === "string" ? new Date(date) : date;
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    return `${dd}/${mm}/${d.getFullYear()}`;
+};
+
+const buildDays = (currentMonth: Date): DayCell[] => {
     const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
     const lastDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
-    const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay();
+    const start = firstDay.getDay();
 
-    // Créer le tableau des jours
-    const days = [];
-    for (let i = 0; i < startingDayOfWeek; i++) {
-        const prevDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), -i);
-        days.unshift({
-            date: prevDate.getDate(),
-            isCurrentMonth: false,
-            fullDate: new Date(prevDate.getFullYear(), prevDate.getMonth(), prevDate.getDate()),
-        });
-    }
-    for (let i = 1; i <= daysInMonth; i++) {
-        days.push({
-            date: i,
-            isCurrentMonth: true,
-            fullDate: new Date(currentMonth.getFullYear(), currentMonth.getMonth(), i),
-        });
-    }
-    const remainingDays = 42 - days.length;
-    for (let i = 1; i <= remainingDays; i++) {
-        days.push({
-            date: i,
-            isCurrentMonth: false,
-            fullDate: new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, i),
-        });
+    const cells: DayCell[] = [];
+
+    for (let i = 0; i < start; i++) {
+        const prev = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), -i);
+        cells.unshift({ date: prev.getDate(), fullDate: new Date(prev.getFullYear(), prev.getMonth(), prev.getDate()), isCurrentMonth: false });
     }
 
-    const formatDate = (date: Date | string): string => {
-        if (!date) return "";
-        const d = typeof date === "string" ? new Date(date) : date;
-        const day = String(d.getDate()).padStart(2, "0");
-        const month = String(d.getMonth() + 1).padStart(2, "0");
-        const year = d.getFullYear();
-        return `${day}/${month}/${year}`;
-    };
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+        cells.push({ date: day, fullDate: new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day), isCurrentMonth: true });
+    }
 
-    const toDateKey = (date: Date): string => {
-        const y = date.getFullYear();
-        const m = String(date.getMonth() + 1).padStart(2, "0");
-        const d = String(date.getDate()).padStart(2, "0");
-        return `${y}-${m}-${d}`;
-    };
+    for (let day = 1; cells.length < 42; day++) {
+        cells.push({ date: day, fullDate: new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, day), isCurrentMonth: false });
+    }
 
-    const handleDateClick = (day: { fullDate: Date; isCurrentMonth: boolean }) => {
-        const dateString = toDateKey(day.fullDate);
-        onChange(dateString);
-        setOpen(false);
-    };
+    return cells;
+};
 
-    const handlePrevMonth = () => {
-        setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
-    };
+function SelectorMenu<T extends string | number>({
+    open,
+    label,
+    items,
+    isActive,
+    onToggle,
+    onSelect,
+    minWidth,
+    width,
+    maxHeight,
+}: {
+    open: boolean;
+    label: string;
+    items: T[];
+    isActive: (item: T, index: number) => boolean;
+    onToggle: () => void;
+    onSelect: (item: T, index: number) => void;
+    minWidth: string;
+    width: string;
+    maxHeight: string;
+}) {
+    return (
+        <div className="relative">
+            <button type="button" onClick={onToggle} style={{ ...styles.pickerBtn, minWidth }}>
+                {label}
+                <ChevronRight size={14} style={{ transform: open ? "rotate(90deg)" : "rotate(0deg)", transition: "transform .15s ease" }} />
+            </button>
 
-    const handleNextMonth = () => {
-        setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
-    };
+            {open && (
+                <div className="date-picker-year-scroll" style={{ ...styles.menu, width, maxHeight }}>
+                    {items.map((item, index) => {
+                        const active = isActive(item, index);
+                        return (
+                            <button
+                                key={`${item}`}
+                                type="button"
+                                onClick={() => onSelect(item, index)}
+                                style={{ ...styles.option, background: active ? "rgba(125, 113, 251, 0.18)" : "transparent" }}
+                            >
+                                <span style={{ width: "16px", display: "inline-flex", justifyContent: "center", opacity: active ? 1 : 0 }}>
+                                    <Check size={14} />
+                                </span>
+                                {item}
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+    );
+}
 
+export function DatePicker({ value, onChange, placeholder = "> Sélectionnez une date", className = "submit-input", triggerStyle }: DatePickerProps) {
+    const [open, setOpen] = useState(false);
+    const [menuOpen, setMenuOpen] = useState<MenuType>(null);
+    const wrapRef = useRef<HTMLDivElement | null>(null);
+
+    const [currentMonth, setCurrentMonth] = useState(() => {
+        if (!value) return new Date();
+        const selected = new Date(value);
+        return new Date(selected.getFullYear(), selected.getMonth(), 1);
+    });
+
+    const days = useMemo(() => buildDays(currentMonth), [currentMonth]);
     const selectedDate = value ? new Date(value) : null;
-    const selectedDateString = selectedDate ? formatDate(selectedDate) : "";
+    const selectedDateString = selectedDate ? formatFr(selectedDate) : "";
+    const monthIndex = currentMonth.getMonth();
+    const monthLabel = MONTHS[monthIndex];
+    const year = currentMonth.getFullYear();
 
     useEffect(() => {
-        const handleOutsideClick = (event: MouseEvent) => {
-            if (monthMenuRef.current && !monthMenuRef.current.contains(event.target as Node)) {
-                setMonthMenuOpen(false);
-            }
-            if (!yearMenuRef.current) return;
-            if (!yearMenuRef.current.contains(event.target as Node)) {
-                setYearMenuOpen(false);
+        const onMouseDown = (event: MouseEvent) => {
+            if (wrapRef.current && !wrapRef.current.contains(event.target as Node)) {
+                setMenuOpen(null);
             }
         };
-
-        document.addEventListener("mousedown", handleOutsideClick);
-        return () => document.removeEventListener("mousedown", handleOutsideClick);
+        document.addEventListener("mousedown", onMouseDown);
+        return () => document.removeEventListener("mousedown", onMouseDown);
     }, []);
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-                <button
-                    className={className}
-                    style={{
-                        textAlign: "left",
-                        ...triggerStyle,
-                    }}
-                    onClick={() => setOpen(true)}
-                >
-                    {selectedDateString || placeholder}
+                <button className={className} style={{ textAlign: "left", ...triggerStyle }} onClick={() => setOpen(true)}>
+                    {value ? formatFr(value) : placeholder}
                 </button>
             </PopoverTrigger>
-            <PopoverContent
-                className="w-fit"
-                align="start"
-                style={{
-                    background: "rgba(5, 3, 13, 0.95)",
-                    border: "1px solid rgba(125, 113, 251, 0.35)",
-                    borderRadius: "20px",
-                    padding: "20px 24px",
-                }}
-            >
+
+            <PopoverContent className="w-fit" align="start" style={styles.panel}>
                 <div style={{ minWidth: "280px" }}>
-                    {/* Header avec navigation et sélecteurs */}
-                    <div className="flex items-center justify-between gap-3 mb-4">
+                    <div className="flex items-center justify-between gap-3 mb-4" ref={wrapRef}>
                         <button
-                            onClick={handlePrevMonth}
+                            onClick={() => setCurrentMonth(new Date(year, monthIndex - 1, 1))}
                             className="p-1.5 hover:opacity-70 transition-opacity flex-shrink-0"
                             style={{ color: "rgba(255, 255, 255, 0.6)" }}
                         >
@@ -154,170 +210,39 @@ export function DatePicker({
                         </button>
 
                         <div className="flex gap-3 flex-1 justify-center">
-                            <div ref={monthMenuRef} className="relative">
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setMonthMenuOpen((prev) => !prev);
-                                        setYearMenuOpen(false);
-                                    }}
-                                    style={{
-                                        background: "rgba(255, 255, 255, 0.05)",
-                                        border: "1px solid rgba(125, 113, 251, 0.25)",
-                                        color: "rgb(255, 255, 255)",
-                                        padding: "8px 12px",
-                                        borderRadius: "10px",
-                                        cursor: "pointer",
-                                        fontSize: "13px",
-                                        fontFamily: "'Share Tech Mono', monospace",
-                                        fontWeight: "500",
-                                        minWidth: "120px",
-                                        textAlign: "left",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                        gap: "8px",
-                                    }}
-                                >
-                                    {month}
-                                    <ChevronRight size={14} style={{ transform: monthMenuOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform .15s ease" }} />
-                                </button>
+                            <SelectorMenu
+                                open={menuOpen === "month"}
+                                label={monthLabel}
+                                items={MONTHS}
+                                isActive={(_, index) => index === monthIndex}
+                                onToggle={() => setMenuOpen(menuOpen === "month" ? null : "month")}
+                                onSelect={(_, index) => {
+                                    setCurrentMonth(new Date(year, index, 1));
+                                    setMenuOpen(null);
+                                }}
+                                minWidth="120px"
+                                width="180px"
+                                maxHeight="220px"
+                            />
 
-                                {monthMenuOpen && (
-                                    <div
-                                        className="date-picker-year-scroll"
-                                        style={{
-                                            position: "absolute",
-                                            top: "calc(100% + 8px)",
-                                            left: 0,
-                                            width: "180px",
-                                            maxHeight: "220px",
-                                            overflowY: "auto",
-                                            background: "rgba(12, 9, 28, 0.98)",
-                                            border: "1px solid rgba(125, 113, 251, 0.25)",
-                                            borderRadius: "14px",
-                                            zIndex: 90,
-                                            padding: "6px",
-                                            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.45)",
-                                        }}
-                                    >
-                                        {monthNames.map((m, i) => (
-                                            <button
-                                                key={m}
-                                                type="button"
-                                                onClick={() => {
-                                                    setCurrentMonth(new Date(currentMonth.getFullYear(), i, 1));
-                                                    setMonthMenuOpen(false);
-                                                }}
-                                                style={{
-                                                    width: "100%",
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    gap: "10px",
-                                                    padding: "8px 10px",
-                                                    borderRadius: "10px",
-                                                    border: "none",
-                                                    background: i === currentMonth.getMonth() ? "rgba(125, 113, 251, 0.18)" : "transparent",
-                                                    color: "rgba(255, 255, 255, 0.92)",
-                                                    fontSize: "13px",
-                                                    fontFamily: "'Share Tech Mono', monospace",
-                                                    cursor: "pointer",
-                                                    textAlign: "left",
-                                                }}
-                                            >
-                                                <span style={{ width: "16px", display: "inline-flex", justifyContent: "center", opacity: i === currentMonth.getMonth() ? 1 : 0 }}>
-                                                    <Check size={14} />
-                                                </span>
-                                                {m}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                            <div ref={yearMenuRef} className="relative">
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setYearMenuOpen((prev) => !prev);
-                                        setMonthMenuOpen(false);
-                                    }}
-                                    style={{
-                                        background: "rgba(255, 255, 255, 0.05)",
-                                        border: "1px solid rgba(125, 113, 251, 0.25)",
-                                        color: "rgb(255, 255, 255)",
-                                        padding: "8px 12px",
-                                        borderRadius: "10px",
-                                        cursor: "pointer",
-                                        fontSize: "13px",
-                                        fontFamily: "'Share Tech Mono', monospace",
-                                        fontWeight: "500",
-                                        minWidth: "100px",
-                                        textAlign: "left",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                        gap: "8px",
-                                    }}
-                                >
-                                    {year}
-                                    <ChevronRight size={14} style={{ transform: yearMenuOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform .15s ease" }} />
-                                </button>
-
-                                {yearMenuOpen && (
-                                    <div
-                                        className="date-picker-year-scroll"
-                                        style={{
-                                            position: "absolute",
-                                            top: "calc(100% + 8px)",
-                                            left: 0,
-                                            width: "160px",
-                                            maxHeight: "360px",
-                                            overflowY: "auto",
-                                            background: "rgba(12, 9, 28, 0.98)",
-                                            border: "1px solid rgba(125, 113, 251, 0.25)",
-                                            borderRadius: "14px",
-                                            zIndex: 90,
-                                            padding: "6px",
-                                            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.45)",
-                                        }}
-                                    >
-                                        {years.map((y) => (
-                                            <button
-                                                key={y}
-                                                type="button"
-                                                onClick={() => {
-                                                    setCurrentMonth(new Date(y, currentMonth.getMonth(), 1));
-                                                    setYearMenuOpen(false);
-                                                }}
-                                                style={{
-                                                    width: "100%",
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    gap: "10px",
-                                                    padding: "8px 10px",
-                                                    borderRadius: "10px",
-                                                    border: "none",
-                                                    background: y === year ? "rgba(125, 113, 251, 0.18)" : "transparent",
-                                                    color: "rgba(255, 255, 255, 0.92)",
-                                                    fontSize: "13px",
-                                                    fontFamily: "'Share Tech Mono', monospace",
-                                                    cursor: "pointer",
-                                                    textAlign: "left",
-                                                }}
-                                            >
-                                                <span style={{ width: "16px", display: "inline-flex", justifyContent: "center", opacity: y === year ? 1 : 0 }}>
-                                                    <Check size={14} />
-                                                </span>
-                                                {y}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
+                            <SelectorMenu
+                                open={menuOpen === "year"}
+                                label={`${year}`}
+                                items={YEARS}
+                                isActive={(item) => item === year}
+                                onToggle={() => setMenuOpen(menuOpen === "year" ? null : "year")}
+                                onSelect={(item) => {
+                                    setCurrentMonth(new Date(item, monthIndex, 1));
+                                    setMenuOpen(null);
+                                }}
+                                minWidth="100px"
+                                width="160px"
+                                maxHeight="360px"
+                            />
                         </div>
 
                         <button
-                            onClick={handleNextMonth}
+                            onClick={() => setCurrentMonth(new Date(year, monthIndex + 1, 1))}
                             className="p-1.5 hover:opacity-70 transition-opacity flex-shrink-0"
                             style={{ color: "rgba(255, 255, 255, 0.6)" }}
                         >
@@ -325,45 +250,24 @@ export function DatePicker({
                         </button>
                     </div>
 
-                    {/* Affichage du mois et année */}
-                    <div
-                        className="text-center font-semibold mb-4"
-                        style={{
-                            fontSize: "14px",
-                            color: "rgb(255, 255, 255)",
-                            textTransform: "capitalize",
-                            letterSpacing: "0.5px",
-                        }}
-                    >
-                        {month} {year}
+                    <div className="text-center font-semibold mb-4" style={{ fontSize: "14px", color: "rgb(255, 255, 255)", textTransform: "capitalize", letterSpacing: "0.5px" }}>
+                        {monthLabel} {year}
                     </div>
 
-                    {/* Séparation */}
-                    <div
-                        style={{
-                            height: "1px",
-                            background: "rgba(125, 113, 251, 0.2)",
-                            margin: "0 0 16px 0",
-                        }}
-                    />
+                    <div style={{ height: "1px", background: "rgba(125, 113, 251, 0.2)", margin: "0 0 16px 0" }} />
 
-                    {/* Jours de la semaine */}
-                    <div
-                        className="grid grid-cols-7 gap-2 text-center mb-3"
-                        style={{ color: "rgba(255, 255, 255, 0.45)", fontSize: "11px", fontFamily: "'Share Tech Mono', monospace", fontWeight: "500" }}
-                    >
-                        {["lu", "ma", "me", "je", "ve", "sa", "di"].map((day) => (
+                    <div className="grid grid-cols-7 gap-2 text-center mb-3" style={{ color: "rgba(255, 255, 255, 0.45)", fontSize: "11px", fontFamily: "'Share Tech Mono', monospace", fontWeight: "500" }}>
+                        {WEEK_DAYS.map((day) => (
                             <div key={day} className="flex items-center justify-center h-6">
                                 {day}
                             </div>
                         ))}
                     </div>
 
-                    {/* Grille des dates */}
                     <div className="grid grid-cols-7 gap-2">
                         {days.map((day, index) => {
                             const isSelected =
-                                selectedDate &&
+                                !!selectedDate &&
                                 day.fullDate.getDate() === selectedDate.getDate() &&
                                 day.fullDate.getMonth() === selectedDate.getMonth() &&
                                 day.fullDate.getFullYear() === selectedDate.getFullYear();
@@ -371,18 +275,16 @@ export function DatePicker({
                             return (
                                 <button
                                     key={index}
-                                    onClick={() => handleDateClick(day)}
+                                    onClick={() => {
+                                        if (!day.isCurrentMonth) return;
+                                        onChange(toYmd(day.fullDate));
+                                        setOpen(false);
+                                    }}
                                     className="w-8 h-8 text-sm transition-colors flex items-center justify-center"
                                     style={{
-                                        color: day.isCurrentMonth
-                                            ? "rgb(255, 255, 255)"
-                                            : "rgba(255, 255, 255, 0.2)",
-                                        background: isSelected
-                                            ? "rgba(125, 113, 251, 0.3)"
-                                            : "transparent",
-                                        border: isSelected
-                                            ? "1px solid rgba(125, 113, 251, 0.5)"
-                                            : "none",
+                                        color: day.isCurrentMonth ? "rgb(255, 255, 255)" : "rgba(255, 255, 255, 0.2)",
+                                        background: isSelected ? "rgba(125, 113, 251, 0.3)" : "transparent",
+                                        border: isSelected ? "1px solid rgba(125, 113, 251, 0.5)" : "none",
                                         borderRadius: "6px",
                                         cursor: day.isCurrentMonth ? "pointer" : "default",
                                         opacity: day.isCurrentMonth ? 1 : 0.35,
@@ -398,17 +300,8 @@ export function DatePicker({
                         })}
                     </div>
 
-                    {/* Affichage de la date sélectionnée */}
-                    {selectedDateString && (
-                        <div
-                            className="text-center mt-4 pt-3"
-                            style={{
-                                color: "rgba(255, 255, 255, 0.6)",
-                                fontSize: "12px",
-                                fontFamily: "'Share Tech Mono', monospace",
-                                borderTop: "1px solid rgba(125, 113, 251, 0.15)",
-                            }}
-                        >
+                    {selectedDate && (
+                        <div className="text-center mt-4 pt-3" style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: "12px", fontFamily: "'Share Tech Mono', monospace", borderTop: "1px solid rgba(125, 113, 251, 0.15)" }}>
                             {selectedDateString}
                         </div>
                     )}
