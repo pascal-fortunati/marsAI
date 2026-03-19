@@ -1,4 +1,6 @@
 import { useState } from "react";
+import * as Popover from "@radix-ui/react-popover";
+import { X } from "lucide-react";
 import { Button } from "./Button";
 import logo from "../../assets/mars_ai_logo.png";
 
@@ -121,8 +123,6 @@ export default function NavBar({
   currentLang = "fr",
   onLangChange = () => {},
 }: NavBarProps) {
-  const [isStatsOpen, setIsStatsOpen] = useState(false);
-
   return (
     <div
       className="backdrop-blur-[12px] bg-[rgba(5,3,13,0.9)] relative w-full"
@@ -143,10 +143,9 @@ export default function NavBar({
 
           <div className="h-[59px] relative shrink-0 w-full">
             <div className="flex flex-row items-center size-full">
-              <div className="mx-auto flex w-full max-w-7xl flex-nowrap items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 relative">
-                {/* Left Section: Logo + Stats */}
-                {/* Left Section: Logo */}
-                <div className="flex min-w-0 items-center gap-3">
+              <div className="mx-auto grid w-full max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-3 px-4 sm:px-6 lg:px-8">
+                {/* Left Section: Logo + text */}
+                <div className="flex min-w-0 items-center gap-3 justify-self-start">
                   <a
                     href="/"
                     className="overflow-clip relative rounded-[16px] shrink-0 size-[56px]"
@@ -159,22 +158,22 @@ export default function NavBar({
                     />
                   </a>
 
-                  <div className="min-w-0 flex flex-col gap-[2px] leading-[0] relative">
+                  <div className="min-w-0 max-w-[360px] flex flex-col gap-[2px] leading-[0] relative md:max-w-[460px] lg:max-w-none">
                     <div className="min-w-0 flex items-center gap-[7.69px] text-[16px]">
-                      <div className="min-w-0 flex-shrink truncate font-black text-white">
+                      <div className="min-w-0 flex-shrink truncate f-orb font-black text-white">
                         <span className="leading-[24px]">MARS</span>
                         <span className="leading-[24px] text-[#ff5c35]">
                           AI
                         </span>
                       </div>
-                      <div className="min-w-0 flex-shrink text-[rgba(255,255,255,0.25)]">
+                      <div className="min-w-0 flex-shrink f-orb text-[rgba(255,255,255,0.25)]">
                         <span className="leading-[24px]">·</span>
                       </div>
-                      <div className="min-w-0 flex-shrink truncate text-[rgba(255,255,255,0.55)]">
+                      <div className="min-w-0 flex-shrink truncate f-orb text-[rgba(255,255,255,0.55)]">
                         <span className="leading-[24px]">Espace Jury</span>
                       </div>
                     </div>
-                    <div className="min-w-0 text-[12px] text-[rgba(255,255,255,0.28)]">
+                    <div className="min-w-0 text-[12px] text-[rgba(255,255,255,0.28)] max-[900px]:hidden">
                       <p className="leading-[16px] truncate">
                         Session active · Accès sécurisé
                       </p>
@@ -182,12 +181,92 @@ export default function NavBar({
                   </div>
                 </div>
 
-                {/* Center Section: Stats (hidden on smaller screens) */}
-                <div className="hidden md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2">
-                  <div className="flex w-full max-w-[380px] items-center justify-center gap-5">
+                {/* Center Section: Pill on small screens, full stats on large screens */}
+                <div className="flex min-w-0 justify-center justify-self-center">
+                  <Popover.Root>
+                    <Popover.Trigger asChild>
+                      <Button
+                        variant="nav"
+                        size="icon"
+                        className="lg:hidden flex flex-col items-center gap-1"
+                        aria-label="Voir les stats"
+                      >
+                        <div className="flex items-center gap-1 rounded-full bg-white/10 px-2 py-1">
+                          <span className="h-2 w-2 rounded-full bg-white" />
+                          <span className="h-2 w-2 rounded-full bg-[#22c55e]" />
+                          <span className="h-2 w-2 rounded-full bg-[#f59e0b]" />
+                          <span className="h-2 w-2 rounded-full bg-[#7d71fb]" />
+                        </div>
+                        <span className="text-xs text-[rgba(255,255,255,0.28)]">
+                          stats
+                        </span>
+                      </Button>
+                    </Popover.Trigger>
+
+                    <Popover.Portal>
+                      <Popover.Content
+                        side="bottom"
+                        sideOffset={8}
+                        align="center"
+                        className="z-50 w-full max-w-xs rounded-xl bg-[#05030d] p-4 shadow-xl"
+                      >
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-semibold text-white">
+                            Stats
+                          </p>
+                          <Popover.Close asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              aria-label="Fermer"
+                            >
+                              <X className="h-5 w-5" />
+                            </Button>
+                          </Popover.Close>
+                        </div>
+
+                        <div className="mt-4 grid gap-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-[rgba(255,255,255,0.7)]">
+                              Films
+                            </span>
+                            <span className="f-orb text-lg font-black">
+                              {totalFilms}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-[rgba(255,255,255,0.7)]">
+                              votés
+                            </span>
+                            <span className="f-orb text-lg font-black text-[#22c55e]">
+                              {votedFilms}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-[rgba(255,255,255,0.7)]">
+                              restants
+                            </span>
+                            <span className="f-orb text-lg font-black text-[#f59e0b]">
+                              {remainingFilms}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-[rgba(255,255,255,0.7)]">
+                              Progression
+                            </span>
+                            <span className="f-orb text-lg font-black text-[#7d71fb]">
+                              {progression}%
+                            </span>
+                          </div>
+                        </div>
+                      </Popover.Content>
+                    </Popover.Portal>
+                  </Popover.Root>
+
+                  <div className="hidden lg:flex w-full max-w-[340px] items-center justify-center gap-4 xl:max-w-[380px] xl:gap-5">
                     {/* Total Films */}
-                    <div className="flex min-w-[70px] flex-col items-center justify-center gap-1">
-                      <div className="text-[24px] font-black text-white">
+                    <div className="flex min-w-[62px] flex-col items-center justify-center gap-1 xl:min-w-[70px]">
+                      <div className="f-orb text-[22px] font-black text-white xl:text-[24px]">
                         {totalFilms}
                       </div>
                       <div className="text-[12px] text-[rgba(255,255,255,0.28)]">
@@ -196,8 +275,8 @@ export default function NavBar({
                     </div>
 
                     {/* Voted Films */}
-                    <div className="flex min-w-[70px] flex-col items-center justify-center gap-1">
-                      <div className="text-[24px] font-black text-[#22c55e]">
+                    <div className="flex min-w-[62px] flex-col items-center justify-center gap-1 xl:min-w-[70px]">
+                      <div className="f-orb text-[22px] font-black text-[#22c55e] xl:text-[24px]">
                         {votedFilms}
                       </div>
                       <div className="text-[12px] text-[rgba(255,255,255,0.28)]">
@@ -206,8 +285,8 @@ export default function NavBar({
                     </div>
 
                     {/* Remaining Films */}
-                    <div className="flex min-w-[70px] flex-col items-center justify-center gap-1">
-                      <div className="text-[24px] font-black text-[#f59e0b]">
+                    <div className="flex min-w-[62px] flex-col items-center justify-center gap-1 xl:min-w-[70px]">
+                      <div className="f-orb text-[22px] font-black text-[#f59e0b] xl:text-[24px]">
                         {remainingFilms}
                       </div>
                       <div className="text-[12px] text-[rgba(255,255,255,0.28)]">
@@ -216,8 +295,8 @@ export default function NavBar({
                     </div>
 
                     {/* Progression */}
-                    <div className="flex min-w-[70px] flex-col items-center justify-center gap-1">
-                      <div className="text-[24px] font-black text-[#7d71fb]">
+                    <div className="flex min-w-[62px] flex-col items-center justify-center gap-1 xl:min-w-[70px]">
+                      <div className="f-orb text-[22px] font-black text-[#7d71fb] xl:text-[24px]">
                         {progression}%
                       </div>
                       <div className="text-[12px] text-[rgba(255,255,255,0.28)]">
@@ -227,95 +306,24 @@ export default function NavBar({
                   </div>
                 </div>
 
-                {/* Right Section: Language switch + Mobile stats toggle */}
-                <div className="content-stretch flex items-center gap-2 relative shrink-0">
-                  <Button
-                    variant="nav"
-                    size="icon"
-                    className="md:hidden flex flex-col items-center gap-1"
-                    onClick={() => setIsStatsOpen(true)}
-                    aria-label="Voir les stats"
-                  >
-                    <div className="flex items-center gap-1 rounded-full bg-white/10 px-2 py-1">
-                      <span className="h-2 w-2 rounded-full bg-white" />
-                      <span className="h-2 w-2 rounded-full bg-[#22c55e]" />
-                      <span className="h-2 w-2 rounded-full bg-[#f59e0b]" />
-                      <span className="h-2 w-2 rounded-full bg-[#7d71fb]" />
-                    </div>
-                    <span className="text-xs text-[rgba(255,255,255,0.28)]">
-                      stats
-                    </span>
-                  </Button>
-
-                  {/* Small screens: single toggle button */}
+                {/* Right Section: Language + stats toggle */}
+                <div className="content-stretch flex shrink-0 items-center gap-2 justify-self-end">
                   <div className="flex gap-2">
                     <FlagButton
                       lang="fr"
                       isActive={currentLang === "fr"}
                       onClick={() => onLangChange("fr")}
-                      className="max-[426px]:h-8 max-[426px]:w-8"
+                      className="max-[900px]:h-9 max-[900px]:w-9 max-[426px]:h-8 max-[426px]:w-8"
                     />
                     <FlagButton
                       lang="en"
                       isActive={currentLang === "en"}
                       onClick={() => onLangChange("en")}
-                      className="max-[426px]:h-8 max-[426px]:w-8"
+                      className="max-[900px]:h-9 max-[900px]:w-9 max-[426px]:h-8 max-[426px]:w-8"
                     />
                   </div>
                 </div>
               </div>
-
-              {/* Mobile stats modal */}
-              {isStatsOpen && (
-                <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-4 md:hidden">
-                  <div className="w-full max-w-sm rounded-xl bg-[#05030d] p-4 shadow-xl">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-semibold text-white">Stats</p>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setIsStatsOpen(false)}
-                        aria-label="Fermer"
-                      >
-                        <span className="text-[22px] leading-none">×</span>
-                      </Button>
-                    </div>
-
-                    <div className="mt-4 grid gap-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-[rgba(255,255,255,0.7)]">
-                          Films
-                        </span>
-                        <span className="text-lg font-black">{totalFilms}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-[rgba(255,255,255,0.7)]">
-                          votés
-                        </span>
-                        <span className="text-lg font-black text-[#22c55e]">
-                          {votedFilms}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-[rgba(255,255,255,0.7)]">
-                          restants
-                        </span>
-                        <span className="text-lg font-black text-[#f59e0b]">
-                          {remainingFilms}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-[rgba(255,255,255,0.7)]">
-                          Progression
-                        </span>
-                        <span className="text-lg font-black text-[#7d71fb]">
-                          {progression}%
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>
