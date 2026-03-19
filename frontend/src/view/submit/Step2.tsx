@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Combobox } from "../../components/ui/combobox";
 import * as Flags from "country-flag-icons/react/3x2";
 import type { ComponentType } from "react";
+import { FR_COUNTRY_NAMES, getCountryCode } from "../../lib/countryMapping";
 
 interface Step2Props {
     onNext: () => void;
@@ -26,14 +27,10 @@ const LANGUAGES = ["Français", "Anglais", "Espagnol", "Arabe", "Autre", "Sans d
 
 const CATEGORIES = ["Animation", "Documentaire", "Fiction", "Experimental", "Clip"];
 
-const COUNTRIES = [
-    { value: "FR", label: "France", EN: "France" },
-    { value: "BE", label: "Belgique", EN: "Belgium" },
-    { value: "CH", label: "Suisse", EN: "Switzerland" },
-    { value: "CA", label: "Canada", EN: "Canada" },
-];
-
-const COUNTRY_OPTIONS = COUNTRIES.map((country) => ({ value: country.value, label: country.label, EN: country.EN }));
+const COUNTRY_OPTIONS = FR_COUNTRY_NAMES.map((countryName) => ({
+    value: countryName,
+    label: countryName,
+}));
 const LANGUAGE_OPTIONS = LANGUAGES.map((language) => ({ value: language, label: language }));
 const CATEGORY_OPTIONS = CATEGORIES.map((category) => ({ value: category, label: category }));
 
@@ -169,7 +166,8 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
                         options={COUNTRY_OPTIONS}
                         placeholder="Sélectionner..."
                         renderOption={(opt) => {
-                            const Flag = (Flags as Record<string, ComponentType<{ className?: string }>>)[opt.value];
+                            const flagCode = getCountryCode(opt.value) ?? "";
+                            const Flag = (Flags as Record<string, ComponentType<{ className?: string }>>)[flagCode];
                             return (
                                 <span className="flex items-center gap-2">
                                     {Flag && <Flag className="w-4 h-3 rounded-sm" />}
@@ -178,7 +176,8 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
                             );
                         }}
                         renderValue={(opt) => {
-                            const Flag = (Flags as Record<string, ComponentType<{ className?: string }>>)[opt.value];
+                            const flagCode = getCountryCode(opt.value) ?? "";
+                            const Flag = (Flags as Record<string, ComponentType<{ className?: string }>>)[flagCode];
                             return (
                                 <span className="flex items-center gap-2">
                                     {Flag && <Flag className="w-4 h-3 rounded-sm" />}
@@ -320,6 +319,10 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
                 </button>
 
             </div>
+
+            <p className="f-mono text-[9px] text-white/25 tracking-wide text-center">
+                Aucune modification possible après soumission · Les champs sont mémorisés sur cet appareil
+            </p>
 
         </div>
     )

@@ -130,7 +130,7 @@ export default function Step3({ onNext, onPrev }: Step3Props) {
                 style={{ border: "1px solid rgba(255,255,255,.07)", background: "rgba(255,255,255,.02)" }}
             >
                 * Votre vidéo sera stockée sur S3 Scaleway et uploadée en privé sur YouTube pour vérification
-                copyright automatique. Aucune modification possible après soumission.
+                copyright automatique.
             </p>
 
             {/* Vidéo du film */}
@@ -199,6 +199,10 @@ export default function Step3({ onNext, onPrev }: Step3Props) {
                     Étape suivante →
                 </button>
             </div>
+
+            <p className="f-mono text-[9px] text-white/25 tracking-wide text-center">
+                Aucune modification possible après soumission · Les champs sont mémorisés sur cet appareil
+            </p>
 
         </div>
     );

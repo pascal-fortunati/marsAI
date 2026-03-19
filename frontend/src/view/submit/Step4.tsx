@@ -175,7 +175,7 @@ export default function Step4({
       >
         <AlertTriangle size={14} className="shrink-0 mt-0.5" style={{ color: "var(--col-or)" }} />
         <p className="f-mono text-[9px] text-white/35 leading-relaxed">
-          Aucune modification ne sera possible après soumission. Un email de confirmation sera envoyé à{" "}
+          Un email de confirmation sera envoyé à{" "}
           <span style={{ color: "var(--col-vi)" }}>pauline.alex@laplateforme.io</span>.
           Votre film sera examiné par le jury international marsAI 2025.
         </p>
@@ -204,6 +204,10 @@ export default function Step4({
           <Rocket size={14} /> Soumettre le film
         </button>
       </div>
+
+      <p className="f-mono text-[9px] text-white/25 tracking-wide text-center">
+        Aucune modification possible après soumission · Les champs sont mémorisés sur cet appareil
+      </p>
 
     </div>
   );

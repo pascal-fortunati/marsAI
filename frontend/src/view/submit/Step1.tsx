@@ -4,6 +4,7 @@ import { FormField } from "../../components/FormField";
 import { Combobox } from "../../components/ui/combobox";
 import { DatePicker } from "../../components/ui/date-picker";
 import * as Flags from "country-flag-icons/react/3x2";
+import { FR_COUNTRY_NAMES, getCountryCode } from "../../lib/countryMapping";
 
 interface Step1Props {
     onNext: () => void;
@@ -27,18 +28,16 @@ const isAgeValid = (birthDate: string): boolean => {
     return calculateAge(birthDate) >= 18;
 };
 
-const JOBS = ["Réalisateur·rice", "Scénariste", "Producteur·rice", "Monteur·euse", "Autre"];
+const JOBS = ["Réalisateur·rice", "Artiste numérique", "Designer", "Développeur·euse", "Etudiant·e", "Photographe", "Vidéaste", "Musicien·ne", "Autre"];
 
-const HOW_FOUND = ["Réseaux sociaux", "Bouche à oreille", "Presse/Médias", "Partenaires", "Autre"];
+const HOW_FOUND = ["Réseaux sociaux (Instagram, TikTok...)", "Twitter/X", "Bouche à oreille", "Presse/Médias", "Newsletter", "La Plateforme", "Mobile Film Festival", "Moteur de recherche", "Autre"];
 
 const SOCIAL = ["Instagram", "Youtube", "LinkedIn", "X/Twitter", "Facebook", "Tumblr", "Autre"];
 
-const COUNTRY_OPTIONS = [
-    { value: "FR", label: "France", EN: "France" },
-    { value: "BE", label: "Belgique", EN: "Belgium" },
-    { value: "CH", label: "Suisse", EN: "Switzerland" },
-    { value: "CA", label: "Canada", EN: "Canada" },
-];
+const COUNTRY_OPTIONS = FR_COUNTRY_NAMES.map((countryName) => ({
+    value: countryName,
+    label: countryName,
+}));
 
 const JOB_OPTIONS = JOBS.map((job) => ({ value: job, label: job }));
 
@@ -202,7 +201,8 @@ export default function Step1({ onNext }: Step1Props) {
                         options={COUNTRY_OPTIONS}
                         placeholder="Sélectionner..."
                         renderOption={(opt) => {
-                            const Flag = (Flags as Record<string, ComponentType<{ className?: string }>>)[opt.value];
+                            const flagCode = getCountryCode(opt.value) ?? "";
+                            const Flag = (Flags as Record<string, ComponentType<{ className?: string }>>)[flagCode];
                             return (
                                 <span className="flex items-center gap-2">
                                     {Flag && <Flag className="w-4 h-3 rounded-sm" />}
@@ -211,7 +211,8 @@ export default function Step1({ onNext }: Step1Props) {
                             );
                         }}
                         renderValue={(opt) => {
-                            const Flag = (Flags as Record<string, ComponentType<{ className?: string }>>)[opt.value];
+                            const flagCode = getCountryCode(opt.value) ?? "";
+                            const Flag = (Flags as Record<string, ComponentType<{ className?: string }>>)[flagCode];
                             return (
                                 <span className="flex items-center gap-2">
                                     {Flag && <Flag className="w-4 h-3 rounded-sm" />}
@@ -308,6 +309,10 @@ export default function Step1({ onNext }: Step1Props) {
                     Étape suivante →
                 </button>
             </div>
+
+            <p className="f-mono text-[9px] text-white/25 tracking-wide text-center">
+                Aucune modification possible après soumission · Les champs sont mémorisés sur cet appareil
+            </p>
 
         </div>
     )
