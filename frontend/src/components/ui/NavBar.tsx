@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "./Button";
 import logo from "../../assets/mars_ai_logo.png";
 
@@ -14,10 +15,12 @@ function FlagButton({
   lang,
   isActive,
   onClick,
+  className,
 }: {
   lang: "fr" | "en";
   isActive: boolean;
   onClick: () => void;
+  className?: string;
 }) {
   const isFrench = lang === "fr";
 
@@ -30,7 +33,7 @@ function FlagButton({
         isActive
           ? "bg-gradient-to-br from-[rgba(125,113,251,0.22)] to-[rgba(255,92,53,0.2)]"
           : "bg-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.08)]"
-      }`}
+      } ${className ?? ""}`}
       data-name={`Button - ${isFrench ? "Français" : "English"}`}
       aria-label={`Switch to ${isFrench ? "French" : "English"}`}
     >
@@ -118,6 +121,8 @@ export default function NavBar({
   currentLang = "fr",
   onLangChange = () => {},
 }: NavBarProps) {
+  const [isStatsOpen, setIsStatsOpen] = useState(false);
+
   return (
     <div
       className="backdrop-blur-[12px] bg-[rgba(5,3,13,0.9)] relative w-full"
@@ -138,10 +143,10 @@ export default function NavBar({
 
           <div className="h-[59px] relative shrink-0 w-full">
             <div className="flex flex-row items-center size-full">
-              <div className="content-stretch flex items-center justify-between px-[148.5px] relative size-full">
+              <div className="mx-auto flex w-full max-w-7xl flex-nowrap items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 relative">
                 {/* Left Section: Logo + Stats */}
                 {/* Left Section: Logo */}
-                <div className="flex items-center gap-[16px] shrink-0">
+                <div className="flex min-w-0 items-center gap-3">
                   <a
                     href="/"
                     className="overflow-clip relative rounded-[16px] shrink-0 size-[56px]"
@@ -154,113 +159,163 @@ export default function NavBar({
                     />
                   </a>
 
-                  <div className="content-stretch flex flex-col gap-[2px] items-start leading-[0] min-h-px min-w-px relative">
-                    <div className="content-stretch flex gap-[7.69px] items-center relative shrink-0 text-[16px] w-full">
-                      <div className="flex flex-col f-orb font-black h-[20px] justify-center relative shrink-0 text-white w-[71.81px]">
-                        <p>
-                          <span className="leading-[24px]">MARS</span>
-                          <span className="leading-[24px] text-[#ff5c35]">
-                            AI
-                          </span>
-                        </p>
+                  <div className="min-w-0 flex flex-col gap-[2px] leading-[0] relative">
+                    <div className="min-w-0 flex items-center gap-[7.69px] text-[16px]">
+                      <div className="min-w-0 flex-shrink truncate font-black text-white">
+                        <span className="leading-[24px]">MARS</span>
+                        <span className="leading-[24px] text-[#ff5c35]">
+                          AI
+                        </span>
                       </div>
-                      <div className="flex flex-col f-orb font-bold h-[20px] justify-center relative shrink-0 text-[rgba(255,255,255,0.25)] w-[9.195px]">
-                        <p className="leading-[24px]">·</p>
+                      <div className="min-w-0 flex-shrink text-[rgba(255,255,255,0.25)]">
+                        <span className="leading-[24px]">·</span>
                       </div>
-                      <div className="flex flex-col f-orb font-black h-[20px] justify-center relative shrink-0 text-[rgba(255,255,255,0.55)] w-[114.707px]">
-                        <p className="leading-[24px]">Espace Jury</p>
+                      <div className="min-w-0 flex-shrink truncate text-[rgba(255,255,255,0.55)]">
+                        <span className="leading-[24px]">Espace Jury</span>
                       </div>
                     </div>
-                    <div className="flex flex-col font-['Share_Tech_Mono:Regular',sans-serif] justify-center not-italic relative shrink-0 text-[12px] text-[rgba(255,255,255,0.28)] w-full">
-                      <p className="leading-[16px]">
+                    <div className="min-w-0 text-[12px] text-[rgba(255,255,255,0.28)]">
+                      <p className="leading-[16px] truncate">
                         Session active · Accès sécurisé
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Center Section: Stats */}
-                <div className="flex flex-1 justify-center">
-                  <div className="content-stretch flex gap-[21px] items-center relative shrink-0 w-[356.25px]">
-                    <div className="content-stretch flex flex-[1_0_0] items-center min-h-px min-w-px relative">
-                      {/* Total Films */}
-                      <div
-                        className="h-[50px] relative shrink-0 w-[81.41px]"
-                        data-name="Stat-Films"
-                      >
-                        <div
-                          aria-hidden="true"
-                          className="absolute border-[rgba(255,255,255,0.08)] border-r border-solid inset-0 pointer-events-none"
-                        />
-                        <div className="-translate-x-1/2 -translate-y-1/2 absolute flex flex-col f-orb font-black h-[32px] justify-center leading-[0] left-[calc(50%-0.31px)] text-[24px] text-center text-white top-[16px]">
-                          <p className="leading-[32px]">{totalFilms}</p>
-                        </div>
-                        <div className="-translate-x-1/2 -translate-y-1/2 absolute flex flex-col font-['Share_Tech_Mono:Regular',sans-serif] h-[16px] justify-center leading-[0] left-[calc(50%-0.3px)] not-italic text-[12px] text-[rgba(255,255,255,0.28)] text-center top-[42px]">
-                          <p className="leading-[16px]">Films</p>
-                        </div>
+                {/* Center Section: Stats (hidden on smaller screens) */}
+                <div className="hidden md:flex flex-1 justify-center">
+                  <div className="flex w-full max-w-[380px] items-center justify-center gap-5">
+                    {/* Total Films */}
+                    <div className="flex min-w-[70px] flex-col items-center justify-center gap-1">
+                      <div className="text-[24px] font-black text-white">
+                        {totalFilms}
                       </div>
-
-                      {/* Voted Films */}
-                      <div
-                        className="h-[50px] relative shrink-0 w-[81.41px]"
-                        data-name="Stat-Voted"
-                      >
-                        <div
-                          aria-hidden="true"
-                          className="absolute border-[rgba(255,255,255,0.08)] border-r border-solid inset-0 pointer-events-none"
-                        />
-                        <div className="-translate-x-1/2 -translate-y-1/2 absolute flex flex-col f-orb font-black h-[32px] justify-center leading-[0] left-[calc(50%-0.35px)] text-[#22c55e] text-[24px] text-center top-[16px]">
-                          <p className="leading-[32px]">{votedFilms}</p>
-                        </div>
-                        <div className="-translate-x-1/2 -translate-y-1/2 absolute flex flex-col font-['Share_Tech_Mono:Regular',sans-serif] h-[16px] justify-center leading-[0] left-[calc(50%-0.3px)] not-italic text-[12px] text-[rgba(255,255,255,0.28)] text-center top-[42px]">
-                          <p className="leading-[16px]">votés</p>
-                        </div>
+                      <div className="text-[12px] text-[rgba(255,255,255,0.28)]">
+                        Films
                       </div>
+                    </div>
 
-                      {/* Remaining Films */}
-                      <div
-                        className="h-[50px] relative shrink-0 w-[100.84px]"
-                        data-name="Stat-Remaining"
-                      >
-                        <div
-                          aria-hidden="true"
-                          className="absolute border-[rgba(255,255,255,0.08)] border-r border-solid inset-0 pointer-events-none"
-                        />
-                        <div className="-translate-x-1/2 -translate-y-1/2 absolute flex flex-col f-orb font-black h-[32px] justify-center leading-[0] left-[calc(50%-0.34px)] text-[#f59e0b] text-[24px] text-center top-[16px]">
-                          <p className="leading-[32px]">{remainingFilms}</p>
-                        </div>
-                        <div className="-translate-x-1/2 -translate-y-1/2 absolute flex flex-col font-['Share_Tech_Mono:Regular',sans-serif] h-[16px] justify-center leading-[0] left-[calc(50%-0.32px)] not-italic text-[12px] text-[rgba(255,255,255,0.28)] text-center top-[42px]">
-                          <p className="leading-[16px]">restants</p>
-                        </div>
+                    {/* Voted Films */}
+                    <div className="flex min-w-[70px] flex-col items-center justify-center gap-1">
+                      <div className="text-[24px] font-black text-[#22c55e]">
+                        {votedFilms}
+                      </div>
+                      <div className="text-[12px] text-[rgba(255,255,255,0.28)]">
+                        votés
+                      </div>
+                    </div>
+
+                    {/* Remaining Films */}
+                    <div className="flex min-w-[70px] flex-col items-center justify-center gap-1">
+                      <div className="text-[24px] font-black text-[#f59e0b]">
+                        {remainingFilms}
+                      </div>
+                      <div className="text-[12px] text-[rgba(255,255,255,0.28)]">
+                        restants
                       </div>
                     </div>
 
                     {/* Progression */}
-                    <div className="content-stretch flex flex-col gap-[2px] items-center leading-[0] relative shrink-0 text-center w-[71.59px]">
-                      <div className="flex flex-col f-orb font-black justify-center relative shrink-0 text-[#7d71fb] text-[24px] w-full">
-                        <p className="leading-[32px]">{progression}%</p>
+                    <div className="flex min-w-[70px] flex-col items-center justify-center gap-1">
+                      <div className="text-[24px] font-black text-[#7d71fb]">
+                        {progression}%
                       </div>
-                      <div className="flex flex-col font-['Share_Tech_Mono:Regular',sans-serif] justify-center not-italic relative shrink-0 text-[12px] text-[rgba(255,255,255,0.28)] w-full">
-                        <p className="leading-[16px]">Progression</p>
+                      <div className="text-[12px] text-[rgba(255,255,255,0.28)]">
+                        Progression
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Right Section: Language Buttons */}
-                <div className="content-stretch flex gap-[8px] h-[45px] items-center relative shrink-0 w-[96px]">
-                  <FlagButton
-                    lang="fr"
-                    isActive={currentLang === "fr"}
-                    onClick={() => onLangChange("fr")}
-                  />
-                  <FlagButton
-                    lang="en"
-                    isActive={currentLang === "en"}
-                    onClick={() => onLangChange("en")}
-                  />
+                {/* Right Section: Language switch + Mobile stats toggle */}
+                <div className="content-stretch flex items-center gap-2 relative shrink-0">
+                  <Button
+                    variant="nav"
+                    size="icon"
+                    className="md:hidden flex flex-col items-center gap-1"
+                    onClick={() => setIsStatsOpen(true)}
+                    aria-label="Voir les stats"
+                  >
+                    <div className="flex items-center gap-1 rounded-full bg-white/10 px-2 py-1">
+                      <span className="h-2 w-2 rounded-full bg-white" />
+                      <span className="h-2 w-2 rounded-full bg-[#22c55e]" />
+                      <span className="h-2 w-2 rounded-full bg-[#f59e0b]" />
+                      <span className="h-2 w-2 rounded-full bg-[#7d71fb]" />
+                    </div>
+                    <span className="text-xs text-[rgba(255,255,255,0.28)]">
+                      stats
+                    </span>
+                  </Button>
+
+                  {/* Small screens: single toggle button */}
+                  <div className="flex gap-2">
+                    <FlagButton
+                      lang="fr"
+                      isActive={currentLang === "fr"}
+                      onClick={() => onLangChange("fr")}
+                      className="max-[426px]:h-8 max-[426px]:w-8"
+                    />
+                    <FlagButton
+                      lang="en"
+                      isActive={currentLang === "en"}
+                      onClick={() => onLangChange("en")}
+                      className="max-[426px]:h-8 max-[426px]:w-8"
+                    />
+                  </div>
                 </div>
               </div>
+
+              {/* Mobile stats modal */}
+              {isStatsOpen && (
+                <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-4 md:hidden">
+                  <div className="w-full max-w-sm rounded-xl bg-[#05030d] p-4 shadow-xl">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-semibold text-white">Stats</p>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setIsStatsOpen(false)}
+                        aria-label="Fermer"
+                      >
+                        <span className="text-[22px] leading-none">×</span>
+                      </Button>
+                    </div>
+
+                    <div className="mt-4 grid gap-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-[rgba(255,255,255,0.7)]">
+                          Films
+                        </span>
+                        <span className="text-lg font-black">{totalFilms}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-[rgba(255,255,255,0.7)]">
+                          votés
+                        </span>
+                        <span className="text-lg font-black text-[#22c55e]">
+                          {votedFilms}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-[rgba(255,255,255,0.7)]">
+                          restants
+                        </span>
+                        <span className="text-lg font-black text-[#f59e0b]">
+                          {remainingFilms}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-[rgba(255,255,255,0.7)]">
+                          Progression
+                        </span>
+                        <span className="text-lg font-black text-[#7d71fb]">
+                          {progression}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

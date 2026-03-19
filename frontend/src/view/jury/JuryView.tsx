@@ -75,14 +75,14 @@ export function JuryView() {
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       <NavBar currentLang={currentLang} onLangChange={handleLangChange} />
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 p-4">
+      <div className="mx-auto flex max-w-7xl flex-col gap-6 p-4">
         <header className="rounded-lg bg-gray-900 p-6 shadow-lg">
           <h2 className="text-2xl font-bold">{t("nav.jurySpace")}</h2>
           <p className="mt-2 text-gray-300">{t("jury.loginPrompt")}</p>
         </header>
 
-        <section className="grid gap-6 lg:grid-cols-12">
-          <aside className="lg:col-span-4">
+        <section className="grid gap-6 md:grid-cols-12">
+          <aside className="md:col-span-4 lg:col-span-4">
             <FilmSearchBar
               query={searchQuery}
               results={searchResults}
@@ -92,12 +92,12 @@ export function JuryView() {
             />
           </aside>
 
-          <main className="lg:col-span-5">
+          <main className="md:col-span-5 lg:col-span-5">
             <FilmDetail film={selectedFilm} />
             <VideoPlayer film={selectedFilm} />
           </main>
 
-          <aside className="lg:col-span-3">
+          <aside className="md:col-span-3 lg:col-span-3">
             <VotePanel
               film={selectedFilm}
               status={voteStatus}
