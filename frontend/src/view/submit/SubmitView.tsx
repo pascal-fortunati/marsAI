@@ -102,25 +102,27 @@ export function SubmitView() {
 
             <div className="relative mx-auto max-w-6xl px-4 sm:px-5 py-6 sm:py-10 md:py-12">
 
-                {/* Soumission - Courts-métrages IA */}
-                <div className="flex items-center gap-2 mb-4 sm:mb-6">
-                    <span className="inline-block w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full" style={{ background: "var(--col-vi)" }}></span>
+                <div className="px-4 sm:px-6">
+                    {/* Soumission - Courts-métrages IA */}
+                    <div className="flex items-center gap-2 mb-4 sm:mb-6">
+                        <span className="inline-block w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full" style={{ background: "var(--col-vi)" }}></span>
 
-                    <span className="f-mono text-xs sm:text-sm tracking-widest uppercase text-white">Soumission - Courts-métrages IA
-                    </span>
+                        <span className="f-mono text-xs sm:text-sm tracking-widest uppercase text-white">Soumission - Courts-métrages IA
+                        </span>
+                    </div>
+
+                    {/* Titre principal Soumettre */}
+                    <h1 className="f-orb text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-1 leading-tight">Soumettre{" "}
+
+                        <AccentTitle>
+                            UN FILM
+                        </AccentTitle>
+                    </h1>
+
+                    <p className="f-mono text-[10px] sm:text-[11px] text-white/25 mb-4 sm:mb-8 tracking-wide">
+                        Aucune inscription. Délai max : 2 minutes.
+                    </p>
                 </div>
-
-                {/* Titre principal Soumettre */}
-                <h1 className="f-orb text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-1 leading-tight">Soumettre{" "}
-
-                    <AccentTitle>
-                        UN FILM
-                    </AccentTitle>
-                </h1>
-
-                <p className="f-mono text-[10px] sm:text-[11px] text-white/25 mb-4 sm:mb-8 tracking-wide">
-                    Aucune inscription. Délai max : 2 minutes.
-                </p>
 
                 { /* Barre de progression */}
                 <Progress currentStep={step} />
