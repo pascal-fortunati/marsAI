@@ -150,7 +150,7 @@ export default function NavBar({
                     <img
                       src={logo}
                       alt="Mars AI logo"
-                      className="h-[28px] w-[28px] object-contain"
+                      className="h-full w-full object-contain"
                     />
                   </a>
 
