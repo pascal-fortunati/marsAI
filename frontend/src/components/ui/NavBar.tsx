@@ -274,6 +274,11 @@ export default function NavBar({
                       </div>
                     </div>
 
+                    <div
+                      aria-hidden="true"
+                      className="h-[64px] w-px shrink-0 bg-[rgba(255,255,255,0.2)]"
+                    />
+
                     {/* Voted Films */}
                     <div className="flex min-w-[62px] flex-col items-center justify-center gap-1 xl:min-w-[70px]">
                       <div className="f-orb text-[22px] font-black text-[#22c55e] xl:text-[24px]">
@@ -284,6 +289,11 @@ export default function NavBar({
                       </div>
                     </div>
 
+                    <div
+                      aria-hidden="true"
+                      className="h-[64px] w-px shrink-0 bg-[rgba(255,255,255,0.2)]"
+                    />
+
                     {/* Remaining Films */}
                     <div className="flex min-w-[62px] flex-col items-center justify-center gap-1 xl:min-w-[70px]">
                       <div className="f-orb text-[22px] font-black text-[#f59e0b] xl:text-[24px]">
@@ -293,6 +303,11 @@ export default function NavBar({
                         restants
                       </div>
                     </div>
+
+                    <div
+                      aria-hidden="true"
+                      className="h-[64px] w-px shrink-0 bg-[rgba(255,255,255,0.2)]"
+                    />
 
                     {/* Progression */}
                     <div className="flex min-w-[62px] flex-col items-center justify-center gap-1 xl:min-w-[70px]">
