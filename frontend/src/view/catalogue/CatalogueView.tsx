@@ -120,7 +120,7 @@ export function CatalogueView() {
             {/* Modal avec Embed YouTube */}
             {selectedMovie && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-xl p-4 animate-in fade-in duration-300">
-                    <div className="bg-card w-full max-w-4xl rounded-xl border border-border relative shadow-2xl overflow-hidden">
+                    <div className="bg-card w-full max-w-4xl rounded-xl border border-border relative shadow-2xl overflow-hidden max-h-[90vh]">
                         <button
                             onClick={() => setSelectedMovie(null)}
                             className="absolute top-4 right-4 z-20 text-foreground bg-background/60 w-10 h-10 rounded-full flex items-center justify-center hover:bg-destructive hover:text-white transition-all shadow-lg"
@@ -128,10 +128,9 @@ export function CatalogueView() {
                             ✕
                         </button>
 
-                        <div className="aspect-video w-full bg-black">
+                        <div className="relative w-full bg-black h-[min(56.25vw,50vh)] max-h-[50vh] md:h-[min(60vw,55vh)] md:max-h-[55vh]">
                             <iframe
-                                width="100%"
-                                height="100%"
+                                className="absolute inset-0 w-full h-full"
                                 src={`https://www.youtube.com/embed/${selectedMovie.embedId}?autoplay=1&rel=0`}
                                 title={selectedMovie.title}
                                 frameBorder="0"
