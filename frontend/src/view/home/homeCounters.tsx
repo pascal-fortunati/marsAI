@@ -72,17 +72,17 @@ export function Countdown({
       </p>
     );
   return (
-    <div className="grid grid-cols-2 gap-x-3 gap-y-4 sm:flex sm:items-end sm:gap-2">
+    <div className="flex items-end gap-2 overflow-x-auto pb-1 sm:items-end sm:gap-2 sm:overflow-visible sm:pb-0">
       <CountBlock val={parts.days} label={labels.days} />
-      <span className="f-orb mb-7 hidden text-2xl font-black text-white/20 sm:block">
+      <span className="f-orb mb-6 text-lg font-black text-white/20 sm:mb-7 sm:text-2xl">
         :
       </span>
       <CountBlock val={parts.hours} label={labels.hours} />
-      <span className="f-orb mb-7 hidden text-2xl font-black text-white/20 sm:block">
+      <span className="f-orb mb-6 text-lg font-black text-white/20 sm:mb-7 sm:text-2xl">
         :
       </span>
       <CountBlock val={parts.minutes} label={labels.minutes} />
-      <span className="f-orb mb-7 hidden text-2xl font-black text-white/20 sm:block">
+      <span className="f-orb mb-6 text-lg font-black text-white/20 sm:mb-7 sm:text-2xl">
         :
       </span>
       <CountBlock val={parts.seconds} label={labels.seconds} />
