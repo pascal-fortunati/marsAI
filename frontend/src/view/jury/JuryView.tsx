@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import i18n, { setLanguage } from "../../lib/i18n";
 import NavBar from "../../components/ui/NavBar";
-import { LoginView } from "./LoginView";
+
 import { FilmSearchBar } from "./FilmSearchBar";
 import { FilmDetail } from "./FilmDetail";
 import { VideoPlayer } from "./VideoPlayer";
@@ -83,11 +83,6 @@ export function JuryView() {
 
         <section className="grid gap-6 lg:grid-cols-12">
           <aside className="lg:col-span-4">
-            <LoginView
-              isLoggedIn={isLoggedIn}
-              onLogin={handleLogin}
-              onLogout={handleLogout}
-            />
             <FilmSearchBar
               query={searchQuery}
               results={searchResults}
