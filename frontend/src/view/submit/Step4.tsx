@@ -89,6 +89,20 @@ export default function Step4({
   return (
     <div className="space-y-4 sm:space-y-6">
 
+      <style>{`
+        @keyframes submitHaloPulse {
+          0% {
+            box-shadow: 0 0 0 0 rgba(255,255,255,.2), 0 0 0 0 rgba(125,113,251,.38), 0 0 12px 2px rgba(255,255,255,.18);
+          }
+          50% {
+            box-shadow: 0 0 0 8px rgba(255,255,255,0), 0 0 0 16px rgba(125,113,251,0), 0 0 30px 8px rgba(255,255,255,.28);
+          }
+          100% {
+            box-shadow: 0 0 0 0 rgba(255,255,255,.2), 0 0 0 0 rgba(125,113,251,.38), 0 0 12px 2px rgba(255,255,255,.18);
+          }
+        }
+      `}</style>
+
       {/* En-tête étape */}
       <div className="flex items-center gap-3 sm:gap-4 pb-2">
         <span className="f-mono text-[10px] sm:text-[11px] tracking-[0.28em] uppercase shrink-0" style={{ color: "rgba(162, 151, 255, .9)" }}>
@@ -192,28 +206,31 @@ export default function Step4({
         >
           ← Précédent
         </button>
-        <button
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-          className="f-mono text-[10px] sm:text-[11px] tracking-widest uppercase px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-bold transition-all hover:opacity-90 active:scale-95 flex items-center justify-center gap-2 w-full sm:w-auto"
-          style={{
-            background: !isSubmitting
-              ? "linear-gradient(90deg, var(--col-vi), var(--col-or))"
-              : "rgba(255,255,255,.1)",
-            color: !isSubmitting ? "white" : "rgba(255,255,255,.3)",
-            cursor: !isSubmitting ? "pointer" : "not-allowed",
-          }}
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 size={13} className="animate-spin" /> SOUMISSION...
-            </>
-          ) : (
-            <>
-              <Rocket size={13} /> Soumettre le film
-            </>
-          )}
-        </button>
+        <div className="relative w-full sm:w-auto">
+          <button
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="relative z-10 f-mono text-[10px] sm:text-[11px] tracking-widest uppercase px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-bold transition-all hover:opacity-90 active:scale-95 flex items-center justify-center gap-2 w-full sm:w-auto"
+            style={{
+              background: !isSubmitting
+                ? "linear-gradient(90deg, var(--col-vi), var(--col-or))"
+                : "rgba(255,255,255,.1)",
+              color: !isSubmitting ? "white" : "rgba(255,255,255,.3)",
+              cursor: !isSubmitting ? "pointer" : "not-allowed",
+              animation: !isSubmitting ? "submitHaloPulse 3.6s cubic-bezier(0.4, 0, 0.2, 1) infinite" : "none",
+            }}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 size={13} className="animate-spin" /> SOUMISSION...
+              </>
+            ) : (
+              <>
+                <Rocket size={13} /> Soumettre le film
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       <p className="f-mono text-[9px] text-white/25 tracking-wide text-center">
