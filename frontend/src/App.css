@@ -377,3 +377,31 @@ select.submit-input option {
     height: 100%;
     border: 0;
 }
+
+@media (max-width: 768px) {
+    .youtube-modal-card {
+        max-width: 95vw;
+        border-radius: 0.75rem;
+    }
+
+    .youtube-video-wrapper {
+        height: min(80vw, 45vh);
+        max-height: 45vh;
+    }
+
+    .youtube-modal-close {
+        top: 0.8rem;
+        right: 0.8rem;
+        width: 2.2rem;
+        height: 2.2rem;
+        font-size: 0.9rem;
+    }
+
+    .youtube-modal-card .p-8 {
+        padding: 1rem;
+    }
+
+    .youtube-modal-card h2 {
+        font-size: 1.25rem;
+    }
+}
