@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Upload, Clock, HardDrive, Film } from "lucide-react";
+import { Upload, Clock, HardDrive, Film, Check } from "lucide-react";
 
 interface Step3Props {
     onNext: () => void;
@@ -49,13 +49,13 @@ function DropZone({ label, required, accept, hint, formats, file, onFileChange, 
                 onDrop={handleDrop}
                 className="rounded-xl cursor-pointer transition-all flex flex-col items-center justify-center gap-2 py-10"
                 style={{
-                    border: `1px dashed ${hasError ? "rgba(255, 92, 53, .75)" : dragging ? "var(--col-vi)" : file ? "rgba(125,113,251,.4)" : "rgba(255,255,255,.1)"}`,
+                    border: `1px dashed ${hasError ? "rgba(255, 92, 53, .75)" : dragging ? "var(--col-vi)" : file ? "rgba(0, 237, 143, .45)" : "rgba(255,255,255,.1)"}`,
                     background: dragging
                         ? "rgba(125,113,251,.07)"
                         : hasError
                             ? "rgba(255, 92, 53, .06)"
                             : file
-                                ? "rgba(125,113,251,.04)"
+                                ? "rgba(0, 237, 143, .06)"
                                 : "rgba(255,255,255,.02)",
                 }}
             >
@@ -64,24 +64,32 @@ function DropZone({ label, required, accept, hint, formats, file, onFileChange, 
                 {file ? (
                     // Fichier sélectionné
                     <>
-                        <div
-                            className="w-8 h-8 rounded-full flex items-center justify-center"
-                            style={{ background: "rgba(125,113,251,.2)" }}
-                        >
-                            <Film size={14} style={{ color: "var(--col-vi)" }} />
-                        </div>
-                        <p className="f-mono text-[10px] text-white/70">{file.name}</p>
-                        <p className="f-mono text-[9px] text-white/30">
+                        <Check size={28} strokeWidth={2.4} style={{ color: "rgba(0, 237, 143, .95)" }} />
+                        <p className="f-orb text-[12px] md:text-[14px] leading-none text-[#00ed8f]">
+                            {file.name}
+                        </p>
+                        <p className="f-mono text-[9px] text-white/35">
                             {(file.size / 1024 / 1024).toFixed(1)} Mo
                         </p>
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onFileChange(null);
+                            }}
+                            className="f-mono text-[9px] tracking-[0.16em] uppercase transition-opacity hover:opacity-80"
+                            style={{ color: "rgba(255, 92, 53, .95)" }}
+                        >
+                            Supprimer
+                        </button>
                     </>
                 ) : (
                     // État vide
                     <>
                         <Upload size={20} className="text-white/20" />
-                        <p className="f-mono text-[11px] text-white/40">Glisser-déposer ou cliquer</p>
-                        <p className="f-mono text-[9px] text-white/20">{formats}</p>
-                        <p className="f-mono text-[9px] text-white/15">{hint}</p>
+                        <p className="f-orb text-[14px] md:text-[16px] leading-none text-white/58">Glisser-déposer ou cliquer</p>
+                        <p className="f-mono text-[11px] tracking-[0.18em] uppercase text-white/30">{formats}</p>
+                        <p className="f-mono text-[10px] text-white/20">{hint}</p>
                     </>
                 )}
             </div>
@@ -129,7 +137,7 @@ export default function Step3({ onNext, onPrev }: Step3Props) {
                 className="f-mono text-[9px] text-white/35 leading-relaxed rounded-xl px-4 py-3"
                 style={{ border: "1px solid rgba(255,255,255,.07)", background: "rgba(255,255,255,.02)" }}
             >
-                * Votre vidéo sera stockée sur S3 Scaleway et uploadée en privé sur YouTube pour vérification
+                &gt; Votre vidéo sera stockée sur S3 Scaleway et uploadée en privé sur YouTube pour vérification
                 copyright automatique.
             </p>
 

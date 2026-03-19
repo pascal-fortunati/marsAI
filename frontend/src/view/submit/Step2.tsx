@@ -3,7 +3,8 @@ import { useState } from "react";
 import { Combobox } from "../../components/ui/combobox";
 import * as Flags from "country-flag-icons/react/3x2";
 import type { ComponentType } from "react";
-import { FR_COUNTRY_NAMES, getCountryCode } from "../../lib/countryMapping";
+import { FR_COUNTRY_NAMES, getCountryCode, getLanguageFlagCode } from "../../lib/countryMapping";
+import { useLocalStorageState } from "../../lib/useLocalStorageState";
 
 interface Step2Props {
     onNext: () => void;
@@ -25,9 +26,13 @@ const TAGS = [
 
 const LANGUAGES = ["Français", "Anglais", "Espagnol", "Arabe", "Autre", "Sans dialogue"];
 
-const CATEGORIES = ["Animation", "Documentaire", "Fiction", "Experimental", "Clip"];
+const CATEGORIES = ["Fiction", "Documentaire", "Expérimental", "Animation", "Poètique", "Contemplatif", "Autre"];
 
-const COUNTRY_OPTIONS = FR_COUNTRY_NAMES.map((countryName) => ({
+const COUNTRY_NAMES_WITH_FRANCE_FIRST = FR_COUNTRY_NAMES.includes("France")
+    ? ["France", ...FR_COUNTRY_NAMES.filter((countryName) => countryName !== "France")]
+    : FR_COUNTRY_NAMES;
+
+const COUNTRY_OPTIONS = COUNTRY_NAMES_WITH_FRANCE_FIRST.map((countryName) => ({
     value: countryName,
     label: countryName,
 }));
@@ -35,19 +40,19 @@ const LANGUAGE_OPTIONS = LANGUAGES.map((language) => ({ value: language, label: 
 const CATEGORY_OPTIONS = CATEGORIES.map((category) => ({ value: category, label: category }));
 
 export default function Step2({ onNext, onPrev }: Step2Props) {
-    const [title, setTitle] = useState("");
-    const [duration, setDuration] = useState("");
-    const [synopsis, setSynopsis] = useState("");
-    const [synopsisLen, setSynopsisLen] = useState(0);
-    const [selectedTools, setSelectedTools] = useState<string[]>([]);
-    const [customTool, setCustomTool] = useState("");
-    const [selectedTags, setSelectedTags] = useState<string[]>([]);
-    const [soundMentions, setSoundMentions] = useState("");
-    const [rights, setRights] = useState(false);
-    const [country, setCountry] = useState("");
-    const [language, setLanguage] = useState("");
-    const [category, setCategory] = useState("");
+    const [title, setTitle] = useLocalStorageState("submit.step2.title", "");
+    const [duration, setDuration] = useLocalStorageState("submit.step2.duration", "");
+    const [synopsis, setSynopsis] = useLocalStorageState("submit.step2.synopsis", "");
+    const [selectedTools, setSelectedTools] = useLocalStorageState<string[]>("submit.step2.selectedTools", []);
+    const [customTool, setCustomTool] = useLocalStorageState("submit.step2.customTool", "");
+    const [selectedTags, setSelectedTags] = useLocalStorageState<string[]>("submit.step2.selectedTags", []);
+    const [soundMentions, setSoundMentions] = useLocalStorageState("submit.step2.soundMentions", "");
+    const [rights, setRights] = useLocalStorageState("submit.step2.rights", false);
+    const [country, setCountry] = useLocalStorageState("submit.step2.country", "");
+    const [language, setLanguage] = useLocalStorageState("submit.step2.language", "");
+    const [category, setCategory] = useLocalStorageState("submit.step2.category", "");
     const [showValidation, setShowValidation] = useState(false);
+    const synopsisLen = synopsis.length;
 
     const missing = {
         title: !title.trim(),
@@ -145,10 +150,7 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
                         placeholder="> Décrivez votre film en quelques lignes..."
                         maxLength={180}
                         value={synopsis}
-                        onChange={(e) => {
-                            setSynopsis(e.target.value);
-                            setSynopsisLen(e.target.value.length);
-                        }}
+                        onChange={(e) => setSynopsis(e.target.value)}
                     />
                     <span className="absolute bottom-2 right-3 f-mono text-[9px] text-white/25">
                         {synopsisLen}/180
@@ -194,6 +196,26 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
                         triggerStyle={getComboboxTriggerStyle(missing.language)}
                         options={LANGUAGE_OPTIONS}
                         placeholder="Sélectionner..."
+                        renderOption={(opt) => {
+                            const flagCode = getLanguageFlagCode(opt.value) ?? "";
+                            const Flag = (Flags as Record<string, ComponentType<{ className?: string }>>)[flagCode];
+                            return (
+                                <span className="flex items-center gap-2">
+                                    {Flag && <Flag className="w-4 h-3 rounded-sm" />}
+                                    {opt.label}
+                                </span>
+                            );
+                        }}
+                        renderValue={(opt) => {
+                            const flagCode = getLanguageFlagCode(opt.value) ?? "";
+                            const Flag = (Flags as Record<string, ComponentType<{ className?: string }>>)[flagCode];
+                            return (
+                                <span className="flex items-center gap-2">
+                                    {Flag && <Flag className="w-4 h-3 rounded-sm" />}
+                                    {opt.label}
+                                </span>
+                            );
+                        }}
                     />
                 </FormField>
                 <FormField label="Catégorie" required>
@@ -283,18 +305,31 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
             </FormField>
 
             {/* Checkbox droits */}
-            <label className="flex items-start gap-3 cursor-pointer group">
+            <label
+                className="flex items-start gap-3 cursor-pointer group rounded-xl px-4 py-3 transition-all"
+                style={{
+                    border: `1px solid ${showValidation && missing.rights ? "rgba(255, 92, 53, .70)" : "rgba(255, 92, 53, .28)"}`,
+                    background: showValidation && missing.rights ? "rgba(255, 92, 53, .12)" : "rgba(255, 92, 53, .05)",
+                }}
+            >
                 <div
-                    className="mt-0.5 w-4 h-4 rounded border shrink-0 flex items-center justify-center transition-all"
+                    className="mt-0.5 w-4 h-4 rounded-[4px] border shrink-0 flex items-center justify-center transition-all"
                     style={{
-                        borderColor: showValidation && missing.rights ? "rgba(255, 92, 53, .8)" : rights ? "var(--col-vi)" : "rgba(255,255,255,.2)",
-                        background: rights ? "rgba(125,113,251,.2)" : showValidation && missing.rights ? "rgba(255, 92, 53, .08)" : "transparent",
+                        borderColor: showValidation && missing.rights ? "rgba(255, 92, 53, .85)" : rights ? "rgba(0,0,0,0)" : "rgba(255,255,255,.2)",
+                        background: rights
+                            ? "linear-gradient(135deg, rgba(125,113,251,.98) 0%, rgba(255,92,53,.98) 100%)"
+                            : showValidation && missing.rights
+                                ? "rgba(255, 92, 53, .10)"
+                                : "rgba(255,255,255,.01)",
+                        boxShadow: rights
+                            ? "0 0 0 1px rgba(125,113,251,.28), 0 0 12px rgba(125,113,251,.26)"
+                            : "none",
                     }}
                     onClick={() => setRights((r) => !r)}
                 >
                     {rights && (
                         <svg width="8" height="6" viewBox="0 0 8 6" fill="none">
-                            <path d="M1 3L3 5L7 1" stroke="var(--col-vi)" strokeWidth="1.5" strokeLinecap="round" />
+                            <path d="M1 3L3 5L7 1" stroke="rgba(255,255,255,.98)" strokeWidth="1.6" strokeLinecap="round" />
                         </svg>
                     )}
                 </div>

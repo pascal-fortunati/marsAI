@@ -5,6 +5,7 @@ import { Combobox } from "../../components/ui/combobox";
 import { DatePicker } from "../../components/ui/date-picker";
 import * as Flags from "country-flag-icons/react/3x2";
 import { FR_COUNTRY_NAMES, getCountryCode } from "../../lib/countryMapping";
+import { useLocalStorageState } from "../../lib/useLocalStorageState";
 
 interface Step1Props {
     onNext: () => void;
@@ -34,7 +35,11 @@ const HOW_FOUND = ["Réseaux sociaux (Instagram, TikTok...)", "Twitter/X", "Bouc
 
 const SOCIAL = ["Instagram", "Youtube", "LinkedIn", "X/Twitter", "Facebook", "Tumblr", "Autre"];
 
-const COUNTRY_OPTIONS = FR_COUNTRY_NAMES.map((countryName) => ({
+const COUNTRY_NAMES_WITH_FRANCE_FIRST = FR_COUNTRY_NAMES.includes("France")
+    ? ["France", ...FR_COUNTRY_NAMES.filter((countryName) => countryName !== "France")]
+    : FR_COUNTRY_NAMES;
+
+const COUNTRY_OPTIONS = COUNTRY_NAMES_WITH_FRANCE_FIRST.map((countryName) => ({
     value: countryName,
     label: countryName,
 }));
@@ -44,18 +49,18 @@ const JOB_OPTIONS = JOBS.map((job) => ({ value: job, label: job }));
 
 
 export default function Step1({ onNext }: Step1Props) {
-    const [fullName, setFullName] = useState("");
-    const [email, setEmail] = useState("");
-    const [phone, setPhone] = useState("");
-    const [birthDate, setBirthDate] = useState("");
-    const [address, setAddress] = useState("");
-    const [postalCode, setPostalCode] = useState("");
-    const [city, setCity] = useState("");
-    const [country, setCountry] = useState("");
-    const [job, setJob] = useState("");
-    const [howFound, setHowFound] = useState("");
-    const [legalName, setLegalName] = useState("");
-    const [legalEmail, setLegalEmail] = useState("");
+    const [fullName, setFullName] = useLocalStorageState("submit.step1.fullName", "");
+    const [email, setEmail] = useLocalStorageState("submit.step1.email", "");
+    const [phone, setPhone] = useLocalStorageState("submit.step1.phone", "");
+    const [birthDate, setBirthDate] = useLocalStorageState("submit.step1.birthDate", "");
+    const [address, setAddress] = useLocalStorageState("submit.step1.address", "");
+    const [postalCode, setPostalCode] = useLocalStorageState("submit.step1.postalCode", "");
+    const [city, setCity] = useLocalStorageState("submit.step1.city", "");
+    const [country, setCountry] = useLocalStorageState("submit.step1.country", "");
+    const [job, setJob] = useLocalStorageState("submit.step1.job", "");
+    const [howFound, setHowFound] = useLocalStorageState("submit.step1.howFound", "");
+    const [legalName, setLegalName] = useLocalStorageState("submit.step1.legalName", "");
+    const [legalEmail, setLegalEmail] = useLocalStorageState("submit.step1.legalEmail", "");
     const [showValidation, setShowValidation] = useState(false);
 
     const missing = {
