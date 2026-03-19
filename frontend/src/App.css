@@ -110,6 +110,10 @@ body {
         background: #05030d;
         color: #fff;
     }
+
+    button {
+        cursor: pointer;
+    }
 }
 
 /* Card — s'assure qu'elle prend bien le bon bg sans sur-teinte */
