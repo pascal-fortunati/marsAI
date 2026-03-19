@@ -140,47 +140,47 @@ export default function NavBar({
             <div className="flex flex-row items-center size-full">
               <div className="content-stretch flex items-center justify-between px-[148.5px] relative size-full">
                 {/* Left Section: Logo + Stats */}
-                <div className="content-stretch flex items-center justify-between relative shrink-0 w-[1002.09px]">
-                  {/* Logo Section */}
-                  <div className="content-stretch flex flex-[1_0_0] gap-[16px] items-center min-h-px min-w-px relative">
-                    <a
-                      href="/"
-                      className="overflow-clip relative rounded-[16px] shrink-0 size-[56px]"
-                      data-name="Link"
-                    >
-                      <img
-                        src={logo}
-                        alt="Mars AI logo"
-                        className="h-[28px] w-[28px] object-contain"
-                      />
-                    </a>
+                {/* Left Section: Logo */}
+                <div className="flex items-center gap-[16px] shrink-0">
+                  <a
+                    href="/"
+                    className="overflow-clip relative rounded-[16px] shrink-0 size-[56px]"
+                    data-name="Link"
+                  >
+                    <img
+                      src={logo}
+                      alt="Mars AI logo"
+                      className="h-[28px] w-[28px] object-contain"
+                    />
+                  </a>
 
-                    <div className="content-stretch flex flex-[1_0_0] flex-col gap-[2px] items-start leading-[0] min-h-px min-w-px relative">
-                      <div className="content-stretch flex gap-[7.69px] items-center relative shrink-0 text-[16px] w-full">
-                        <div className="flex flex-col f-orb font-black h-[20px] justify-center relative shrink-0 text-white w-[71.81px]">
-                          <p>
-                            <span className="leading-[24px]">MARS</span>
-                            <span className="leading-[24px] text-[#ff5c35]">
-                              AI
-                            </span>
-                          </p>
-                        </div>
-                        <div className="flex flex-col f-orb font-bold h-[20px] justify-center relative shrink-0 text-[rgba(255,255,255,0.25)] w-[9.195px]">
-                          <p className="leading-[24px]">·</p>
-                        </div>
-                        <div className="flex flex-col f-orb font-black h-[20px] justify-center relative shrink-0 text-[rgba(255,255,255,0.55)] w-[114.707px]">
-                          <p className="leading-[24px]">Espace Jury</p>
-                        </div>
-                      </div>
-                      <div className="flex flex-col font-['Share_Tech_Mono:Regular',sans-serif] justify-center not-italic relative shrink-0 text-[12px] text-[rgba(255,255,255,0.28)] w-full">
-                        <p className="leading-[16px]">
-                          Session active · Accès sécurisé
+                  <div className="content-stretch flex flex-col gap-[2px] items-start leading-[0] min-h-px min-w-px relative">
+                    <div className="content-stretch flex gap-[7.69px] items-center relative shrink-0 text-[16px] w-full">
+                      <div className="flex flex-col f-orb font-black h-[20px] justify-center relative shrink-0 text-white w-[71.81px]">
+                        <p>
+                          <span className="leading-[24px]">MARS</span>
+                          <span className="leading-[24px] text-[#ff5c35]">
+                            AI
+                          </span>
                         </p>
                       </div>
+                      <div className="flex flex-col f-orb font-bold h-[20px] justify-center relative shrink-0 text-[rgba(255,255,255,0.25)] w-[9.195px]">
+                        <p className="leading-[24px]">·</p>
+                      </div>
+                      <div className="flex flex-col f-orb font-black h-[20px] justify-center relative shrink-0 text-[rgba(255,255,255,0.55)] w-[114.707px]">
+                        <p className="leading-[24px]">Espace Jury</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-col font-['Share_Tech_Mono:Regular',sans-serif] justify-center not-italic relative shrink-0 text-[12px] text-[rgba(255,255,255,0.28)] w-full">
+                      <p className="leading-[16px]">
+                        Session active · Accès sécurisé
+                      </p>
                     </div>
                   </div>
+                </div>
 
-                  {/* Stats Section */}
+                {/* Center Section: Stats */}
+                <div className="flex flex-1 justify-center">
                   <div className="content-stretch flex gap-[21px] items-center relative shrink-0 w-[356.25px]">
                     <div className="content-stretch flex flex-[1_0_0] items-center min-h-px min-w-px relative">
                       {/* Total Films */}
