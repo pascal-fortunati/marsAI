@@ -1,4 +1,6 @@
 import { Check } from "lucide-react";
+import { Button } from "../../components/ui/button";
+import { marsaiGradients } from "../../theme/marsai";
 
 interface ConfirmationProps {
     submissionId?: string;
@@ -77,13 +79,15 @@ export default function Confirmation({
                     >
                         Retour à l'accueil
                     </button>
-                    <button
+                    <Button
+                        type="button"
                         onClick={onSubmitAnother}
-                        className="f-mono text-[10px] tracking-widest uppercase px-6 h-10 rounded-full font-bold text-white transition-all hover:opacity-90 active:scale-95"
-                        style={{ background: "linear-gradient(90deg, var(--col-vi), var(--col-or))" }}
+                        className="f-orb group relative overflow-hidden rounded-full px-8 text-xs font-bold uppercase tracking-widest text-white transition-all duration-300"
+                        style={{ background: marsaiGradients.primaryToAccent }}
                     >
-                        Soumettre un autre film
-                    </button>
+                        <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+                        <span className="relative">Soumettre un autre film</span>
+                    </Button>
                 </div>
 
             </div>

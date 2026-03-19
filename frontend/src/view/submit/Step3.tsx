@@ -1,5 +1,7 @@
 import { useState, useRef } from "react";
 import { Upload, Clock, HardDrive, Film, Check } from "lucide-react";
+import { Button } from "../../components/ui/button";
+import { marsaiGradients } from "../../theme/marsai";
 
 interface Step3Props {
     onNext: () => void;
@@ -203,9 +205,15 @@ export default function Step3({ onNext, onPrev }: Step3Props) {
                 >
                     ← Précédent
                 </button>
-                <button onClick={handleNext} className="f-mono text-[10px] sm:text-[11px] tracking-widest uppercase px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl text-white font-bold transition-all hover:opacity-90 active:scale-95 w-full sm:w-auto" style={{ background: "linear-gradient(90deg, var(--col-vi), var(--col-or))" }}>
-                    Étape suivante →
-                </button>
+                <Button
+                    type="button"
+                    onClick={handleNext}
+                    className="f-orb group relative overflow-hidden rounded-full px-8 text-xs font-bold uppercase tracking-widest text-white transition-all duration-300"
+                    style={{ background: marsaiGradients.primaryToAccent }}
+                >
+                    <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+                    <span className="relative">Étape suivante →</span>
+                </Button>
             </div>
 
             <p className="f-mono text-[9px] text-white/25 tracking-wide text-center">

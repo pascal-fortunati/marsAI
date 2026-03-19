@@ -3,9 +3,11 @@ import { useState, type ComponentType } from "react";
 import { FormField } from "../../components/FormField";
 import { Combobox } from "../../components/ui/combobox";
 import { DatePicker } from "../../components/ui/date-picker";
+import { Button } from "../../components/ui/button";
 import * as Flags from "country-flag-icons/react/3x2";
 import { FR_COUNTRY_NAMES, getCountryCode } from "../../lib/countryMapping";
 import { useLocalStorageState } from "../../lib/useLocalStorageState";
+import { marsaiGradients } from "../../theme/marsai";
 
 interface Step1Props {
     onNext: () => void;
@@ -310,9 +312,15 @@ export default function Step1({ onNext }: Step1Props) {
 
             {/* Bouton Suivant */}
             <div className="flex justify-end gap-2 pt-2 sm:pt-4">
-                <button onClick={handleNext} className="f-mono text-[10px] sm:text-[11px] tracking-widest uppercase px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl text-white font-bold transition-all hover:opacity-90 active:scale-95" style={{ background: "linear-gradient(90deg, var(--col-vi), var(--col-or))" }}>
-                    Étape suivante →
-                </button>
+                <Button
+                    type="button"
+                    onClick={handleNext}
+                    className="f-orb group relative overflow-hidden rounded-full px-8 text-xs font-bold uppercase tracking-widest text-white transition-all duration-300"
+                    style={{ background: marsaiGradients.primaryToAccent }}
+                >
+                    <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+                    <span className="relative">Étape suivante →</span>
+                </Button>
             </div>
 
             <p className="f-mono text-[9px] text-white/25 tracking-wide text-center">

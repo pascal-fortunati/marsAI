@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Rocket, AlertTriangle, Loader2 } from "lucide-react";
+import { Button } from "../../components/ui/button";
+import { marsaiGradients } from "../../theme/marsai";
 
 interface Step4Props {
   onSubmit: () => void;
@@ -88,20 +90,6 @@ export default function Step4({
 
   return (
     <div className="space-y-4 sm:space-y-6">
-
-      <style>{`
-        @keyframes submitHaloPulse {
-          0% {
-            box-shadow: 0 0 0 0 rgba(255,255,255,.2), 0 0 0 0 rgba(125,113,251,.38), 0 0 12px 2px rgba(255,255,255,.18);
-          }
-          50% {
-            box-shadow: 0 0 0 8px rgba(255,255,255,0), 0 0 0 16px rgba(125,113,251,0), 0 0 30px 8px rgba(255,255,255,.28);
-          }
-          100% {
-            box-shadow: 0 0 0 0 rgba(255,255,255,.2), 0 0 0 0 rgba(125,113,251,.38), 0 0 12px 2px rgba(255,255,255,.18);
-          }
-        }
-      `}</style>
 
       {/* En-tête étape */}
       <div className="flex items-center gap-3 sm:gap-4 pb-2">
@@ -207,29 +195,31 @@ export default function Step4({
           ← Précédent
         </button>
         <div className="relative w-full sm:w-auto">
-          <button
+          <Button
+            type="button"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="relative z-10 f-mono text-[10px] sm:text-[11px] tracking-widest uppercase px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-bold transition-all hover:opacity-90 active:scale-95 flex items-center justify-center gap-2 w-full sm:w-auto"
+            className="f-orb group relative overflow-hidden rounded-full px-8 text-xs font-bold uppercase tracking-widest text-white transition-all duration-300"
             style={{
-              background: !isSubmitting
-                ? "linear-gradient(90deg, var(--col-vi), var(--col-or))"
-                : "rgba(255,255,255,.1)",
-              color: !isSubmitting ? "white" : "rgba(255,255,255,.3)",
-              cursor: !isSubmitting ? "pointer" : "not-allowed",
-              animation: !isSubmitting ? "submitHaloPulse 3.6s cubic-bezier(0.4, 0, 0.2, 1) infinite" : "none",
+              background: marsaiGradients.primaryToAccent,
+              animation: "pulseGlow 2.5s ease-in-out infinite",
             }}
           >
-            {isSubmitting ? (
-              <>
-                <Loader2 size={13} className="animate-spin" /> SOUMISSION...
-              </>
-            ) : (
-              <>
-                <Rocket size={13} /> Soumettre le film
-              </>
-            )}
-          </button>
+            <>
+              <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+              {isSubmitting ? (
+                <>
+                  <Loader2 size={13} className="relative animate-spin" />
+                  <span className="relative">SOUMISSION...</span>
+                </>
+              ) : (
+                <>
+                  <Rocket size={13} className="relative" />
+                  <span className="relative">Soumettre le film</span>
+                </>
+              )}
+            </>
+          </Button>
         </div>
       </div>
 
