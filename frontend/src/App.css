@@ -377,6 +377,7 @@ select.submit-input option {
     height: 100%;
     border: 0;
 }
+/*responsive pour la modale*/
 
 @media (max-width: 768px) {
     .youtube-modal-card {
