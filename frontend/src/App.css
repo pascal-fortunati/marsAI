@@ -390,3 +390,26 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .date-picker-year-scroll::-webkit-scrollbar-thumb:hover {
     background: rgba(125, 113, 251, 1);
 }
+
+/* Media queries pour le responsive mobile */
+@media (max-width: 640px) {
+    .submit-input {
+        font-size: 14px;
+        padding: 9px 12px;
+    }
+
+    .submit-input::placeholder {
+        font-size: 13px;
+    }
+
+    body {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 768px) {
+    .panel-input {
+        font-size: 11px;
+        padding: 8px 12px;
+    }
+}

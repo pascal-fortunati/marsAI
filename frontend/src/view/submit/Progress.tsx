@@ -14,7 +14,7 @@ export default function Progress({ currentStep }: ProgressProps) {
     ];
 
     return (
-        <div className="mb-7 px-14 md:px-[4.5rem]">
+        <div className="mb-5 sm:mb-7 px-2 sm:px-4 md:px-8 lg:px-[4.5rem]">
             <div className="relative flex items-start">
                 {etapes.map((step, index) => {
                     const isActive = currentStep === step.num;
@@ -23,9 +23,9 @@ export default function Progress({ currentStep }: ProgressProps) {
 
                     return (
                         <React.Fragment key={step.num}>
-                            <div className="relative z-10 w-10 shrink-0 flex flex-col items-center gap-2.5">
+                            <div className="relative z-10 w-7 sm:w-8 md:w-10 shrink-0 flex flex-col items-center gap-1.5 sm:gap-2.5">
                                 <div
-                                    className="w-10 h-10 rounded-[14px] flex items-center justify-center transition-all"
+                                    className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-[12px] sm:rounded-[14px] flex items-center justify-center transition-all"
                                     style={{
                                         border: isCompleted
                                             ? "1px solid rgba(255,255,255,.06)"
@@ -45,10 +45,10 @@ export default function Progress({ currentStep }: ProgressProps) {
                                     }}
                                 >
                                     {isCompleted ? (
-                                        <Check size={14} strokeWidth={2.7} style={{ color: "rgba(255,255,255,.98)" }} />
+                                        <Check size={12} strokeWidth={2.7} style={{ color: "rgba(255,255,255,.98)" }} />
                                     ) : (
                                         <Icon
-                                            size={14}
+                                            size={12}
                                             strokeWidth={2.2}
                                             style={{
                                                 color: isActive ? "rgba(255,255,255,.96)" : "rgba(255,255,255,.72)",
@@ -58,7 +58,7 @@ export default function Progress({ currentStep }: ProgressProps) {
                                 </div>
 
                                 <span
-                                    className="f-mono text-[9px] tracking-[0.22em] uppercase text-center whitespace-nowrap"
+                                    className="f-mono text-[7px] sm:text-[8px] md:text-[9px] tracking-[0.22em] uppercase text-center whitespace-nowrap"
                                     style={{
                                         color: isCompleted
                                             ? "rgba(255,255,255,.36)"
@@ -73,7 +73,7 @@ export default function Progress({ currentStep }: ProgressProps) {
 
                             {index < etapes.length - 1 && (
                                 <div
-                                    className="flex-1 h-px mt-5 mx-4 md:mx-6"
+                                    className="flex-1 h-px mt-3.5 sm:mt-5 mx-2 sm:mx-4 md:mx-6"
                                     style={{
                                         background:
                                             currentStep > step.num

@@ -36,7 +36,7 @@ function DropZone({ label, required, accept, hint, formats, file, onFileChange, 
     return (
         <div className="space-y-1.5">
             {/* Label */}
-            <p className="f-mono text-[9px] tracking-widest uppercase text-white/40">
+            <p className="f-mono text-[8px] sm:text-[9px] tracking-widest uppercase text-white/40">
                 {label}
                 {required && <span className="ml-1" style={{ color: "var(--col-or)" }}>*</span>}
             </p>
@@ -47,7 +47,7 @@ function DropZone({ label, required, accept, hint, formats, file, onFileChange, 
                 onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
                 onDragLeave={() => setDragging(false)}
                 onDrop={handleDrop}
-                className="rounded-xl cursor-pointer transition-all flex flex-col items-center justify-center gap-2 py-10"
+                className="rounded-lg sm:rounded-xl cursor-pointer transition-all flex flex-col items-center justify-center gap-1 sm:gap-2 py-8 sm:py-10"
                 style={{
                     border: `1px dashed ${hasError ? "rgba(255, 92, 53, .75)" : dragging ? "var(--col-vi)" : file ? "rgba(0, 237, 143, .45)" : "rgba(255,255,255,.1)"}`,
                     background: dragging
@@ -64,11 +64,11 @@ function DropZone({ label, required, accept, hint, formats, file, onFileChange, 
                 {file ? (
                     // Fichier sélectionné
                     <>
-                        <Check size={28} strokeWidth={2.4} style={{ color: "rgba(0, 237, 143, .95)" }} />
-                        <p className="f-orb text-[12px] md:text-[14px] leading-none text-[#00ed8f]">
+                        <Check size={24} strokeWidth={2.4} style={{ color: "rgba(0, 237, 143, .95)" }} />
+                        <p className="f-orb text-[11px] sm:text-[12px] md:text-[14px] leading-none text-[#00ed8f] break-all text-center max-w-xs">
                             {file.name}
                         </p>
-                        <p className="f-mono text-[9px] text-white/35">
+                        <p className="f-mono text-[8px] sm:text-[9px] text-white/35">
                             {(file.size / 1024 / 1024).toFixed(1)} Mo
                         </p>
                         <button
@@ -77,7 +77,7 @@ function DropZone({ label, required, accept, hint, formats, file, onFileChange, 
                                 e.stopPropagation();
                                 onFileChange(null);
                             }}
-                            className="f-mono text-[9px] tracking-[0.16em] uppercase transition-opacity hover:opacity-80"
+                            className="f-mono text-[8px] sm:text-[9px] tracking-[0.16em] uppercase transition-opacity hover:opacity-80"
                             style={{ color: "rgba(255, 92, 53, .95)" }}
                         >
                             Supprimer
@@ -86,10 +86,10 @@ function DropZone({ label, required, accept, hint, formats, file, onFileChange, 
                 ) : (
                     // État vide
                     <>
-                        <Upload size={20} className="text-white/20" />
-                        <p className="f-orb text-[14px] md:text-[16px] leading-none text-white/58">Glisser-déposer ou cliquer</p>
-                        <p className="f-mono text-[11px] tracking-[0.18em] uppercase text-white/30">{formats}</p>
-                        <p className="f-mono text-[10px] text-white/20">{hint}</p>
+                        <Upload size={18} className="text-white/20" />
+                        <p className="f-orb text-[12px] sm:text-[14px] md:text-[16px] leading-none text-white/58">Glisser-déposer ou cliquer</p>
+                        <p className="f-mono text-[9px] sm:text-[11px] tracking-[0.18em] uppercase text-white/30">{formats}</p>
+                        <p className="f-mono text-[8px] sm:text-[10px] text-white/20">{hint}</p>
                     </>
                 )}
             </div>
@@ -119,7 +119,7 @@ export default function Step3({ onNext, onPrev }: Step3Props) {
     };
 
     return (
-        <div className="space-y-6 relative overflow-hidden rounded-3xl p-6" style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px  solid rgba(255, 255, 255, 0.07)" }}>
+        <div className="space-y-4 sm:space-y-6 relative overflow-hidden rounded-2xl sm:rounded-3xl p-4 sm:p-6" style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px  solid rgba(255, 255, 255, 0.07)" }}>
 
             {/* En-tête étape */}
             <div className="flex items-center gap-4 pb-2">
@@ -134,7 +134,7 @@ export default function Step3({ onNext, onPrev }: Step3Props) {
 
             {/* Avertissement */}
             <p
-                className="f-mono text-[9px] text-white/35 leading-relaxed rounded-xl px-4 py-3"
+                className="f-mono text-[8px] sm:text-[9px] text-white/35 leading-relaxed rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3"
                 style={{ border: "1px solid rgba(255,255,255,.07)", background: "rgba(255,255,255,.02)" }}
             >
                 &gt; Votre vidéo sera stockée sur S3 Scaleway et uploadée en privé sur YouTube pour vérification
@@ -176,7 +176,7 @@ export default function Step3({ onNext, onPrev }: Step3Props) {
             />
 
             {/* Récapitulatif des contraintes */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {[
                     { icon: Clock, label: "Durée max", value: "2 minutes" },
                     { icon: HardDrive, label: "Taille max", value: "3000 Mo" },
@@ -184,7 +184,7 @@ export default function Step3({ onNext, onPrev }: Step3Props) {
                 ].map(({ icon: Icon, label, value }) => (
                     <div
                         key={label}
-                        className="rounded-xl py-4 flex flex-col items-center gap-1.5"
+                        className="rounded-lg sm:rounded-xl py-3 sm:py-4 px-2 sm:px-3 flex flex-col items-center gap-1"
                         style={{ border: "1px solid rgba(255,255,255,.07)", background: "rgba(255,255,255,.02)" }}
                     >
                         <Icon size={14} className="text-white/25" />
@@ -195,15 +195,15 @@ export default function Step3({ onNext, onPrev }: Step3Props) {
             </div>
 
             {/* Navigation */}
-            <div className="flex justify-between items-center pt-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center pt-2 sm:pt-4">
                 <button
                     onClick={onPrev}
-                    className="f-mono text-[10px] tracking-widest uppercase px-5 py-2.5 rounded-xl transition-opacity hover:opacity-70"
+                    className="f-mono text-[10px] sm:text-[9px] tracking-widest uppercase px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl transition-opacity hover:opacity-70 w-full sm:w-auto"
                     style={{ border: "1px solid rgba(255,255,255,.15)", color: "rgba(255,255,255,.4)" }}
                 >
                     ← Précédent
                 </button>
-                <button onClick={handleNext} className="f-mono text-[11px] tracking-widest uppercase px-6 py-3 rounded-xl text-white font-bold transition-all hover:opacity-90 active-scale-95" style={{ background: "linear-gradient(90deg, var(--col-vi), var(--col-or))" }}>
+                <button onClick={handleNext} className="f-mono text-[10px] sm:text-[11px] tracking-widest uppercase px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl text-white font-bold transition-all hover:opacity-90 active:scale-95 w-full sm:w-auto" style={{ background: "linear-gradient(90deg, var(--col-vi), var(--col-or))" }}>
                     Étape suivante →
                 </button>
             </div>

@@ -108,7 +108,7 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
     };
 
     return (
-        <div className="space-y-6 relative overflow-hidden rounded-3xl p-6" style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px  solid rgba(255, 255, 255, 0.07)" }}>
+        <div className="space-y-4 sm:space-y-6 relative overflow-hidden rounded-2xl sm:rounded-3xl p-4 sm:p-6" style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px  solid rgba(255, 255, 255, 0.07)" }}>
 
             {/* En-tête étape 2 */}
             <div className="flex items-center gap-4 pb-2">
@@ -122,7 +122,7 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
             </div>
 
             {/* Titre, durée, synopsis */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <FormField label="Titre du film" required>
                     <input
                         className={getInputClassName(missing.title)}
@@ -159,7 +159,7 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
             </FormField>
 
             {/* Pays de production, langue, catégorie */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 <FormField label="Pays" required>
                     <Combobox
                         value={country}
@@ -341,15 +341,15 @@ export default function Step2({ onNext, onPrev }: Step2Props) {
             </label>
 
             {/* Navigation */}
-            <div className="flex justify-between items-center pt-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center pt-2 sm:pt-4">
                 <button
                     onClick={onPrev}
-                    className="f-mono text-[10px] tracking-widest uppercase px-5 py-2.5 rounded-xl transition-opacity hover:opacity-70"
+                    className="f-mono text-[10px] sm:text-[9px] tracking-widest uppercase px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl transition-opacity hover:opacity-70 w-full sm:w-auto"
                     style={{ border: "1px solid rgba(255,255,255,.15)", color: "rgba(255,255,255,.4)" }}
                 >
                     ← Précédent
                 </button>
-                <button onClick={handleNext} className="f-mono text-[11px] tracking-widest uppercase px-6 py-3 rounded-xl text-white font-bold transition-all hover:opacity-90 active-scale-95" style={{ background: "linear-gradient(90deg, var(--col-vi), var(--col-or))" }}>
+                <button onClick={handleNext} className="f-mono text-[10px] sm:text-[11px] tracking-widest uppercase px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl text-white font-bold transition-all hover:opacity-90 active:scale-95 w-full sm:w-auto" style={{ background: "linear-gradient(90deg, var(--col-vi), var(--col-or))" }}>
                     Étape suivante →
                 </button>
 

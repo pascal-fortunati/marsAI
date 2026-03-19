@@ -103,7 +103,7 @@ export default function Step1({ onNext }: Step1Props) {
     };
 
     return (
-        <div className="space-y-6 relative overflow-hidden rounded-3xl p-6" style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px  solid rgba(255, 255, 255, 0.07)" }}>
+        <div className="space-y-4 sm:space-y-6 relative overflow-hidden rounded-2xl sm:rounded-3xl p-4 sm:p-6" style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px  solid rgba(255, 255, 255, 0.07)" }}>
 
             {/* En-tête */}
             <div className="flex items-center gap-4 pb-2">
@@ -118,7 +118,7 @@ export default function Step1({ onNext }: Step1Props) {
 
             {/* Informations personnelles */}
             {/* Identité et coordonnées */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <FormField label="Nom complet" required>
                     <input
                         className={getInputClassName(missing.fullName)}
@@ -140,7 +140,7 @@ export default function Step1({ onNext }: Step1Props) {
                 </FormField>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <FormField label="Téléphone" required>
                     <input
                         className={getInputClassName(missing.phone)}
@@ -179,7 +179,7 @@ export default function Step1({ onNext }: Step1Props) {
                 />
             </FormField>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 <FormField label="Code postal" required>
                     <input
                         className={getInputClassName(missing.postalCode)}
@@ -230,7 +230,7 @@ export default function Step1({ onNext }: Step1Props) {
             </div>
 
             {/* Profession + Réseaux sociaux */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <FormField label="Métier actuel" required>
                     <Combobox
                         value={job}
@@ -271,7 +271,7 @@ export default function Step1({ onNext }: Step1Props) {
             </FormField>
 
             <div
-                className="rounded-2xl px-5 py-5 space-y-4"
+                className="rounded-lg sm:rounded-2xl px-4 sm:px-5 py-4 sm:py-5 space-y-3 sm:space-y-4"
                 style={{
                     border: "1px solid rgba(125,113,251,.28)",
                     background: "rgba(16,10,38,.42)",
@@ -284,7 +284,7 @@ export default function Step1({ onNext }: Step1Props) {
                     </span>
                 </p>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-5">
                     <FormField label="Nom du référent légal" required>
                         <input
                             className={getInputClassName(missing.legalName)}
@@ -309,8 +309,8 @@ export default function Step1({ onNext }: Step1Props) {
             </div>
 
             {/* Bouton Suivant */}
-            <div className="flex justify-end pt-2">
-                <button onClick={handleNext} className="f-mono text-[11px] tracking-widest uppercase px-6 py-3 rounded-xl text-white font-bold transition-all hover:opacity-90 active-scale-95" style={{ background: "linear-gradient(90deg, var(--col-vi), var(--col-or))" }}>
+            <div className="flex justify-end gap-2 pt-2 sm:pt-4">
+                <button onClick={handleNext} className="f-mono text-[10px] sm:text-[11px] tracking-widest uppercase px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl text-white font-bold transition-all hover:opacity-90 active:scale-95" style={{ background: "linear-gradient(90deg, var(--col-vi), var(--col-or))" }}>
                     Étape suivante →
                 </button>
             </div>

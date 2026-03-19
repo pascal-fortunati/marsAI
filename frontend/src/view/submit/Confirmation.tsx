@@ -55,7 +55,7 @@ export default function Confirmation({
                     <p className="f-mono text-[8px] tracking-[0.24em] uppercase text-white/28">
                         Identifiant de soumission
                     </p>
-                    <p className="f-orb text-[16px] md:text-[18px] leading-snug font-bold text-white tracking-normal whitespace-nowrap px-1">
+                    <p className="f-orb text-[9px] sm:text-[11px] md:text-[16px] leading-snug font-bold text-white tracking-tight whitespace-nowrap overflow-hidden text-ellipsis px-1">
                         {resolvedSubmissionId}
                     </p>
                     <p className="f-mono text-[9px] text-white/28">

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Rocket, AlertTriangle } from "lucide-react";
+import { Rocket, AlertTriangle, Loader2 } from "lucide-react";
 
 interface Step4Props {
   onSubmit: () => void;
@@ -69,6 +69,7 @@ export default function Step4({
 }: Step4Props) {
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [showValidation, setShowValidation] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const toggle = (id: string) =>
     setChecked((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -80,33 +81,34 @@ export default function Step4({
     setShowValidation(true);
 
     if (canSubmit) {
+      setIsSubmitting(true);
       onSubmit();
     }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
 
       {/* En-tête étape */}
-      <div className="flex items-center gap-4 pb-2">
-        <span className="f-mono text-[11px] tracking-[0.28em] uppercase shrink-0" style={{ color: "rgba(162, 151, 255, .9)" }}>
+      <div className="flex items-center gap-3 sm:gap-4 pb-2">
+        <span className="f-mono text-[10px] sm:text-[11px] tracking-[0.28em] uppercase shrink-0" style={{ color: "rgba(162, 151, 255, .9)" }}>
           Étape 4/4
         </span>
         <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, rgba(125,113,251,.55) 0%, rgba(125,113,251,.22) 55%, rgba(5,3,13,0) 100%)" }} />
-        <span className="f-orb text-sm md:text-[15px] leading-none tracking-[0.03em] uppercase text-white whitespace-nowrap shrink-0">
+        <span className="f-orb text-xs sm:text-sm md:text-[15px] leading-none tracking-[0.03em] uppercase text-white whitespace-nowrap shrink-0">
           Consentements
         </span>
       </div>
 
       {/* Récapitulatif du film */}
       <div
-        className="rounded-xl px-5 py-4 space-y-2"
+        className="rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 space-y-2"
         style={{ border: "1px solid rgba(255,255,255,.08)", background: "rgba(255,255,255,.02)" }}
       >
-        <p className="f-mono text-[9px] tracking-widest uppercase text-white/25 mb-3">
+        <p className="f-mono text-[8px] sm:text-[9px] tracking-widest uppercase text-white/25 mb-2 sm:mb-3">
           &gt; Récapitulatif de soumission
         </p>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-y-3 gap-x-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-2 sm:gap-y-3 gap-x-3 sm:gap-x-6">
           {[
             ["Film", filmSummary.film],
             ["Réalisateur", filmSummary.realisateur],
@@ -126,7 +128,7 @@ export default function Step4({
       </div>
 
       {/* Checkboxes de consentement */}
-      <div className="space-y-3">
+      <div className="space-y-2 sm:space-y-3">
         {CONSENTS.map((consent) => (
           (() => {
             const missingRequired = consent.required && !checked[consent.id];
@@ -135,7 +137,7 @@ export default function Step4({
               <label
                 key={consent.id}
                 onClick={() => toggle(consent.id)}
-                className="flex items-start gap-3 cursor-pointer rounded-xl px-4 py-3 transition-all"
+                className="flex items-start gap-2 sm:gap-3 cursor-pointer rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3 transition-all"
                 style={{
                   border: `1px solid ${showValidation && missingRequired ? "rgba(255, 92, 53, .65)" : checked[consent.id] ? "rgba(125,113,251,.25)" : "rgba(255,255,255,.07)"}`,
                   background: checked[consent.id] ? "rgba(125,113,251,.05)" : showValidation && missingRequired ? "rgba(255, 92, 53, .04)" : "rgba(255,255,255,.02)",
@@ -143,20 +145,20 @@ export default function Step4({
               >
                 {/* Case à cocher custom */}
                 <div
-                  className="mt-0.5 w-4 h-4 rounded border shrink-0 flex items-center justify-center transition-all"
+                  className="mt-0.5 w-4 h-4 rounded-[4px] border shrink-0 flex items-center justify-center transition-all"
                   style={{
-                    borderColor: showValidation && missingRequired ? "rgba(255, 92, 53, .8)" : checked[consent.id] ? "var(--col-vi)" : "rgba(255,255,255,.2)",
-                    background: checked[consent.id] ? "rgba(125,113,251,.2)" : showValidation && missingRequired ? "rgba(255, 92, 53, .08)" : "transparent",
+                    borderColor: showValidation && missingRequired ? "rgba(255, 92, 53, .8)" : checked[consent.id] ? "transparent" : "rgba(255,255,255,.2)",
+                    background: checked[consent.id] ? "linear-gradient(135deg, rgba(125,113,251,.98) 0%, rgba(255,92,53,.98) 100%)" : showValidation && missingRequired ? "rgba(255, 92, 53, .08)" : "transparent",
                   }}
                 >
                   {checked[consent.id] && (
                     <svg width="8" height="6" viewBox="0 0 8 6" fill="none">
-                      <path d="M1 3L3 5L7 1" stroke="var(--col-vi)" strokeWidth="1.5" strokeLinecap="round" />
+                      <path d="M1 3L3 5L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
                     </svg>
                   )}
                 </div>
 
-                <span className="f-mono text-[10px] text-white/50 leading-relaxed">
+                <span className="f-mono text-[9px] sm:text-[10px] text-white/50 leading-relaxed">
                   {consent.text}
                   {consent.required && (
                     <span className="ml-1" style={{ color: showValidation && missingRequired ? "rgba(255, 92, 53, .95)" : "var(--col-or)" }}>*</span>
@@ -170,11 +172,11 @@ export default function Step4({
 
       {/* Avertissement final */}
       <div
-        className="flex items-start gap-3 rounded-xl px-4 py-3"
-        style={{ border: "1px solid rgba(255,92,53,.2)", background: "rgba(255,92,53,.04)" }}
+        className="flex items-start gap-2 sm:gap-3 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3"
+        style={{ border: "1px solid rgba(255,255,255,.07)", background: "rgba(255,255,255,.02)" }}
       >
-        <AlertTriangle size={14} className="shrink-0 mt-0.5" style={{ color: "var(--col-or)" }} />
-        <p className="f-mono text-[9px] text-white/35 leading-relaxed">
+        <AlertTriangle size={13} className="shrink-0 mt-0.5" style={{ color: "var(--col-or)" }} />
+        <p className="f-mono text-[8px] sm:text-[9px] text-white/35 leading-relaxed">
           Un email de confirmation sera envoyé à{" "}
           <span style={{ color: "var(--col-vi)" }}>pauline.alex@laplateforme.io</span>.
           Votre film sera examiné par le jury international marsAI 2025.
@@ -182,26 +184,35 @@ export default function Step4({
       </div>
 
       {/* Navigation */}
-      <div className="flex justify-between items-center pt-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center pt-2 sm:pt-4">
         <button
           onClick={onPrev}
-          className="f-mono text-[10px] tracking-widest uppercase px-5 py-2.5 rounded-xl transition-opacity hover:opacity-70"
+          className="f-mono text-[10px] sm:text-[9px] tracking-widest uppercase px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl transition-opacity hover:opacity-70 w-full sm:w-auto"
           style={{ border: "1px solid rgba(255,255,255,.15)", color: "rgba(255,255,255,.4)" }}
         >
           ← Précédent
         </button>
         <button
           onClick={handleSubmit}
-          className="f-mono text-[11px] tracking-widest uppercase px-6 py-3 rounded-xl font-bold transition-all hover:opacity-90 active:scale-95 flex items-center justify-center gap-2"
+          disabled={isSubmitting}
+          className="f-mono text-[10px] sm:text-[11px] tracking-widest uppercase px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl font-bold transition-all hover:opacity-90 active:scale-95 flex items-center justify-center gap-2 w-full sm:w-auto"
           style={{
-            background: canSubmit
+            background: !isSubmitting
               ? "linear-gradient(90deg, var(--col-vi), var(--col-or))"
               : "rgba(255,255,255,.1)",
-            color: canSubmit ? "white" : "rgba(255,255,255,.3)",
-            cursor: canSubmit ? "pointer" : "not-allowed",
+            color: !isSubmitting ? "white" : "rgba(255,255,255,.3)",
+            cursor: !isSubmitting ? "pointer" : "not-allowed",
           }}
         >
-          <Rocket size={14} /> Soumettre le film
+          {isSubmitting ? (
+            <>
+              <Loader2 size={13} className="animate-spin" /> SOUMISSION...
+            </>
+          ) : (
+            <>
+              <Rocket size={13} /> Soumettre le film
+            </>
+          )}
         </button>
       </div>
 
