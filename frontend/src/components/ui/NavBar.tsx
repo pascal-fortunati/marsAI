@@ -183,7 +183,7 @@ export default function NavBar({
                 </div>
 
                 {/* Center Section: Stats (hidden on smaller screens) */}
-                <div className="hidden md:flex flex-1 justify-center">
+                <div className="hidden md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2">
                   <div className="flex w-full max-w-[380px] items-center justify-center gap-5">
                     {/* Total Films */}
                     <div className="flex min-w-[70px] flex-col items-center justify-center gap-1">
