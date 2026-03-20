@@ -19,7 +19,7 @@ export function FilmSearch({ query, onSearch, disabled }: FilmSearchProps) {
           aria-hidden="true"
         />
         <input
-          className="flex-1 rounded border border-slate-800 bg-slate-900/30 py-2 pl-12 pr-3 text-white placeholder:text-white/45 focus:outline-none focus:ring-2 focus:ring-primary"
+          className="f-mono flex-1 rounded border border-slate-800 bg-slate-900/30 py-2 pl-12 pr-3 text-white placeholder:text-white/45 focus:outline-none focus:ring-2 focus:ring-primary"
           placeholder={t("jury.searchPlaceholder")}
           value={query}
           onChange={(event) => onSearch(event.target.value)}

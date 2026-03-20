@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Check, RotateCcw, X, type LucideIcon } from "lucide-react";
 import { Button } from "../../components/ui/Button";
 import type { Film, VoteDecision } from "./types";
 
@@ -33,11 +34,34 @@ export function JuryVote({
     await onVote(film.id, decision, comment);
   };
 
-  const decisionButtons: Array<{ value: VoteDecision; label: string }> = [
-    { value: "validate", label: t("jury.actions.validate") },
-    { value: "refuse", label: t("jury.actions.refuse") },
-    { value: "review", label: t("jury.actions.review") },
+  const decisionButtons: Array<{
+    value: VoteDecision;
+    label: string;
+    icon: LucideIcon;
+    activeClassName: string;
+  }> = [
+    {
+      value: "validate",
+      label: t("jury.actions.validate"),
+      icon: Check,
+      activeClassName:
+        "border-emerald-400/70 bg-emerald-500/15 text-emerald-300",
+    },
+    {
+      value: "refuse",
+      label: t("jury.actions.refuse"),
+      icon: X,
+      activeClassName: "border-rose-400/70 bg-rose-500/15 text-rose-300",
+    },
+    {
+      value: "review",
+      label: t("jury.actions.review"),
+      icon: RotateCcw,
+      activeClassName: "border-amber-400/70 bg-amber-500/15 text-amber-300",
+    },
   ];
+
+  const isDisabled = Boolean(disabled);
 
   return (
     <div className="f-mono rounded-lg border border-slate-800 bg-slate-900/45 p-8 text-white shadow-lg">
@@ -51,44 +75,55 @@ export function JuryVote({
             {t("jury.selectFilm")} : <strong>{film.title}</strong>
           </p>
 
-          <div className="mt-4 space-y-3">
+          <div className="mt-4 space-y-4">
             <div className="grid gap-2 sm:grid-cols-3">
               {decisionButtons.map((item) => {
                 const active = decision === item.value;
+                const Icon = item.icon;
                 return (
-                  <Button
+                  <button
                     key={item.value}
                     type="button"
-                    variant={active ? "default" : "outline"}
                     onClick={() => setDecision(item.value)}
-                    className={!active ? "text-white" : undefined}
-                    disabled={disabled || isSubmitting}
+                    className={`h-11 rounded-md border px-4 text-base font-semibold transition disabled:opacity-50 ${
+                      active
+                        ? item.activeClassName
+                        : "border-slate-800 bg-slate-900/30 text-white hover:border-slate-600 hover:bg-slate-800/40"
+                    }`}
+                    disabled={isDisabled || isSubmitting}
                   >
-                    {item.label}
-                  </Button>
+                    <span className="inline-flex items-center justify-center gap-2">
+                      <Icon
+                        className={`h-4 w-4 ${active ? "" : "text-slate-400"}`}
+                        aria-hidden="true"
+                      />
+                      <span>{item.label}</span>
+                    </span>
+                  </button>
                 );
               })}
             </div>
 
             <div>
-              <label className="text-sm text-gray-300">
+              <label className="text-sm text-gray-400">
                 {t("jury.commentLabel")}
+                <span className="ml-1 text-slate-500">(optionnel)</span>
               </label>
               <textarea
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 className="mt-1 h-20 w-full resize-none rounded border border-slate-800 bg-slate-900/30 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder={t("jury.commentPlaceholder")}
-                disabled={disabled || isSubmitting}
+                disabled={isDisabled || isSubmitting}
               />
             </div>
 
             <Button
-              variant="default"
+              variant="outline"
               size="lg"
-              className="w-full"
+              className="f-mono w-full rounded-2xl border-0 bg-gradient-to-r from-[#7d71fb] to-[#ff5c35] text-base font-semibold text-white shadow-[0_8px_22px_rgba(125,113,251,0.28)] hover:opacity-95"
               onClick={handleSubmit}
-              disabled={disabled || isSubmitting || !film}
+              disabled={isDisabled || isSubmitting || !film}
             >
               {isSubmitting
                 ? t("jury.sending")
@@ -97,9 +132,9 @@ export function JuryVote({
 
             <button
               type="button"
-              className="text-sm text-gray-300 transition-colors hover:text-white"
+              className="text-sm text-gray-400 transition-colors hover:text-white"
               onClick={onNextFilm}
-              disabled={disabled || !film}
+              disabled={isDisabled || !film}
             >
               {t("jury.nextFilm")}
             </button>
