@@ -36,7 +36,7 @@ export function TimeBlock({ value, label }: { value: number; label: string }) {
                     boxShadow: "inset 0 0 12px rgba(125,113,251,.14)",
                 }}
             >
-                <span className="f-orb text-4xl font-black tabular-nums leading-none" style={{ color: "rgba(255,255,255,.92)" }}>
+                <span key={value} className="f-orb text-4xl font-black tabular-nums leading-none inline-block" style={{ color: "rgba(255,255,255,.92)", animation: "flipNum 0.25s ease-out" }}>
                     {pad(value)}
                 </span>
             </div>

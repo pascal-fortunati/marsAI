@@ -3,11 +3,19 @@ import { useCountdown, TimeBlock } from "./homeCounter";
 import { MAIN_STATS, PANEL_ROWS, TAGS } from "./homeHelpers";
 import { marsaiGradients } from "../../theme/marsai";
 import { Button } from "../../components/ui/button";
+import { useEffect, useState } from "react";
 
 export default function HomeView() {
+
+    const [tick, setTick] = useState(0);
+    useEffect(() => {
+        const interval = setInterval(() => setTick((t) => t + 1), 500);
+        return () => clearInterval(interval);
+    }, []);
+
     return (
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-10 min-h-screen">
-            <HeroSection />
+            <HeroSection tick={tick} />
             <CountdownSection />
             <StatsSection />
             <ShowcaseSection />
@@ -16,18 +24,25 @@ export default function HomeView() {
     );
 }
 
-function HeroSection() {
+function HeroSection({ tick }: { tick: number }) {
     return (
         <section className="flex flex-col items-center text-center pt-6 md:pt-10 pb-10 md:pb-14 gap-5">
             <div
-                className="flex items-center gap-2 px-5 py-2 rounded-full border"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-full border"
                 style={{
-                    background: "rgba(125,113,251,.1)",
-                    borderColor: "rgba(125,113,251,.5)",
-                    boxShadow: "0 0 14px rgba(125,113,251,.18)",
+                    background: "rgba(30, 20, 60, 0.5)",
+                    borderColor: "rgba(125, 113, 251, 0.8)",
+                    boxShadow: "0 0 30px rgba(125, 113, 251, 0.3), inset 0 0 20px rgba(125, 113, 251, 0.1)",
                 }}
             >
-                <span className="f-mono text-[9px] tracking-[0.26rem] uppercase text-white/70">
+                <span className="relative flex h-2.5 w-2.5 flex-shrink-0">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#7d71fb] opacity-75" />
+                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#7d71fb]" />
+                </span>
+                <span className="f-mono text-[9px] tracking-[0.26rem] uppercase leading-none" style={{
+                    fontWeight: 500,
+                    color: "rgba(200, 190, 255, 0.85)",
+                }}>
                     Appel à films ouvert · Marseille 2026
                 </span>
             </div>
@@ -41,8 +56,7 @@ function HeroSection() {
                     animation: "fadeUp 0.7s ease-out 0.3s both",
                 }}
             >
-                {`> FESTIVAL_IA_V1.0 // INITIATING`}
-                <span style={{ animation: "blink 1s step-end infinite" }}>▮</span>
+                {`> FESTIVAL_IA_V1.0 // INITIATING${tick % 2 === 0 ? "▮" : " "}`}
             </div>
 
             <h1 className="f-orb font-black leading-[0.88] tracking-tight">
@@ -160,10 +174,11 @@ function CountdownSection() {
                         >
                             <div className="flex items-center gap-3">
                                 <span
-                                    className="f-mono text-[8px] rounded-md px-2 py-1"
+                                    className="f-mono text-[8px] rounded-md p-1 flex items-center justify-center w-8 h-8"
                                     style={{
-                                        background: row.active ? "rgba(255,92,53,.9)" : "rgba(255,255,255,.06)",
+                                        background: row.active ? "linear-gradient(135deg, #7d71fb, #ff5c35)" : "rgba(255,255,255,.06)",
                                         color: row.active ? "#fff" : "rgba(255,255,255,.35)",
+                                        boxShadow: row.active ? "0 0 20px rgba(125, 113, 251, 0.4)" : "none",
                                     }}
                                 >
                                     {row.id}
@@ -217,8 +232,12 @@ function StatsSection() {
 
             <div className="pt-10 flex flex-col items-center gap-2 text-white/40">
                 <span className="f-mono text-[8px] tracking-[0.3rem] uppercase">Scroll</span>
+                <div>
+                </div>
                 <span className="block h-7 w-3 rounded-full border border-white/25 relative">
-                    <span className="absolute left-1/2 top-1.5 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-white/50" />
+                    <span className="absolute left-1/2 top-1.5 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-white/50" style={{
+                        animation: "float 1.2s ease-in-out infinite",
+                    }} />
                 </span>
             </div>
         </section>
