@@ -29,7 +29,10 @@ export function AssignedFilms({
       <h2 className="text-lg font-semibold">
         {t("jury.assigned", { count: filmsTotal })}
       </h2>
-      <p className="mt-1 text-xs text-gray-400">
+      <p
+        className="mt-1 text-xs text-gray-400"
+        style={{ fontFamily: "'Share Tech Mono', monospace" }}
+      >
         {filmsRemaining} {t("jury.remaining", { defaultValue: "restants" })}
         {" · "}
         {progression}%

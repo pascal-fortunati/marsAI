@@ -11,10 +11,17 @@ type VotePanelProps = {
     decision: VoteDecision,
     comment?: string,
   ) => Promise<void>;
+  onNextFilm: () => void;
   disabled?: boolean;
 };
 
-export function VotePanel({ film, status, onVote, disabled }: VotePanelProps) {
+export function VotePanel({
+  film,
+  status,
+  onVote,
+  onNextFilm,
+  disabled,
+}: VotePanelProps) {
   const { t } = useTranslation();
   const [decision, setDecision] = useState<VoteDecision>("validate");
   const [comment, setComment] = useState<string>("");
@@ -87,6 +94,15 @@ export function VotePanel({ film, status, onVote, disabled }: VotePanelProps) {
                 ? t("jury.sending")
                 : t("jury.sendVote", { defaultValue: "Voter" })}
             </Button>
+
+            <button
+              type="button"
+              className="text-sm text-gray-300 transition-colors hover:text-white"
+              onClick={onNextFilm}
+              disabled={disabled || !film}
+            >
+              {t("jury.nextFilm")}
+            </button>
 
             {status === "success" && (
               <p className="text-sm text-emerald-300">

@@ -246,19 +246,9 @@ export function JuryView() {
               film={selectedFilm}
               status={voteStatus}
               onVote={handleVote}
+              onNextFilm={handleNextFilm}
               disabled={!isLoggedIn || !selectedFilm}
             />
-
-            <div className="rounded-lg border border-slate-800 bg-slate-900/45 px-4 py-3">
-              <button
-                type="button"
-                className="text-sm text-gray-300 transition-colors hover:text-white"
-                onClick={handleNextFilm}
-                disabled={!isLoggedIn || !selectedFilm}
-              >
-                {t("jury.nextFilm")}
-              </button>
-            </div>
           </main>
         </section>
       </div>
