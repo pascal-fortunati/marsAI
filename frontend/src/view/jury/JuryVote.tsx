@@ -121,7 +121,7 @@ export function JuryVote({
             <Button
               variant="outline"
               size="lg"
-              className="f-mono w-full rounded-2xl border-0 bg-gradient-to-r from-[#7d71fb] to-[#ff5c35] text-base font-semibold text-white shadow-[0_8px_22px_rgba(125,113,251,0.28)] hover:opacity-95"
+              className="f-mono w-full rounded-2xl border-0 bg-gradient-to-r from-indigo-400 to-orange-500 text-base font-semibold text-white shadow-lg shadow-indigo-400/30 hover:opacity-95"
               onClick={handleSubmit}
               disabled={isDisabled || isSubmitting || !film}
             >

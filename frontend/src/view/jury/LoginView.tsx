@@ -13,7 +13,7 @@ export function LoginView({ isLoggedIn, onLogin, onLogout }: LoginViewProps) {
   // Le token doit être envoyé à `onLogin`.
 
   return (
-    <div className="bg-red text-white p-8 rounded-lg shadow-lg">
+    <div className="rounded-lg border border-slate-800 bg-slate-900/45 p-8 text-white shadow-lg">
       <h2 className="text-2xl font-bold mb-4">{t("jury.loginTitle")}</h2>
 
       {isLoggedIn ? (

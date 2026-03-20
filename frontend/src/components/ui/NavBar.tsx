@@ -33,8 +33,8 @@ function FlagButton({
       size="icon"
       className={`relative rounded-full shrink-0 h-[44px] w-[44px] transition-all ${
         isActive
-          ? "bg-gradient-to-br from-[rgba(125,113,251,0.22)] to-[rgba(255,92,53,0.2)]"
-          : "bg-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.08)]"
+          ? "bg-gradient-to-br from-indigo-400/20 to-orange-500/20"
+          : "bg-white/5 hover:bg-white/10"
       } ${className ?? ""}`}
       data-name={`Button - ${isFrench ? "Français" : "English"}`}
       aria-label={`Switch to ${isFrench ? "French" : "English"}`}
@@ -43,8 +43,8 @@ function FlagButton({
         aria-hidden="true"
         className={`absolute border border-solid inset-0 pointer-events-none rounded-full ${
           isActive
-            ? "border-[rgba(125,113,251,0.55)] shadow-[0px_0px_14px_0px_rgba(125,113,251,0.25)]"
-            : "border-[rgba(255,255,255,0.15)]"
+            ? "border-indigo-400/60 shadow-lg shadow-indigo-400/25"
+            : "border-white/20"
         }`}
       />
 
@@ -106,8 +106,8 @@ function FlagButton({
       </div>
 
       {/* Language Label */}
-      <div className="absolute bg-[#05030d] bottom-[-3px] h-[12px] left-[30%] right-[30%] rounded-full">
-        <div className="-translate-x-1/2 -translate-y-1/2 absolute flex flex-col font-['Inter:Regular',sans-serif] font-normal h-[11px] justify-center leading-[0] left-1/2 not-italic text-[7.5px] text-[rgba(255,255,255,0.75)] text-center top-[5.5px]">
+      <div className="absolute bg-slate-950 bottom-[-3px] h-[12px] left-[30%] right-[30%] rounded-full">
+        <div className="-translate-x-1/2 -translate-y-1/2 absolute flex flex-col font-['Inter:Regular',sans-serif] font-normal h-[11px] justify-center leading-[0] left-1/2 not-italic text-[7.5px] text-white/80 text-center top-[5.5px]">
           <p className="leading-[12px]">{isFrench ? "FR" : "EN"}</p>
         </div>
       </div>
@@ -130,14 +130,14 @@ export default function NavBar({
     >
       <div
         aria-hidden="true"
-        className="absolute border-[rgba(125,113,251,0.2)] border-b border-solid inset-0 pointer-events-none shadow-[0px_4px_60px_0px_rgba(125,113,251,0.07)]"
+        className="absolute border-indigo-400/20 border-b border-solid inset-0 pointer-events-none shadow-2xl shadow-indigo-400/10"
       />
 
       <div className="flex flex-col items-center size-full">
         <div className="content-stretch flex flex-col gap-[16px] items-center pb-[21px] relative w-full">
           {/* Gradient Divider */}
           <div
-            className="bg-gradient-to-r from-[rgba(125,113,251,0)] h-px shrink-0 to-[rgba(125,113,251,0)] via-1/2 via-[rgba(125,113,251,0.7)] w-full"
+            className="bg-gradient-to-r from-indigo-400/0 h-px shrink-0 to-indigo-400/0 via-1/2 via-indigo-400/70 w-full"
             data-name="Horizontal Divider"
           />
 
@@ -162,18 +162,18 @@ export default function NavBar({
                     <div className="min-w-0 flex items-center gap-[7.69px] text-[16px]">
                       <div className="min-w-0 flex-shrink truncate f-orb font-black text-white">
                         <span className="leading-[24px]">MARS</span>
-                        <span className="leading-[24px] text-[#ff5c35]">
+                        <span className="leading-[24px] text-orange-500">
                           AI
                         </span>
                       </div>
-                      <div className="min-w-0 flex-shrink f-orb text-[rgba(255,255,255,0.25)]">
+                      <div className="min-w-0 flex-shrink f-orb text-white/30">
                         <span className="leading-[24px]">·</span>
                       </div>
-                      <div className="min-w-0 flex-shrink truncate f-orb font-bold text-[rgba(255,255,255,0.55)]">
+                      <div className="min-w-0 flex-shrink truncate f-orb font-bold text-white/60">
                         <span className="leading-[24px]">Espace Jury</span>
                       </div>
                     </div>
-                    <div className="min-w-0 text-[12px] text-[rgba(255,255,255,0.28)] max-[900px]:hidden f-mono">
+                    <div className="min-w-0 text-[12px] text-white/30 max-[900px]:hidden f-mono">
                       <p className="leading-[16px] truncate">
                         Session active · Accès sécurisé
                       </p>
@@ -193,13 +193,11 @@ export default function NavBar({
                       >
                         <div className="flex items-center gap-1 rounded-full bg-white/10 px-2 py-1">
                           <span className="h-2 w-2 rounded-full bg-white" />
-                          <span className="h-2 w-2 rounded-full bg-[#22c55e]" />
-                          <span className="h-2 w-2 rounded-full bg-[#f59e0b]" />
-                          <span className="h-2 w-2 rounded-full bg-[#7d71fb]" />
+                          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                          <span className="h-2 w-2 rounded-full bg-amber-500" />
+                          <span className="h-2 w-2 rounded-full bg-indigo-400" />
                         </div>
-                        <span className="text-xs text-[rgba(255,255,255,0.28)]">
-                          stats
-                        </span>
+                        <span className="text-xs text-white/30">stats</span>
                       </Button>
                     </Popover.Trigger>
 
@@ -208,7 +206,7 @@ export default function NavBar({
                         side="bottom"
                         sideOffset={8}
                         align="center"
-                        className="z-50 w-full max-w-xs rounded-xl bg-[#05030d] p-4 shadow-xl"
+                        className="z-50 w-full max-w-xs rounded-xl bg-slate-950 p-4 shadow-xl"
                       >
                         <div className="flex items-center justify-between">
                           <p className="text-sm font-semibold text-white">
@@ -227,7 +225,7 @@ export default function NavBar({
 
                         <div className="mt-4 grid gap-3">
                           <div className="flex items-center justify-between">
-                            <span className="f-mono text-sm text-[rgba(255,255,255,0.7)]">
+                            <span className="f-mono text-sm text-white/70">
                               Films
                             </span>
                             <span className="f-orb text-lg font-black">
@@ -235,26 +233,26 @@ export default function NavBar({
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="f-mono text-sm text-[rgba(255,255,255,0.7)]">
+                            <span className="f-mono text-sm text-white/70">
                               Votés
                             </span>
-                            <span className="f-orb text-lg font-black text-[#22c55e]">
+                            <span className="f-orb text-lg font-black text-emerald-500">
                               {votedFilms}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="f-mono text-sm text-[rgba(255,255,255,0.7)]">
+                            <span className="f-mono text-sm text-white/70">
                               Restants
                             </span>
-                            <span className="f-orb text-lg font-black text-[#f59e0b]">
+                            <span className="f-orb text-lg font-black text-amber-500">
                               {remainingFilms}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="f-mono text-sm text-[rgba(255,255,255,0.7)]">
+                            <span className="f-mono text-sm text-white/70">
                               Progression
                             </span>
-                            <span className="f-orb text-lg font-black text-[#7d71fb]">
+                            <span className="f-orb text-lg font-black text-indigo-400">
                               {progression}%
                             </span>
                           </div>
@@ -269,52 +267,52 @@ export default function NavBar({
                       <div className="f-orb text-[22px] font-black text-white xl:text-[24px]">
                         {totalFilms}
                       </div>
-                      <div className="f-mono text-[12px] text-[rgba(255,255,255,0.28)]">
+                      <div className="f-mono text-[12px] text-white/30">
                         Films
                       </div>
                     </div>
 
                     <div
                       aria-hidden="true"
-                      className="h-[64px] w-px shrink-0 bg-[rgba(255,255,255,0.2)]"
+                      className="h-[64px] w-px shrink-0 bg-white/20"
                     />
 
                     {/* Voted Films */}
                     <div className="flex min-w-[62px] flex-col items-center justify-center gap-1 xl:min-w-[70px]">
-                      <div className="f-orb text-[22px] font-black text-[#22c55e] xl:text-[24px]">
+                      <div className="f-orb text-[22px] font-black text-emerald-500 xl:text-[24px]">
                         {votedFilms}
                       </div>
-                      <div className="f-mono text-[12px] text-[rgba(255,255,255,0.28)]">
+                      <div className="f-mono text-[12px] text-white/30">
                         Votés
                       </div>
                     </div>
 
                     <div
                       aria-hidden="true"
-                      className="h-[64px] w-px shrink-0 bg-[rgba(255,255,255,0.2)]"
+                      className="h-[64px] w-px shrink-0 bg-white/20"
                     />
 
                     {/* Remaining Films */}
                     <div className="flex min-w-[62px] flex-col items-center justify-center gap-1 xl:min-w-[70px]">
-                      <div className="f-orb text-[22px] font-black text-[#f59e0b] xl:text-[24px]">
+                      <div className="f-orb text-[22px] font-black text-amber-500 xl:text-[24px]">
                         {remainingFilms}
                       </div>
-                      <div className="f-mono text-[12px] text-[rgba(255,255,255,0.28)]">
+                      <div className="f-mono text-[12px] text-white/30">
                         Restants
                       </div>
                     </div>
 
                     <div
                       aria-hidden="true"
-                      className="h-[64px] w-px shrink-0 bg-[rgba(255,255,255,0.2)]"
+                      className="h-[64px] w-px shrink-0 bg-white/20"
                     />
 
                     {/* Progression */}
                     <div className="flex min-w-[62px] flex-col items-center justify-center gap-1 xl:min-w-[70px]">
-                      <div className="f-orb text-[22px] font-black text-[#7d71fb] xl:text-[24px]">
+                      <div className="f-orb text-[22px] font-black text-indigo-400 xl:text-[24px]">
                         {progression}%
                       </div>
-                      <div className="f-mono text-[12px] text-[rgba(255,255,255,0.28)]">
+                      <div className="f-mono text-[12px] text-white/30">
                         Progression
                       </div>
                     </div>
