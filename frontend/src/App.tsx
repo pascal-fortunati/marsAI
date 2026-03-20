@@ -1,16 +1,21 @@
 import SubmitPage from "./pages/SubmitPage";
-import { Navigate, Route, Routes } from "react-router-dom";
+import HomeView from "./view/home/HomeView";
 import { MarsBackground } from "./components/MarsBackground";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 function App() {
   return (
-    <main style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>
+    <div className="min-h-screen w-full relative overflow-hidden">
       <MarsBackground />
-      <Routes>
-        <Route path="/" element={<Navigate to="/submit" />} />
-        <Route path="/submit" element={<SubmitPage />} />
-      </Routes>
-    </main>
+      <div className="relative z-10 w-full min-h-screen">
+        <Routes>
+          <Route path="/" element={<Navigate to="/home" replace />} />
+          <Route path="/home" element={<HomeView />} />
+          <Route path="/submit" element={<SubmitPage />} />
+          <Route path="*" element={<Navigate to="/home" replace />} />
+        </Routes>
+      </div>
+    </div>
   );
 }
 
