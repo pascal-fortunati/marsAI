@@ -1,22 +1,25 @@
+import { useState } from "react";
+import { Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import HomePage from "./pages/HomePage";
 import SubmitPage from "./pages/SubmitPage";
-import HomeView from "./view/home/HomeView";
-import { MarsBackground } from "./components/MarsBackground";
-import { Navigate, Route, Routes } from "react-router-dom";
 
-function App() {
+export default function App() {
+  // État de langue global — à connecter à i18n.ts si besoin
+  const [lang, setLang] = useState<"fr" | "en">("fr");
+
   return (
-    <div className="min-h-screen w-full relative overflow-hidden">
-      <MarsBackground />
-      <div className="relative z-10 w-full min-h-screen">
+    <>
+      {/* Navbar fixe — présente sur toutes les routes */}
+      <Navbar lang={lang} onLangChange={setLang} />
+
+      {/* Contenu décalé de h-20 (hauteur navbar) pour ne pas passer dessous */}
+      <div className="pt-20">
         <Routes>
-          <Route path="/" element={<Navigate to="/home" replace />} />
-          <Route path="/home" element={<HomeView />} />
+          <Route path="/" element={<HomePage />} />
           <Route path="/submit" element={<SubmitPage />} />
-          <Route path="*" element={<Navigate to="/home" replace />} />
         </Routes>
       </div>
-    </div>
+    </>
   );
 }
-
-export default App;

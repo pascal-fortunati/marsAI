@@ -26,7 +26,7 @@ export default function HomeView() {
 
 function HeroSection({ tick }: { tick: number }) {
     return (
-        <section className="flex flex-col items-center text-center pt-6 md:pt-10 pb-10 md:pb-14 gap-5">
+        <section className="flex flex-col items-center text-center pt-10 md:pt-14 pb-10 md:pb-14 gap-5">
             <div
                 className="flex items-center gap-3 px-4 py-2.5 rounded-full border"
                 style={{
@@ -69,7 +69,7 @@ function HeroSection({ tick }: { tick: number }) {
                 <span
                     className="block text-[3.5rem] md:text-[7rem]"
                     style={{
-                        background: "linear-gradient(90deg, #7d71fb 0%, #b867d2 45%, #ff6f76 100%)",
+                        background: "linear-gradient(90deg, #ff6f76 0%, #b867d2 45%, #7d71fb 100%)",
                         WebkitBackgroundClip: "text",
                         WebkitTextFillColor: "transparent",
                     }}

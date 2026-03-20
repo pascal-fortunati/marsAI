@@ -154,6 +154,11 @@ body {
     font-family: 'Share Tech Mono', monospace;
 }
 
+.blink-cursor {
+    display: inline-block;
+    animation: blinkOpacity 1s steps(1, end) infinite;
+}
+
 @keyframes fadeUp {
     from {
         opacity: 0;
@@ -173,6 +178,19 @@ body {
 
     to {
         opacity: 1;
+    }
+}
+
+@keyframes blinkOpacity {
+
+    0%,
+    49% {
+        opacity: 1;
+    }
+
+    50%,
+    100% {
+        opacity: 0;
     }
 }
 
