@@ -7,6 +7,7 @@ import { FilmSearchBar } from "./FilmSearchBar";
 import { FilmDetail } from "./FilmDetail";
 import { VideoPlayer } from "./VideoPlayer";
 import { VotePanel } from "./VotePanel";
+import { AssignedFilms } from "./AssignedFilms";
 import type { Film, VoteDecision } from "./types";
 
 const assignedFilms: Film[] = [
@@ -225,60 +226,17 @@ export function JuryView() {
         </div>
 
         <section className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-5">
-          <aside className="lg:sticky lg:top-5 lg:h-[calc(100vh-120px)] lg:overflow-auto">
-            <div className="rounded-lg border border-gray-800 bg-gray-900 p-5 shadow-lg">
-              <h2 className="text-lg font-semibold">
-                {t("jury.assigned", { count: filmsTotal })}
-              </h2>
-              <p className="mt-1 text-xs text-gray-400">
-                {filmsRemaining}{" "}
-                {t("jury.remaining", { defaultValue: "restants" })}
-                {" · "}
-                {progression}%
-              </p>
-
-              <ul className="mt-4 space-y-2">
-                {searchResults.map((film) => {
-                  const isSelected = selectedFilm?.id === film.id;
-                  const isVoted = Boolean(votesByFilm[film.id]);
-
-                  return (
-                    <li key={film.id}>
-                      <button
-                        type="button"
-                        onClick={() => handleSelectFilm(film)}
-                        className={`w-full rounded-md border px-3 py-3 text-left transition ${
-                          isSelected
-                            ? "border-primary bg-primary/15"
-                            : "border-gray-700 bg-slate-950 hover:border-gray-500"
-                        }`}
-                        disabled={!isLoggedIn}
-                      >
-                        <p className="font-semibold text-white">{film.title}</p>
-                        <p className="mt-1 text-xs text-gray-400">
-                          {[film.country, film.duration]
-                            .filter(Boolean)
-                            .join(" • ")}
-                        </p>
-                        <p
-                          className={`mt-2 text-xs font-medium ${
-                            isVoted ? "text-emerald-300" : "text-amber-300"
-                          }`}
-                        >
-                          {isVoted
-                            ? t("jury.votedStatus")
-                            : t("jury.pendingStatus")}
-                        </p>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-
-              {searchResults.length === 0 && (
-                <p className="mt-4 text-sm text-gray-400">{t("jury.noFilm")}</p>
-              )}
-            </div>
+          <aside className="lg:sticky lg:top-5">
+            <AssignedFilms
+              filmsTotal={filmsTotal}
+              filmsRemaining={filmsRemaining}
+              progression={progression}
+              searchResults={searchResults}
+              selectedFilm={selectedFilm}
+              votesByFilm={votesByFilm}
+              isLoggedIn={isLoggedIn}
+              onSelectFilm={handleSelectFilm}
+            />
           </aside>
 
           <main className="space-y-4 lg:space-y-5">
@@ -291,7 +249,7 @@ export function JuryView() {
               disabled={!isLoggedIn || !selectedFilm}
             />
 
-            <div className="rounded-lg border border-gray-800 bg-gray-900 px-4 py-3">
+            <div className="rounded-lg border border-slate-800 bg-slate-900/45 px-4 py-3">
               <button
                 type="button"
                 className="text-sm text-gray-300 transition-colors hover:text-white"

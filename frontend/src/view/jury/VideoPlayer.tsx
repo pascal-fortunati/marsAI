@@ -4,31 +4,21 @@ type VideoPlayerProps = {
   film: Film | null;
 };
 
+const FALLBACK_YOUTUBE_ID = "M7lc1UVf-VE";
+
 export function VideoPlayer({ film }: VideoPlayerProps) {
-  if (!film || !film.youtubeId) {
-    return (
-      <div className="bg-gray-900 text-white p-8 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold mb-4">Lecteur vidéo</h2>
-        <p className="text-gray-400">
-          Sélectionne un film avec une vidéo disponible.
-        </p>
-      </div>
-    );
-  }
+  const youtubeId = film?.youtubeId ?? FALLBACK_YOUTUBE_ID;
 
   // TODO: utiliser un lecteur plus robuste si besoin (Vimeo, MP4, etc.)
   return (
-    <div className="bg-gray-900 text-white p-8 rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold mb-4">Lecteur vidéo</h2>
-      <div className="aspect-video w-full overflow-hidden rounded-md border border-gray-700">
-        <iframe
-          className="h-full w-full"
-          src={`https://www.youtube.com/embed/${film.youtubeId}`}
-          title={`Lecteur de ${film.title}`}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
-      </div>
+    <div className="aspect-video w-full max-w-[1120px] overflow-hidden rounded-md border border-gray-700">
+      <iframe
+        className="h-full w-full"
+        src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
+        title={film ? `Lecteur de ${film.title}` : "Lecteur YouTube"}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
     </div>
   );
 }

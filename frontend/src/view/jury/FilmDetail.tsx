@@ -10,7 +10,7 @@ export function FilmDetail({ film }: FilmDetailProps) {
 
   if (!film) {
     return (
-      <div className="bg-gray-900 text-white p-8 rounded-lg shadow-lg">
+      <div className="rounded-lg border border-slate-800 bg-slate-900/45 p-8 text-white shadow-lg">
         <h2 className="text-2xl font-bold mb-4">
           {t("jury.filmDetailsTitle")}
         </h2>
@@ -22,7 +22,7 @@ export function FilmDetail({ film }: FilmDetailProps) {
   const tags = film.tags ?? [];
 
   return (
-    <div className="bg-gray-900 text-white p-8 rounded-lg shadow-lg">
+    <div className="rounded-lg border border-slate-800 bg-slate-900/45 p-8 text-white shadow-lg">
       <h2 className="text-2xl font-bold">{film.title}</h2>
       <p className="mt-1 text-sm text-gray-400">
         {[film.country, film.duration].filter(Boolean).join(" • ") ||
@@ -43,7 +43,7 @@ export function FilmDetail({ film }: FilmDetailProps) {
           {tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-full border border-gray-700 bg-slate-950 px-3 py-1 text-xs text-gray-200"
+              className="rounded-full border border-slate-800 bg-slate-900/30 px-3 py-1 text-xs text-gray-200"
             >
               #{tag}
             </span>

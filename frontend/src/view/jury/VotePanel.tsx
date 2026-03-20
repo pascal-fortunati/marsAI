@@ -33,7 +33,7 @@ export function VotePanel({ film, status, onVote, disabled }: VotePanelProps) {
   ];
 
   return (
-    <div className="bg-gray-900 text-white p-8 rounded-lg shadow-lg">
+    <div className="rounded-lg border border-slate-800 bg-slate-900/45 p-8 text-white shadow-lg">
       <h2 className="text-2xl font-bold mb-4">{t("jury.voteTitle")}</h2>
 
       {!film ? (
@@ -70,7 +70,7 @@ export function VotePanel({ film, status, onVote, disabled }: VotePanelProps) {
               <textarea
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                className="mt-1 h-20 w-full resize-none rounded border border-gray-700 bg-slate-950 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 h-20 w-full resize-none rounded border border-slate-800 bg-slate-900/30 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder={t("jury.commentPlaceholder")}
                 disabled={disabled || isSubmitting}
               />

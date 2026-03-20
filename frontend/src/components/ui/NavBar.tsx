@@ -125,7 +125,7 @@ export default function NavBar({
 }: NavBarProps) {
   return (
     <div
-      className="backdrop-blur-[12px] bg-[rgba(5,3,13,0.9)] relative w-full"
+      className="relative w-full bg-slate-950/90 backdrop-blur-[12px]"
       data-name="NavBar"
     >
       <div
@@ -169,11 +169,11 @@ export default function NavBar({
                       <div className="min-w-0 flex-shrink f-orb text-[rgba(255,255,255,0.25)]">
                         <span className="leading-[24px]">·</span>
                       </div>
-                      <div className="min-w-0 flex-shrink truncate f-orb text-[rgba(255,255,255,0.55)]">
+                      <div className="min-w-0 flex-shrink truncate f-orb font-bold text-[rgba(255,255,255,0.55)]">
                         <span className="leading-[24px]">Espace Jury</span>
                       </div>
                     </div>
-                    <div className="min-w-0 text-[12px] text-[rgba(255,255,255,0.28)] max-[900px]:hidden">
+                    <div className="min-w-0 text-[12px] text-[rgba(255,255,255,0.28)] max-[900px]:hidden f-mono">
                       <p className="leading-[16px] truncate">
                         Session active · Accès sécurisé
                       </p>
@@ -227,7 +227,7 @@ export default function NavBar({
 
                         <div className="mt-4 grid gap-3">
                           <div className="flex items-center justify-between">
-                            <span className="text-sm text-[rgba(255,255,255,0.7)]">
+                            <span className="f-mono text-sm text-[rgba(255,255,255,0.7)]">
                               Films
                             </span>
                             <span className="f-orb text-lg font-black">
@@ -235,23 +235,23 @@ export default function NavBar({
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-sm text-[rgba(255,255,255,0.7)]">
-                              votés
+                            <span className="f-mono text-sm text-[rgba(255,255,255,0.7)]">
+                              Votés
                             </span>
                             <span className="f-orb text-lg font-black text-[#22c55e]">
                               {votedFilms}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-sm text-[rgba(255,255,255,0.7)]">
-                              restants
+                            <span className="f-mono text-sm text-[rgba(255,255,255,0.7)]">
+                              Restants
                             </span>
                             <span className="f-orb text-lg font-black text-[#f59e0b]">
                               {remainingFilms}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-sm text-[rgba(255,255,255,0.7)]">
+                            <span className="f-mono text-sm text-[rgba(255,255,255,0.7)]">
                               Progression
                             </span>
                             <span className="f-orb text-lg font-black text-[#7d71fb]">
@@ -269,7 +269,7 @@ export default function NavBar({
                       <div className="f-orb text-[22px] font-black text-white xl:text-[24px]">
                         {totalFilms}
                       </div>
-                      <div className="text-[12px] text-[rgba(255,255,255,0.28)]">
+                      <div className="f-mono text-[12px] text-[rgba(255,255,255,0.28)]">
                         Films
                       </div>
                     </div>
@@ -284,8 +284,8 @@ export default function NavBar({
                       <div className="f-orb text-[22px] font-black text-[#22c55e] xl:text-[24px]">
                         {votedFilms}
                       </div>
-                      <div className="text-[12px] text-[rgba(255,255,255,0.28)]">
-                        votés
+                      <div className="f-mono text-[12px] text-[rgba(255,255,255,0.28)]">
+                        Votés
                       </div>
                     </div>
 
@@ -299,8 +299,8 @@ export default function NavBar({
                       <div className="f-orb text-[22px] font-black text-[#f59e0b] xl:text-[24px]">
                         {remainingFilms}
                       </div>
-                      <div className="text-[12px] text-[rgba(255,255,255,0.28)]">
-                        restants
+                      <div className="f-mono text-[12px] text-[rgba(255,255,255,0.28)]">
+                        Restants
                       </div>
                     </div>
 
@@ -314,7 +314,7 @@ export default function NavBar({
                       <div className="f-orb text-[22px] font-black text-[#7d71fb] xl:text-[24px]">
                         {progression}%
                       </div>
-                      <div className="text-[12px] text-[rgba(255,255,255,0.28)]">
+                      <div className="f-mono text-[12px] text-[rgba(255,255,255,0.28)]">
                         Progression
                       </div>
                     </div>
