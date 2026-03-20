@@ -1,17 +1,13 @@
 import { useTranslation } from "react-i18next";
 import { Search } from "lucide-react";
 
-type FilmSearchBarProps = {
+type FilmSearchProps = {
   query: string;
   onSearch: (query: string) => void;
   disabled?: boolean;
 };
 
-export function FilmSearchBar({
-  query,
-  onSearch,
-  disabled,
-}: FilmSearchBarProps) {
+export function FilmSearch({ query, onSearch, disabled }: FilmSearchProps) {
   const { t } = useTranslation();
 
   // TODO: appeler l'API /api/films?search=...

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "../../components/ui/Button";
 import type { Film, VoteDecision } from "./types";
 
-type VotePanelProps = {
+type JuryVoteProps = {
   film: Film | null;
   status: "idle" | "submitting" | "success" | "error";
   onVote: (
@@ -15,13 +15,13 @@ type VotePanelProps = {
   disabled?: boolean;
 };
 
-export function VotePanel({
+export function JuryVote({
   film,
   status,
   onVote,
   onNextFilm,
   disabled,
-}: VotePanelProps) {
+}: JuryVoteProps) {
   const { t } = useTranslation();
   const [decision, setDecision] = useState<VoteDecision>("validate");
   const [comment, setComment] = useState<string>("");
@@ -40,7 +40,7 @@ export function VotePanel({
   ];
 
   return (
-    <div className="rounded-lg border border-slate-800 bg-slate-900/45 p-8 text-white shadow-lg">
+    <div className="f-mono rounded-lg border border-slate-800 bg-slate-900/45 p-8 text-white shadow-lg">
       <h2 className="text-2xl font-bold mb-4">{t("jury.voteTitle")}</h2>
 
       {!film ? (

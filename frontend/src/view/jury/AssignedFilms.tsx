@@ -25,14 +25,11 @@ export function AssignedFilms({
   const { t } = useTranslation();
 
   return (
-    <div className="rounded-lg border border-slate-800 bg-slate-900/45 p-5 shadow-lg">
+    <div className="f-mono rounded-lg border border-slate-800 bg-slate-900/45 p-5 shadow-lg">
       <h2 className="text-lg font-semibold">
         {t("jury.assigned", { count: filmsTotal })}
       </h2>
-      <p
-        className="mt-1 text-xs text-gray-400"
-        style={{ fontFamily: "'Share Tech Mono', monospace" }}
-      >
+      <p className="mt-1 text-xs text-gray-400">
         {filmsRemaining} {t("jury.remaining", { defaultValue: "restants" })}
         {" · "}
         {progression}%

@@ -3,10 +3,10 @@ import { useTranslation } from "react-i18next";
 import i18n, { setLanguage } from "../../lib/i18n";
 import NavBar from "../../components/ui/NavBar";
 
-import { FilmSearchBar } from "./FilmSearchBar";
+import { FilmSearch } from "./FilmSearch";
 import { FilmDetail } from "./FilmDetail";
 import { VideoPlayer } from "./VideoPlayer";
-import { VotePanel } from "./VotePanel";
+import { JuryVote } from "./JuryVote";
 import { AssignedFilms } from "./AssignedFilms";
 import type { Film, VoteDecision } from "./types";
 
@@ -218,7 +218,7 @@ export function JuryView() {
       />
       <div className="mx-auto w-full max-w-7xl p-4 lg:p-5">
         <div className="mb-4 lg:mb-5">
-          <FilmSearchBar
+          <FilmSearch
             query={searchQuery}
             onSearch={handleSearch}
             disabled={!isLoggedIn}
@@ -242,7 +242,7 @@ export function JuryView() {
           <main className="space-y-4 lg:space-y-5">
             <VideoPlayer film={selectedFilm} />
             <FilmDetail film={selectedFilm} />
-            <VotePanel
+            <JuryVote
               film={selectedFilm}
               status={voteStatus}
               onVote={handleVote}
