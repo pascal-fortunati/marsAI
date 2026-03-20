@@ -44,27 +44,26 @@ export function JuryVote({
       value: "validate",
       label: t("jury.actions.validate"),
       icon: Check,
-      activeClassName:
-        "border-emerald-400/70 bg-emerald-500/15 text-emerald-300",
+      activeClassName: "border-emerald-400 bg-emerald-950 text-emerald-300",
     },
     {
       value: "refuse",
       label: t("jury.actions.refuse"),
       icon: X,
-      activeClassName: "border-rose-400/70 bg-rose-500/15 text-rose-300",
+      activeClassName: "border-rose-400 bg-rose-950 text-rose-300",
     },
     {
       value: "review",
       label: t("jury.actions.review"),
       icon: RotateCcw,
-      activeClassName: "border-amber-400/70 bg-amber-500/15 text-amber-300",
+      activeClassName: "border-amber-400 bg-amber-950 text-amber-300",
     },
   ];
 
   const isDisabled = Boolean(disabled);
 
   return (
-    <div className="f-mono rounded-lg border border-slate-800 bg-slate-900/45 p-8 text-white shadow-lg">
+    <div className="f-mono rounded-lg border border-slate-800 bg-slate-900 p-8 text-white shadow-lg">
       <h2 className="text-2xl font-bold mb-4">{t("jury.voteTitle")}</h2>
 
       {!film ? (
@@ -88,7 +87,7 @@ export function JuryVote({
                     className={`h-11 rounded-md border px-4 text-base font-semibold transition disabled:opacity-50 ${
                       active
                         ? item.activeClassName
-                        : "border-slate-800 bg-slate-900/30 text-white hover:border-slate-600 hover:bg-slate-800/40"
+                        : "border-slate-800 bg-slate-900 text-white hover:border-slate-600 hover:bg-slate-800"
                     }`}
                     disabled={isDisabled || isSubmitting}
                   >
@@ -112,7 +111,7 @@ export function JuryVote({
               <textarea
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                className="mt-1 h-20 w-full resize-none rounded border border-slate-800 bg-slate-900/30 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1 h-20 w-full resize-none rounded border border-slate-800 bg-slate-900 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder={t("jury.commentPlaceholder")}
                 disabled={isDisabled || isSubmitting}
               />
@@ -121,7 +120,7 @@ export function JuryVote({
             <Button
               variant="outline"
               size="lg"
-              className="f-mono w-full rounded-2xl border-0 bg-gradient-to-r from-indigo-400 to-orange-500 text-base font-semibold text-white shadow-lg shadow-indigo-400/30 hover:opacity-95"
+              className="f-mono w-full rounded-2xl border-0 bg-gradient-to-r from-violet-400/95 to-rose-500/95 text-base font-semibold text-white shadow-lg shadow-violet-400/35 hover:from-violet-400 hover:to-rose-500 hover:shadow-violet-400/50"
               onClick={handleSubmit}
               disabled={isDisabled || isSubmitting || !film}
             >

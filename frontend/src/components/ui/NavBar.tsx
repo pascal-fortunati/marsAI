@@ -33,8 +33,8 @@ function FlagButton({
       size="icon"
       className={`relative rounded-full shrink-0 h-[44px] w-[44px] transition-all ${
         isActive
-          ? "bg-gradient-to-br from-indigo-400/20 to-orange-500/20"
-          : "bg-white/5 hover:bg-white/10"
+          ? "bg-gradient-to-tr from-indigo-400/40 to-orange-500/35"
+          : "bg-slate-900 hover:bg-slate-800"
       } ${className ?? ""}`}
       data-name={`Button - ${isFrench ? "Français" : "English"}`}
       aria-label={`Switch to ${isFrench ? "French" : "English"}`}
@@ -43,8 +43,8 @@ function FlagButton({
         aria-hidden="true"
         className={`absolute border border-solid inset-0 pointer-events-none rounded-full ${
           isActive
-            ? "border-indigo-400/60 shadow-lg shadow-indigo-400/25"
-            : "border-white/20"
+            ? "border-indigo-400/70 shadow-lg shadow-indigo-400/45 animate-pulse"
+            : "border-slate-700"
         }`}
       />
 
@@ -107,7 +107,7 @@ function FlagButton({
 
       {/* Language Label */}
       <div className="absolute bg-slate-950 bottom-[-3px] h-[12px] left-[30%] right-[30%] rounded-full">
-        <div className="-translate-x-1/2 -translate-y-1/2 absolute flex flex-col font-['Inter:Regular',sans-serif] font-normal h-[11px] justify-center leading-[0] left-1/2 not-italic text-[7.5px] text-white/80 text-center top-[5.5px]">
+        <div className="-translate-x-1/2 -translate-y-1/2 absolute flex flex-col font-['Inter:Regular',sans-serif] font-normal h-[11px] justify-center leading-[0] left-1/2 not-italic text-[7.5px] text-slate-200 text-center top-[5.5px]">
           <p className="leading-[12px]">{isFrench ? "FR" : "EN"}</p>
         </div>
       </div>
@@ -125,19 +125,19 @@ export default function NavBar({
 }: NavBarProps) {
   return (
     <div
-      className="relative w-full bg-slate-950/90 backdrop-blur-[12px]"
+      className="relative w-full bg-slate-950 backdrop-blur-[12px]"
       data-name="NavBar"
     >
       <div
         aria-hidden="true"
-        className="absolute border-indigo-400/20 border-b border-solid inset-0 pointer-events-none shadow-2xl shadow-indigo-400/10"
+        className="absolute border-indigo-900 border-b border-solid inset-0 pointer-events-none shadow-2xl shadow-indigo-950"
       />
 
       <div className="flex flex-col items-center size-full">
         <div className="content-stretch flex flex-col gap-[16px] items-center pb-[21px] relative w-full">
           {/* Gradient Divider */}
           <div
-            className="bg-gradient-to-r from-indigo-400/0 h-px shrink-0 to-indigo-400/0 via-1/2 via-indigo-400/70 w-full"
+            className="bg-gradient-to-r from-slate-950 h-px shrink-0 to-slate-950 via-1/2 via-indigo-500 w-full"
             data-name="Horizontal Divider"
           />
 
@@ -166,14 +166,14 @@ export default function NavBar({
                           AI
                         </span>
                       </div>
-                      <div className="min-w-0 flex-shrink f-orb text-white/30">
+                      <div className="min-w-0 flex-shrink f-orb text-slate-500">
                         <span className="leading-[24px]">·</span>
                       </div>
-                      <div className="min-w-0 flex-shrink truncate f-orb font-bold text-white/60">
+                      <div className="min-w-0 flex-shrink truncate f-orb font-bold text-slate-300">
                         <span className="leading-[24px]">Espace Jury</span>
                       </div>
                     </div>
-                    <div className="min-w-0 text-[12px] text-white/30 max-[900px]:hidden f-mono">
+                    <div className="min-w-0 text-[12px] text-slate-500 max-[900px]:hidden f-mono">
                       <p className="leading-[16px] truncate">
                         Session active · Accès sécurisé
                       </p>
@@ -191,13 +191,13 @@ export default function NavBar({
                         className="lg:hidden flex flex-col items-center gap-1"
                         aria-label="Voir les stats"
                       >
-                        <div className="flex items-center gap-1 rounded-full bg-white/10 px-2 py-1">
+                        <div className="flex items-center gap-1 rounded-full bg-slate-800 px-2 py-1">
                           <span className="h-2 w-2 rounded-full bg-white" />
                           <span className="h-2 w-2 rounded-full bg-emerald-500" />
                           <span className="h-2 w-2 rounded-full bg-amber-500" />
                           <span className="h-2 w-2 rounded-full bg-indigo-400" />
                         </div>
-                        <span className="text-xs text-white/30">stats</span>
+                        <span className="text-xs text-slate-500">stats</span>
                       </Button>
                     </Popover.Trigger>
 
@@ -225,7 +225,7 @@ export default function NavBar({
 
                         <div className="mt-4 grid gap-3">
                           <div className="flex items-center justify-between">
-                            <span className="f-mono text-sm text-white/70">
+                            <span className="f-mono text-sm text-slate-300">
                               Films
                             </span>
                             <span className="f-orb text-lg font-black">
@@ -233,7 +233,7 @@ export default function NavBar({
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="f-mono text-sm text-white/70">
+                            <span className="f-mono text-sm text-slate-300">
                               Votés
                             </span>
                             <span className="f-orb text-lg font-black text-emerald-500">
@@ -241,7 +241,7 @@ export default function NavBar({
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="f-mono text-sm text-white/70">
+                            <span className="f-mono text-sm text-slate-300">
                               Restants
                             </span>
                             <span className="f-orb text-lg font-black text-amber-500">
@@ -249,7 +249,7 @@ export default function NavBar({
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="f-mono text-sm text-white/70">
+                            <span className="f-mono text-sm text-slate-300">
                               Progression
                             </span>
                             <span className="f-orb text-lg font-black text-indigo-400">
@@ -267,14 +267,14 @@ export default function NavBar({
                       <div className="f-orb text-[22px] font-black text-white xl:text-[24px]">
                         {totalFilms}
                       </div>
-                      <div className="f-mono text-[12px] text-white/30">
+                      <div className="f-mono text-[12px] text-slate-500">
                         Films
                       </div>
                     </div>
 
                     <div
                       aria-hidden="true"
-                      className="h-[64px] w-px shrink-0 bg-white/20"
+                      className="h-[64px] w-px shrink-0 bg-slate-700"
                     />
 
                     {/* Voted Films */}
@@ -282,14 +282,14 @@ export default function NavBar({
                       <div className="f-orb text-[22px] font-black text-emerald-500 xl:text-[24px]">
                         {votedFilms}
                       </div>
-                      <div className="f-mono text-[12px] text-white/30">
+                      <div className="f-mono text-[12px] text-slate-500">
                         Votés
                       </div>
                     </div>
 
                     <div
                       aria-hidden="true"
-                      className="h-[64px] w-px shrink-0 bg-white/20"
+                      className="h-[64px] w-px shrink-0 bg-slate-700"
                     />
 
                     {/* Remaining Films */}
@@ -297,14 +297,14 @@ export default function NavBar({
                       <div className="f-orb text-[22px] font-black text-amber-500 xl:text-[24px]">
                         {remainingFilms}
                       </div>
-                      <div className="f-mono text-[12px] text-white/30">
+                      <div className="f-mono text-[12px] text-slate-500">
                         Restants
                       </div>
                     </div>
 
                     <div
                       aria-hidden="true"
-                      className="h-[64px] w-px shrink-0 bg-white/20"
+                      className="h-[64px] w-px shrink-0 bg-slate-700"
                     />
 
                     {/* Progression */}
@@ -312,7 +312,7 @@ export default function NavBar({
                       <div className="f-orb text-[22px] font-black text-indigo-400 xl:text-[24px]">
                         {progression}%
                       </div>
-                      <div className="f-mono text-[12px] text-white/30">
+                      <div className="f-mono text-[12px] text-slate-500">
                         Progression
                       </div>
                     </div>

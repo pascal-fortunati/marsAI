@@ -25,7 +25,7 @@ export function AssignedFilms({
   const { t } = useTranslation();
 
   return (
-    <div className="f-mono rounded-lg border border-slate-800 bg-slate-900/45 p-5 shadow-lg">
+    <div className="f-mono rounded-lg border border-slate-800 bg-slate-900 p-5 shadow-lg">
       <h2 className="text-lg font-semibold">
         {t("jury.assigned", { count: filmsTotal })}
       </h2>
@@ -47,8 +47,8 @@ export function AssignedFilms({
                 onClick={() => onSelectFilm(film)}
                 className={`w-full rounded-md border px-3 py-3 text-left transition ${
                   isSelected
-                    ? "border-primary bg-primary/15"
-                    : "border-slate-800 bg-slate-900/30 hover:border-slate-600 hover:bg-slate-800/40"
+                    ? "border-primary bg-indigo-950"
+                    : "border-slate-800 bg-slate-900 hover:border-slate-600 hover:bg-slate-800"
                 }`}
                 disabled={!isLoggedIn}
               >
