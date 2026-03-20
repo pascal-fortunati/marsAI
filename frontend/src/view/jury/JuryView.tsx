@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import i18n, { setLanguage } from "../../lib/i18n";
 import NavBar from "../../components/ui/NavBar";
+import { StarfieldNeural } from "../../components/ui/StarfieldNeural";
 
 import { FilmSearch } from "./FilmSearch";
 import { FilmDetail } from "./FilmDetail";
@@ -207,50 +208,56 @@ export function JuryView() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      <NavBar
-        totalFilms={filmsTotal}
-        votedFilms={filmsVoted}
-        remainingFilms={filmsRemaining}
-        progression={progression}
-        currentLang={currentLang}
-        onLangChange={handleLangChange}
-      />
-      <div className="mx-auto w-full max-w-7xl p-4 lg:p-5">
-        <div className="mb-4 lg:mb-5">
-          <FilmSearch
-            query={searchQuery}
-            onSearch={handleSearch}
-            disabled={!isLoggedIn}
-          />
+    <div className="relative min-h-screen overflow-hidden bg-slate-950 text-white">
+      <div className="absolute inset-0 z-0">
+        <StarfieldNeural />
+      </div>
+
+      <div className="relative z-10">
+        <NavBar
+          totalFilms={filmsTotal}
+          votedFilms={filmsVoted}
+          remainingFilms={filmsRemaining}
+          progression={progression}
+          currentLang={currentLang}
+          onLangChange={handleLangChange}
+        />
+        <div className="mx-auto w-full max-w-7xl p-4 lg:p-5">
+          <div className="mb-4 lg:mb-5">
+            <FilmSearch
+              query={searchQuery}
+              onSearch={handleSearch}
+              disabled={!isLoggedIn}
+            />
+          </div>
+
+          <section className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-5">
+            <aside className="lg:sticky lg:top-5">
+              <AssignedFilms
+                filmsTotal={filmsTotal}
+                filmsRemaining={filmsRemaining}
+                progression={progression}
+                searchResults={searchResults}
+                selectedFilm={selectedFilm}
+                votesByFilm={votesByFilm}
+                isLoggedIn={isLoggedIn}
+                onSelectFilm={handleSelectFilm}
+              />
+            </aside>
+
+            <main className="space-y-4 lg:space-y-5">
+              <VideoPlayer film={selectedFilm} />
+              <FilmDetail film={selectedFilm} />
+              <JuryVote
+                film={selectedFilm}
+                status={voteStatus}
+                onVote={handleVote}
+                onNextFilm={handleNextFilm}
+                disabled={!isLoggedIn || !selectedFilm}
+              />
+            </main>
+          </section>
         </div>
-
-        <section className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-5">
-          <aside className="lg:sticky lg:top-5">
-            <AssignedFilms
-              filmsTotal={filmsTotal}
-              filmsRemaining={filmsRemaining}
-              progression={progression}
-              searchResults={searchResults}
-              selectedFilm={selectedFilm}
-              votesByFilm={votesByFilm}
-              isLoggedIn={isLoggedIn}
-              onSelectFilm={handleSelectFilm}
-            />
-          </aside>
-
-          <main className="space-y-4 lg:space-y-5">
-            <VideoPlayer film={selectedFilm} />
-            <FilmDetail film={selectedFilm} />
-            <JuryVote
-              film={selectedFilm}
-              status={voteStatus}
-              onVote={handleVote}
-              onNextFilm={handleNextFilm}
-              disabled={!isLoggedIn || !selectedFilm}
-            />
-          </main>
-        </section>
       </div>
     </div>
   );

@@ -63,7 +63,7 @@ export function JuryVote({
   const isDisabled = Boolean(disabled);
 
   return (
-    <div className="f-mono rounded-lg border border-slate-800 bg-slate-900 p-8 text-white shadow-lg">
+    <div className="f-mono rounded-lg border border-slate-800 bg-slate-900/45 p-8 text-white shadow-lg">
       <h2 className="text-2xl font-bold mb-4">{t("jury.voteTitle")}</h2>
 
       {!film ? (

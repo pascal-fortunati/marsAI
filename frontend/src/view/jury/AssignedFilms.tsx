@@ -25,7 +25,7 @@ export function AssignedFilms({
   const { t } = useTranslation();
 
   return (
-    <div className="f-mono rounded-lg border border-slate-800 bg-slate-900 p-5 shadow-lg">
+    <div className="f-mono rounded-lg border border-slate-800 bg-slate-900/45 p-5 shadow-lg">
       <h2 className="text-lg font-semibold">
         {t("jury.assigned", { count: filmsTotal })}
       </h2>

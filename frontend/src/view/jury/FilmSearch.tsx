@@ -12,7 +12,7 @@ export function FilmSearch({ query, onSearch, disabled }: FilmSearchProps) {
 
   // TODO: appeler l'API /api/films?search=...
   return (
-    <div className="rounded-lg border border-slate-800 bg-slate-900 p-8 text-white shadow-lg">
+    <div className="rounded-lg border border-slate-800 bg-slate-900/45 p-8 text-white shadow-lg">
       <div className="relative flex gap-2">
         <Search
           className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
