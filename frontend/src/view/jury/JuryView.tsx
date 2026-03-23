@@ -47,7 +47,9 @@ export function JuryView() {
 
   const [isLoggedIn] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<Film[]>(localizedFilms);
+  const [activeFilter, setActiveFilter] = useState<"all" | "pending" | "voted">(
+    "all",
+  );
   const [selectedFilm, setSelectedFilm] = useState<Film | null>(
     localizedFilms[0],
   );
@@ -67,23 +69,29 @@ export function JuryView() {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
+  };
 
-    const normalizedQuery = query.trim().toLowerCase();
-    if (!normalizedQuery) {
-      setSearchResults(localizedFilms);
-      return;
-    }
+  const filteredFilms = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
 
-    const filtered = localizedFilms.filter((film) => {
+    return localizedFilms.filter((film) => {
+      const isVoted = Boolean(votesByFilm[film.id]);
+      const passesFilter =
+        activeFilter === "all" ||
+        (activeFilter === "voted" && isVoted) ||
+        (activeFilter === "pending" && !isVoted);
+
+      if (!passesFilter) return false;
+
+      if (!normalizedQuery) return true;
+
       const haystack = [film.title, film.country, film.tags?.join(" ")]
         .filter(Boolean)
         .join(" ")
         .toLowerCase();
       return haystack.includes(normalizedQuery);
     });
-
-    setSearchResults(filtered);
-  };
+  }, [localizedFilms, searchQuery, activeFilter, votesByFilm]);
 
   const handleVote = async (
     filmId: string,
@@ -130,6 +138,11 @@ export function JuryView() {
             <FilmSearch
               query={searchQuery}
               onSearch={handleSearch}
+              activeFilter={activeFilter}
+              onFilterChange={setActiveFilter}
+              votedFilms={filmsVoted}
+              totalFilms={filmsTotal}
+              progression={progression}
               disabled={!isLoggedIn}
             />
           </div>
@@ -140,7 +153,7 @@ export function JuryView() {
                 filmsTotal={filmsTotal}
                 filmsRemaining={filmsRemaining}
                 progression={progression}
-                searchResults={searchResults}
+                searchResults={filteredFilms}
                 selectedFilm={selectedFilm}
                 votesByFilm={votesByFilm}
                 isLoggedIn={isLoggedIn}
