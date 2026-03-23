@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import i18n, { setLanguage } from "../../lib/i18n";
 import NavBar from "../../components/ui/NavBar";
@@ -93,6 +93,21 @@ export function JuryView() {
     });
   }, [localizedFilms, searchQuery, activeFilter, votesByFilm]);
 
+  useEffect(() => {
+    // Keep selection consistent with active filters/search.
+    if (filteredFilms.length === 0) {
+      setSelectedFilm(null);
+      return;
+    }
+
+    if (
+      !selectedFilm ||
+      !filteredFilms.some((film) => film.id === selectedFilm.id)
+    ) {
+      setSelectedFilm(filteredFilms[0]);
+    }
+  }, [filteredFilms, selectedFilm]);
+
   const handleVote = async (
     filmId: string,
     decision: VoteDecision,
@@ -153,6 +168,7 @@ export function JuryView() {
                 filmsTotal={filmsTotal}
                 filmsRemaining={filmsRemaining}
                 progression={progression}
+                activeFilter={activeFilter}
                 searchResults={filteredFilms}
                 selectedFilm={selectedFilm}
                 votesByFilm={votesByFilm}

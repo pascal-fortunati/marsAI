@@ -5,6 +5,7 @@ type AssignedFilmsProps = {
   filmsTotal: number;
   filmsRemaining: number;
   progression: number;
+  activeFilter: "all" | "pending" | "voted";
   searchResults: Film[];
   selectedFilm: Film | null;
   votesByFilm: Record<string, VoteDecision>;
@@ -16,6 +17,7 @@ export function AssignedFilms({
   filmsTotal,
   filmsRemaining,
   progression,
+  activeFilter,
   searchResults,
   selectedFilm,
   votesByFilm,
@@ -23,13 +25,19 @@ export function AssignedFilms({
   onSelectFilm,
 }: AssignedFilmsProps) {
   const { t } = useTranslation();
+  const displayedCount = searchResults.length;
+
+  const title =
+    activeFilter === "all"
+      ? t("jury.assigned", { count: displayedCount })
+      : `${displayedCount} films ${
+          activeFilter === "voted" ? t("jury.voted") : t("jury.remaining")
+        }`;
 
   return (
     <div className="f-mono overflow-hidden rounded-[20px] border border-slate-800 bg-slate-900/45 shadow-lg">
       <div className="px-6 pt-5 pb-4">
-        <h2 className="f-orb text-lg font-semibold leading-none">
-          {t("jury.assigned", { count: filmsTotal })}
-        </h2>
+        <h2 className="f-orb text-lg font-semibold leading-none">{title}</h2>
       </div>
 
       <div className="h-px w-full bg-slate-800" aria-hidden="true" />
