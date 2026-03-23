@@ -1,6 +1,7 @@
 import { useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "./Button";
 import logo from "../../assets/mars_ai_logo.png";
 
@@ -17,11 +18,13 @@ function FlagButton({
   lang,
   isActive,
   onClick,
+  ariaLabel,
   className,
 }: {
   lang: "fr" | "en";
   isActive: boolean;
   onClick: () => void;
+  ariaLabel: string;
   className?: string;
 }) {
   const isFrench = lang === "fr";
@@ -37,7 +40,7 @@ function FlagButton({
           : "bg-slate-900 hover:bg-slate-800"
       } ${className ?? ""}`}
       data-name={`Button - ${isFrench ? "Français" : "English"}`}
-      aria-label={`Switch to ${isFrench ? "French" : "English"}`}
+      aria-label={ariaLabel}
     >
       <div
         aria-hidden="true"
@@ -123,6 +126,8 @@ export default function NavBar({
   currentLang = "fr",
   onLangChange = () => {},
 }: NavBarProps) {
+  const { t } = useTranslation();
+
   return (
     <div
       className="relative w-full bg-slate-950 backdrop-blur-[12px]"
@@ -170,12 +175,14 @@ export default function NavBar({
                         <span className="leading-[24px]">·</span>
                       </div>
                       <div className="min-w-0 flex-shrink truncate f-orb font-bold text-slate-300">
-                        <span className="leading-[24px]">Espace Jury</span>
+                        <span className="leading-[24px]">
+                          {t("nav.jurySpace")}
+                        </span>
                       </div>
                     </div>
                     <div className="min-w-0 text-[12px] text-slate-500 max-[900px]:hidden f-mono">
                       <p className="leading-[16px] truncate">
-                        Session active · Accès sécurisé
+                        {t("nav.secureAccess")}
                       </p>
                     </div>
                   </div>
@@ -189,7 +196,9 @@ export default function NavBar({
                         variant="nav"
                         size="icon"
                         className="lg:hidden flex flex-col items-center gap-1"
-                        aria-label="Voir les stats"
+                        aria-label={
+                          currentLang === "fr" ? "Voir les stats" : "View stats"
+                        }
                       >
                         <div className="flex items-center gap-1 rounded-full bg-slate-800 px-2 py-1">
                           <span className="h-2 w-2 rounded-full bg-white" />
@@ -197,7 +206,7 @@ export default function NavBar({
                           <span className="h-2 w-2 rounded-full bg-amber-500" />
                           <span className="h-2 w-2 rounded-full bg-indigo-400" />
                         </div>
-                        <span className="text-xs text-slate-500">stats</span>
+                        <span className="text-xs text-slate-500">Stats</span>
                       </Button>
                     </Popover.Trigger>
 
@@ -216,7 +225,9 @@ export default function NavBar({
                             <Button
                               variant="ghost"
                               size="icon"
-                              aria-label="Fermer"
+                              aria-label={
+                                currentLang === "fr" ? "Fermer" : "Close"
+                              }
                             >
                               <X className="h-5 w-5" />
                             </Button>
@@ -226,7 +237,7 @@ export default function NavBar({
                         <div className="mt-4 grid gap-3">
                           <div className="flex items-center justify-between">
                             <span className="f-mono text-sm text-slate-300">
-                              Films
+                              {t("nav.stats.films")}
                             </span>
                             <span className="f-orb text-lg font-black">
                               {totalFilms}
@@ -234,7 +245,7 @@ export default function NavBar({
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="f-mono text-sm text-slate-300">
-                              Votés
+                              {t("jury.filterVoted")}
                             </span>
                             <span className="f-orb text-lg font-black text-emerald-500">
                               {votedFilms}
@@ -242,7 +253,7 @@ export default function NavBar({
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="f-mono text-sm text-slate-300">
-                              Restants
+                              {t("jury.filterPending")}
                             </span>
                             <span className="f-orb text-lg font-black text-amber-500">
                               {remainingFilms}
@@ -250,7 +261,7 @@ export default function NavBar({
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="f-mono text-sm text-slate-300">
-                              Progression
+                              {t("nav.stats.progress")}
                             </span>
                             <span className="f-orb text-lg font-black text-indigo-400">
                               {progression}%
@@ -268,7 +279,7 @@ export default function NavBar({
                         {totalFilms}
                       </div>
                       <div className="f-mono text-[12px] text-slate-500">
-                        Films
+                        {t("nav.stats.films")}
                       </div>
                     </div>
 
@@ -283,7 +294,7 @@ export default function NavBar({
                         {votedFilms}
                       </div>
                       <div className="f-mono text-[12px] text-slate-500">
-                        Votés
+                        {t("jury.filterVoted")}
                       </div>
                     </div>
 
@@ -298,7 +309,7 @@ export default function NavBar({
                         {remainingFilms}
                       </div>
                       <div className="f-mono text-[12px] text-slate-500">
-                        Restants
+                        {t("jury.filterPending")}
                       </div>
                     </div>
 
@@ -313,7 +324,7 @@ export default function NavBar({
                         {progression}%
                       </div>
                       <div className="f-mono text-[12px] text-slate-500">
-                        Progression
+                        {t("nav.stats.progress")}
                       </div>
                     </div>
                   </div>
@@ -326,12 +337,22 @@ export default function NavBar({
                       lang="fr"
                       isActive={currentLang === "fr"}
                       onClick={() => onLangChange("fr")}
+                      ariaLabel={
+                        currentLang === "fr"
+                          ? "Basculer en français"
+                          : "Switch to French"
+                      }
                       className="max-[900px]:h-9 max-[900px]:w-9 max-[426px]:h-8 max-[426px]:w-8"
                     />
                     <FlagButton
                       lang="en"
                       isActive={currentLang === "en"}
                       onClick={() => onLangChange("en")}
+                      ariaLabel={
+                        currentLang === "fr"
+                          ? "Basculer en anglais"
+                          : "Switch to English"
+                      }
                       className="max-[900px]:h-9 max-[900px]:w-9 max-[426px]:h-8 max-[426px]:w-8"
                     />
                   </div>

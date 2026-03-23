@@ -218,6 +218,80 @@ export const resources = {
         updateVote: "Modifier le vote",
         sending: "Envoi…",
       },
+      films: {
+        "film-01": {
+          title: "Mentions Spéciales",
+          country: "Allemagne",
+          synopsis:
+            "Un court expérimental sur la mémoire collective : L'IA restaure des archives et invente des futurs désirables.",
+        },
+        "film-02": {
+          title: "After Rain Protocol",
+          country: "France",
+          synopsis:
+            "Après une crue, une ville apprend à confier sa reconstruction à des intelligences distribuées.",
+        },
+        "film-03": {
+          title: "Neon Harvest",
+          country: "Japon",
+          synopsis:
+            "Des fermes verticales pilotées par IA redessinent les rituels d'une mégalopole nocturne.",
+        },
+        "film-04": {
+          title: "Children of Dust",
+          country: "Maroc",
+          synopsis:
+            "Dans un désert connecté, des enfants recyclent des drones pour faire renaître l'eau.",
+        },
+        "film-05": {
+          title: "Echoes in Copper",
+          country: "Chili",
+          synopsis:
+            "Une mine abandonnée devient un instrument sonore joué par des agents génératifs.",
+        },
+        "film-06": {
+          title: "The Last Orchard",
+          country: "Italie",
+          synopsis:
+            "Une famille dialogue avec un modèle prédictif pour sauver son verger historique.",
+        },
+        "film-07": {
+          title: "Packet of Light",
+          country: "Sénégal",
+          synopsis:
+            "Une radio communautaire transforme des signaux satellites en poèmes visuels.",
+        },
+        "film-08": {
+          title: "Blue Archive 2096",
+          country: "Canada",
+          synopsis:
+            "Dans un océan monitoré en temps réel, des historiennes de données retrouvent des récits perdus.",
+        },
+        "film-09": {
+          title: "Warm Silicon",
+          country: "Corée du Sud",
+          synopsis:
+            "Une puce émotionnelle remet en question la frontière entre soin et automatisation.",
+        },
+        "film-10": {
+          title: "Tidal Grammar",
+          country: "Portugal",
+          synopsis:
+            "Une linguiste entraîne un modèle sur les marées pour prédire les mots qui disparaissent.",
+        },
+        "film-11": {
+          title: "Gravity Notes",
+          country: "Argentine",
+          synopsis:
+            "Un orchestre adapte sa partition à la micro-gravité d'une station orbitale.",
+        },
+        "film-12": {
+          title: "Murmure Quantique",
+          country: "Belgique",
+          synopsis:
+            "Un couple tente de conserver ses souvenirs dans une mémoire quantique défaillante.",
+        },
+      },
       panel: {
         loginEyebrow: "Accès restreint · Panel",
         loginTitle: "Panel Admin",
@@ -759,7 +833,7 @@ export const resources = {
         panel: "Panel",
         jury: "Jury",
         dashboard: "Dashboard",
-        jurySpace: "Jury Space",
+        jurySpace: "Jury Panel",
         sessionActive: "Active session",
         secureAccess: "Active session · Secure access",
         statusOpen: "SYS:MARS_AI_2026 // STATUS:OPEN",
@@ -941,6 +1015,80 @@ export const resources = {
         errorSending: "Error sending vote. Try again.",
         updateVote: "Update vote",
         sending: "Sending…",
+      },
+      films: {
+        "film-01": {
+          title: "Special Mentions",
+          country: "Germany",
+          synopsis:
+            "An experimental short on collective memory: AI restores archives and invents desirable futures.",
+        },
+        "film-02": {
+          title: "After Rain Protocol",
+          country: "France",
+          synopsis:
+            "After a flood, a city learns to trust its reconstruction to distributed intelligences.",
+        },
+        "film-03": {
+          title: "Neon Harvest",
+          country: "Japan",
+          synopsis:
+            "AI-driven vertical farms reshape the rituals of a neon metropolis.",
+        },
+        "film-04": {
+          title: "Children of Dust",
+          country: "Morocco",
+          synopsis:
+            "In a connected desert, children recycle drones to revive water.",
+        },
+        "film-05": {
+          title: "Echoes in Copper",
+          country: "Chile",
+          synopsis:
+            "An abandoned mine becomes a musical instrument played by generative agents.",
+        },
+        "film-06": {
+          title: "The Last Orchard",
+          country: "Italy",
+          synopsis:
+            "A family dialogues with a predictive model to save their historic orchard.",
+        },
+        "film-07": {
+          title: "Packet of Light",
+          country: "Senegal",
+          synopsis:
+            "A community radio transforms satellite signals into visual poems.",
+        },
+        "film-08": {
+          title: "Blue Archive 2096",
+          country: "Canada",
+          synopsis:
+            "In a real-time monitored ocean, data historians recover lost stories.",
+        },
+        "film-09": {
+          title: "Warm Silicon",
+          country: "South Korea",
+          synopsis:
+            "An emotional chip questions the boundary between care and automation.",
+        },
+        "film-10": {
+          title: "Tidal Grammar",
+          country: "Portugal",
+          synopsis:
+            "A linguist trains a model on tides to predict words that disappear.",
+        },
+        "film-11": {
+          title: "Gravity Notes",
+          country: "Argentina",
+          synopsis:
+            "An orchestra adapts its score to the microgravity of an orbital station.",
+        },
+        "film-12": {
+          title: "Quantum Whisper",
+          country: "Belgium",
+          synopsis:
+            "A couple attempts to preserve their memories in a failing quantum memory.",
+        },
       },
       panel: {
         loginEyebrow: "Restricted access · Panel",
