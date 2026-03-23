@@ -163,7 +163,7 @@ export function JuryView() {
           </div>
 
           <section className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-5">
-            <aside className="lg:sticky lg:top-5">
+            <aside className="hidden lg:block lg:sticky lg:top-5">
               <AssignedFilms
                 filmsTotal={filmsTotal}
                 filmsRemaining={filmsRemaining}
