@@ -2,13 +2,10 @@ import { useEffect, useState } from 'react';
 import { TimeLeft } from "./homeTypes";
 import { pad } from './homeHelpers';
 
-// Date cible pour la fermeture de l'appel à films
-const FESTIVAL_CLOSE_DATE = new Date('2026-12-31T23:59:59Z');
-
 // Recalcule le temps restant avant la fin du festival
-export function useCountdown(): TimeLeft {
+export function useCountdown(targetDate: Date): TimeLeft {
     const calc = (): TimeLeft => {
-        const diff = Math.max(0, FESTIVAL_CLOSE_DATE.getTime() - Date.now());
+        const diff = Math.max(0, targetDate.getTime() - Date.now());
         return {
             jours: Math.floor(diff / 86_400_000),
             heures: Math.floor((diff % 86_400_000) / 3_600_000),
@@ -22,7 +19,7 @@ export function useCountdown(): TimeLeft {
     useEffect(() => {
         const id = setInterval(() => setTime(calc()), 1000);
         return () => clearInterval(id);
-    }, []);
+    }, [targetDate]);
 
     return time;
 }
@@ -39,7 +36,14 @@ export function TimeBlock({ value, label }: { value: number; label: string }) {
                     boxShadow: "inset 0 0 12px rgba(125,113,251,.14)",
                 }}
             >
-                <span className="f-orb text-4xl font-black tabular-nums leading-none" style={{ color: "rgba(255,255,255,.92)" }}>
+                <span
+                    key={value}
+                    className="f-orb text-4xl font-black tabular-nums leading-none inline-block"
+                    style={{
+                        color: "rgba(255,255,255,.92)",
+                        animation: "flipNum 0.25s ease-out",
+                    }}
+                >
                     {pad(value)}
                 </span>
             </div>

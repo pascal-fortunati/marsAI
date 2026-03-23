@@ -1,6 +1,6 @@
 import { Upload } from "lucide-react";
 import { useCountdown, TimeBlock } from "./homeCounter";
-import { MAIN_STATS, PANEL_ROWS, TAGS } from "./homeHelpers";
+import { MAIN_STATS, PANEL_ROWS, TAGS, getCurrentFestivalPhase, getPhaseNotice, PHASE_DATES } from "./homeHelpers";
 import { marsaiGradients } from "../../theme/marsai";
 import { Button } from "../../components/ui/button";
 import { useEffect, useState } from "react";
@@ -8,6 +8,8 @@ import { useEffect, useState } from "react";
 export default function HomeView() {
 
     const [tick, setTick] = useState(0);
+    const phase = getCurrentFestivalPhase();
+
     useEffect(() => {
         const interval = setInterval(() => setTick((t) => t + 1), 500);
         return () => clearInterval(interval);
@@ -15,8 +17,8 @@ export default function HomeView() {
 
     return (
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-10 min-h-screen">
-            <HeroSection tick={tick} />
-            <CountdownSection />
+            <HeroSection tick={tick} phase={phase} />
+            <CountdownSection phase={phase} />
             <StatsSection />
             <ShowcaseSection />
             <PartnersSection />
@@ -24,7 +26,9 @@ export default function HomeView() {
     );
 }
 
-function HeroSection({ tick }: { tick: number }) {
+function HeroSection({ tick, phase }: { tick: number; phase: 1 | 2 | 3 | 4 }) {
+    const phaseNotice = phase > 1 ? getPhaseNotice(phase, {}) : null;
+
     return (
         <section className="flex flex-col items-center text-center pt-6 md:pt-10 pb-10 md:pb-14 gap-5">
             <div
@@ -43,7 +47,7 @@ function HeroSection({ tick }: { tick: number }) {
                     fontWeight: 500,
                     color: "rgba(200, 190, 255, 0.85)",
                 }}>
-                    Appel à films ouvert · Marseille 2026
+                    {phase === 1 ? "Appel à films ouvert · Marseille 2026" : "Appel à films fermé · Marseille 2026"}
                 </span>
             </div>
 
@@ -83,42 +87,69 @@ function HeroSection({ tick }: { tick: number }) {
                 <br />Ouvert à tous. Sans inscription.
             </p>
 
-            <Button
-                asChild
-                className="f-orb group relative overflow-hidden rounded-full px-9 py-6 text-xs font-bold uppercase tracking-widest text-white transition-all duration-300"
-                style={{
-                    background: marsaiGradients.primaryToAccent,
-                    animation: "pulseGlow 2.5s ease-in-out infinite",
-                }}
-            >
-                <a href="/submit">
-                    <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-                    <Upload size={13} className="relative" />
-                    <span className="relative">Soumettre un film</span>
-                </a>
-            </Button>
+            {phase === 1 ? (
+                <Button
+                    asChild
+                    className="f-orb group relative overflow-hidden rounded-full px-9 py-6 text-xs font-bold uppercase tracking-widest text-white transition-all duration-300"
+                    style={{
+                        background: marsaiGradients.primaryToAccent,
+                        animation: "pulseGlow 2.5s ease-in-out infinite",
+                    }}
+                >
+                    <a href="/submit">
+                        <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+                        <Upload size={13} className="relative" />
+                        <span className="relative">Soumettre un film</span>
+                    </a>
+                </Button>
+            ) : (
+                <div className="flex flex-col items-center gap-3">
+                    <p className="f-orb text-xl md:text-2xl text-white/90 uppercase tracking-wide">
+                        {phaseNotice?.text}
+                    </p>
+                    {phaseNotice?.cta && phaseNotice?.href ? (
+                        <Button
+                            asChild
+                            className="f-orb rounded-full px-9 py-3 text-xs font-bold uppercase tracking-widest text-white transition-all duration-300"
+                            style={{ background: marsaiGradients.primaryToAccent }}
+                        >
+                            <a href={phaseNotice.href}>{phaseNotice.cta}</a>
+                        </Button>
+                    ) : null}
+                </div>
+            )}
         </section>
     );
 }
 
-function CountdownSection() {
-    const time = useCountdown();
+function CountdownSection({ phase }: { phase: 1 | 2 | 3 | 4 }) {
+    const phaseTimelineIndex = Math.min(phase, 3);
+    const targetDate = phase === 1
+        ? PHASE_DATES.phase1Close
+        : phase === 2
+            ? PHASE_DATES.phase2Close
+            : PHASE_DATES.phase3Close;
+    const time = useCountdown(targetDate);
+
     const timelineRows = [
         {
             id: "01",
             label: "Appel à films",
             detail: "1-2 min · 100% IA · International",
-            status: "En cours",
-            active: true,
         },
         ...PANEL_ROWS.map((row, index) => ({
             id: `0${index + 2}`,
             label: row.label,
             detail: row.value,
-            status: "À venir",
-            active: false,
         })),
-    ];
+    ].map((row, index) => {
+        const rowIndex = index + 1;
+        return {
+            ...row,
+            active: rowIndex === phaseTimelineIndex,
+            status: rowIndex < phaseTimelineIndex ? "Clos" : rowIndex === phaseTimelineIndex ? "En cours" : "À venir",
+        };
+    });
 
     return (
         <section className="pb-8 md:pb-12">
@@ -143,19 +174,25 @@ function CountdownSection() {
                 >
                     <div className="flex items-center justify-between">
                         <span className="f-mono text-[8px] tracking-widest uppercase text-white/42">
-                            Phase_01 // Actif
+                            {`Phase_0${phase} // Actif`}
                         </span>
                         <span className="f-orb text-xl text-white/85">
-                            APPEL À FILMS
+                            {phase === 4 ? "PALMARÈS" : "APPEL À FILMS"}
                         </span>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-3">
-                        <TimeBlock value={time.jours} label="Jours" />
-                        <TimeBlock value={time.heures} label="Heures" />
-                        <TimeBlock value={time.min} label="Min" />
-                        <TimeBlock value={time.sec} label="Sec" />
-                    </div>
+                    {phase === 4 ? (
+                        <div className="rounded-xl border border-red-500/30 bg-red-500/5 px-4 py-6 text-center">
+                            <p className="f-mono text-[9px] uppercase tracking-[0.2rem] text-red-400">&gt; SUBMISSIONS_CLOSED</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-4 gap-3">
+                            <TimeBlock value={time.jours} label="Jours" />
+                            <TimeBlock value={time.heures} label="Heures" />
+                            <TimeBlock value={time.min} label="Min" />
+                            <TimeBlock value={time.sec} label="Sec" />
+                        </div>
+                    )}
                 </div>
 
                 <div className="space-y-3">
