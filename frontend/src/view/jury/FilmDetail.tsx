@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import type { Film } from "./types";
+import { getFilmNumberPrefix, type Film } from "./types";
 
 type FilmDetailProps = {
   film: Film | null;
@@ -20,10 +20,16 @@ export function FilmDetail({ film }: FilmDetailProps) {
   }
 
   const tags = film.tags ?? [];
+  const prefix = getFilmNumberPrefix(film);
 
   return (
     <div className="f-mono rounded-lg border border-slate-800 bg-slate-900/45 p-8 text-white shadow-lg">
-      <h2 className="text-2xl font-bold">{film.title}</h2>
+      <h2 className="text-2xl font-bold">
+        {prefix && (
+          <span className="text-sm font-normal text-gray-400">{prefix} </span>
+        )}
+        {film.title}
+      </h2>
       <p className="mt-1 text-sm text-gray-400">
         {[film.country, film.duration].filter(Boolean).join(" • ") ||
           t("jury.unknownYear", { defaultValue: "Année inconnue" })}

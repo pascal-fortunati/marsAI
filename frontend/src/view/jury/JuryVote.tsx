@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Check, RotateCcw, X, type LucideIcon } from "lucide-react";
 import { Button } from "../../components/ui/Button";
-import type { Film, VoteDecision } from "./types";
+import { getFilmNumberPrefix, type Film, type VoteDecision } from "./types";
 
 type JuryVoteProps = {
   film: Film | null;
@@ -61,6 +61,7 @@ export function JuryVote({
   ];
 
   const isDisabled = Boolean(disabled);
+  const filmPrefix = film ? getFilmNumberPrefix(film) : null;
 
   return (
     <div className="f-mono rounded-lg border border-slate-800 bg-slate-900/45 p-8 text-white shadow-lg">
@@ -71,7 +72,13 @@ export function JuryVote({
       ) : (
         <>
           <p className="text-sm text-gray-300">
-            {t("jury.selectFilm")} : <strong>{film.title}</strong>
+            {t("jury.selectFilm")} :{" "}
+            {filmPrefix && (
+              <span className="text-xs font-normal text-gray-400">
+                {filmPrefix}{" "}
+              </span>
+            )}
+            <strong>{film.title}</strong>
           </p>
 
           <div className="mt-4 space-y-4">

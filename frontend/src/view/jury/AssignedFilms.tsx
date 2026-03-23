@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import type { Film, VoteDecision } from "./types";
+import { getFilmNumberPrefix, type Film, type VoteDecision } from "./types";
 
 type AssignedFilmsProps = {
   filmsTotal: number;
@@ -39,6 +39,7 @@ export function AssignedFilms({
         {searchResults.map((film) => {
           const isSelected = selectedFilm?.id === film.id;
           const isVoted = Boolean(votesByFilm[film.id]);
+          const prefix = getFilmNumberPrefix(film);
 
           return (
             <li key={film.id}>
@@ -52,7 +53,14 @@ export function AssignedFilms({
                 }`}
                 disabled={!isLoggedIn}
               >
-                <p className="font-semibold text-white">{film.title}</p>
+                <p className="font-semibold text-white">
+                  {prefix && (
+                    <span className="text-xs font-normal text-gray-400">
+                      {prefix}{" "}
+                    </span>
+                  )}
+                  {film.title}
+                </p>
                 <p className="mt-1 text-xs text-gray-400">
                   {[film.country, film.duration].filter(Boolean).join(" • ")}
                 </p>

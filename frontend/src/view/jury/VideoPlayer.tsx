@@ -1,4 +1,4 @@
-import type { Film } from "./types";
+import { formatFilmDisplayTitle, type Film } from "./types";
 
 type VideoPlayerProps = {
   film: Film | null;
@@ -15,7 +15,11 @@ export function VideoPlayer({ film }: VideoPlayerProps) {
       <iframe
         className="h-full w-full"
         src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
-        title={film ? `Lecteur de ${film.title}` : "Lecteur YouTube"}
+        title={
+          film
+            ? `Lecteur de ${formatFilmDisplayTitle(film)}`
+            : "Lecteur YouTube"
+        }
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen
       />
