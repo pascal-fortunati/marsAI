@@ -3,7 +3,7 @@ import { PalmaresPages } from './pages/PalmaresPages';
 
 function App() {
   return (
-    <div className="App">
+    <div className="App" style={{ fontFamily: 'Orbitron, sans-serif', fontWeight: 900, letterSpacing: '-0.04em' }}>
       <Routes>
           {/* Correction : On redirige de / vers /palmares */}
           <Route path='/' element={<Navigate to="/palmares" replace />} />

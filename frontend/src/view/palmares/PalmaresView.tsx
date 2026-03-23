@@ -24,6 +24,9 @@ const JURY_DATA = [
 ];
 
 export const PalmaresView = () => {
+  const [filter, setFilter] = React.useState<'tous' | 'top10'>('tous');
+  const filteredJury = filter === 'top10' ? JURY_DATA.slice(0, 10) : JURY_DATA;
+
   return (
     <div className="min-h-screen bg-[#030208] text-white font-sans selection:bg-yellow-500/30 relative overflow-x-hidden">
       
@@ -171,25 +174,42 @@ export const PalmaresView = () => {
                 <div className="h-[1px] flex-1 bg-white/5" />
             </div>
 
-            {/* GRILLE DU JURY complète (11 films) */}
-            <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {JURY_DATA.map((film) => (
-                    <div key={film.id} className="bg-[#0B0B12]/60 border border-white/5 rounded-xl p-3 flex items-center justify-between hover:bg-[#15151F] transition-all group cursor-pointer shadow-lg">
-                        <div className="flex items-center gap-4 text-left overflow-hidden">
-                            <div className="w-10 h-10 rounded-full border border-white/5 overflow-hidden shrink-0">
+            <h2 className="text-[10px] tracking-[0.5em] text-white/20 font-black uppercase mb-6">PRIX DU JURY • {filteredJury.length} FILMS</h2>
+
+            {/* GRILLE DU JURY améliorée */}
+            <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredJury.map((film) => (
+                    <div key={film.id} className="bg-gradient-to-br from-white/5 to-white/1 border border-white/10 rounded-2xl p-5 hover:border-white/30 transition-all group cursor-pointer shadow-lg hover:shadow-xl hover:bg-white/8">
+                        <div className="flex items-start gap-4 mb-4">
+                            <div className="w-14 h-14 rounded-full border border-white/20 overflow-hidden shrink-0 shadow-lg ring-1 ring-yellow-500/20">
                                 <img src={film.avatar} alt={film.title} className="w-full h-full object-cover" />
                             </div>
-                            <div className="truncate pr-2">
-                                <h4 className="text-[12px] font-bold group-hover:text-white text-white/90 transition-colors uppercase tracking-tight truncate">{film.title}</h4>
-                                <p className="text-[9px] text-white/40 uppercase font-medium tracking-wider truncate">{film.director} • {film.country}</p>
+                            <div className="flex-1 min-w-0">
+                                <h4 className="text-[13px] font-bold group-hover:text-yellow-400 text-white transition-colors uppercase tracking-tight line-clamp-2">{film.title}</h4>
+                                <p className="text-[10px] text-white/50 uppercase font-medium tracking-wider mt-1">{film.director}</p>
+                                <p className="text-[9px] text-white/30 uppercase tracking-wider">{film.country}</p>
                             </div>
+                            <span className="text-[11px] font-mono text-yellow-500/80 font-bold ml-2">{film.time}</span>
                         </div>
-                        <span className="text-[10px] font-mono text-white/30 shrink-0">{film.time}</span>
+                        <div className="h-[1px] bg-white/5 mb-3" />
+                        <div className="text-[10px] text-white/40 flex items-center gap-2">
+                            <Star size={12} className="text-purple-400" />
+                            <span>Prix Jury</span>
+                        </div>
                     </div>
                 ))}
             </section>
 
         </div>
+
+        <footer className="mt-16 pb-10 text-center">
+          <p className="text-[11px] text-white/35 tracking-[0.08em]">
+            La Plateforme x Mobile Film Festival · Marseille 2026
+          </p>
+          <p className="text-[10px] text-white/20 tracking-[0.06em] mt-1">
+            Festival marsAI · Courts-métrages entièrement générés par IA
+          </p>
+        </footer>
       </main>
     </div>
   );
