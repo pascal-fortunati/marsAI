@@ -87,6 +87,7 @@ export const PalmaresView = () => {
           color: transparent;
           filter: drop-shadow(0 0 16px rgba(250, 204, 21, 0.14));
         }
+        a, button { cursor: pointer; }
       `}</style>
 
       {/* --- NAVBAR --- */}
@@ -107,9 +108,9 @@ export const PalmaresView = () => {
 
         <div className="flex items-center gap-10 md:gap-11">
           <div className="flex items-center gap-6 text-[11.5px] tracking-[0.2em] font-bold text-white/40 uppercase">
-            <a href="#" className="hover:text-white transition-colors">Catalogue</a>
+            <a href="#" className="hover:text-white transition-colors cursor-pointer">Catalogue</a>
             <span className="opacity-10 text-white">|</span>
-            <a href="#" className="text-white border-b-2 border-white pb-1">Palmarès</a>
+            <a href="#" className="text-white border-b-2 border-white pb-1 cursor-pointer">Palmarès</a>
           </div>
           
           <div className="flex gap-3 items-center">
@@ -219,13 +220,13 @@ export const PalmaresView = () => {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setFilter('tous')}
-                    className={`px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-[0.2em] border transition-all ${filter === 'tous' ? 'bg-white text-black border-white' : 'bg-white/5 text-white/60 border-white/15 hover:bg-white/10'}`}
+                    className={`px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-[0.2em] border transition-all cursor-pointer ${filter === 'tous' ? 'bg-white text-black border-white' : 'bg-white/5 text-white/60 border-white/15 hover:bg-white/10'}`}
                   >
                     Tous
                   </button>
                   <button
                     onClick={() => setFilter('top10')}
-                    className={`px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-[0.2em] border transition-all ${filter === 'top10' ? 'bg-yellow-500 text-black border-yellow-400 shadow-[0_0_18px_rgba(234,179,8,0.28)]' : 'bg-white/5 text-white/60 border-white/15 hover:bg-white/10'}`}
+                    className={`px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-[0.2em] border transition-all cursor-pointer ${filter === 'top10' ? 'bg-yellow-500 text-black border-yellow-400 shadow-[0_0_18px_rgba(234,179,8,0.28)]' : 'bg-white/5 text-white/60 border-white/15 hover:bg-white/10'}`}
                   >
                     Top 10
                   </button>
