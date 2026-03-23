@@ -3,13 +3,9 @@ export const getApiBaseUrl = () => {
   const raw = import.meta.env.VITE_API_URL as string | undefined;
   if (raw && raw.trim().length > 0) return raw.trim().replace(/\/$/, "");
   if (typeof window !== "undefined") {
-    const host = window.location.hostname;
-    if (host === "localhost" || host === "127.0.0.1") {
-      return `${window.location.protocol}//${host}:4000`;
-    }
     return window.location.origin;
   }
-  return "http://localhost:4000";
+  return "";
 };
 
 // URL complète de l'API
@@ -81,9 +77,8 @@ export const consumeAuthErrorFromUrl = () => {
   params.delete("error_description");
   params.delete("error");
   const nextSearch = params.toString();
-  const nextUrl = `${window.location.pathname}${
-    nextSearch ? `?${nextSearch}` : ""
-  }${window.location.hash}`;
+  const nextUrl = `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ""
+    }${window.location.hash}`;
   window.history.replaceState(null, "", nextUrl);
   return message;
 };
@@ -178,4 +173,18 @@ export const decodeJwtPayload = <T extends object = Record<string, unknown>>(
   } catch {
     return null;
   }
+};
+
+export type SubmitFilmResponse = {
+  id: string;
+  email: string;
+};
+
+export const submitFilm = async (
+  payload: Record<string, unknown>
+): Promise<SubmitFilmResponse> => {
+  return apiFetchJson<SubmitFilmResponse>("/api/submissions", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
 };

@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { Rocket, AlertTriangle, Loader2 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { marsaiGradients } from "../../theme/marsai";
+import { Step4Data } from "./submitType";
 
 interface Step4Props {
-  onSubmit: () => void;
+  onSubmit: () => Promise<void>;
   onPrev: () => void;
 
 
@@ -72,6 +73,7 @@ export default function Step4({
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [showValidation, setShowValidation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const toggle = (id: string) =>
     setChecked((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -79,12 +81,22 @@ export default function Step4({
   // Tous les consentements obligatoires doivent être cochés
   const canSubmit = CONSENTS.filter((c) => c.required).every((c) => checked[c.id]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setShowValidation(true);
+    setSubmitError(null);
 
     if (canSubmit) {
       setIsSubmitting(true);
-      onSubmit();
+      try {
+        await onSubmit();
+      } catch (error) {
+        setSubmitError(
+          error instanceof Error
+            ? error.message
+            : "Échec de la soumission. Vérifiez le backend et réessayez."
+        );
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -226,6 +238,12 @@ export default function Step4({
       <p className="f-mono text-[9px] text-white/25 tracking-wide text-center">
         Aucune modification possible après soumission · Les champs sont mémorisés sur cet appareil
       </p>
+
+      {submitError && (
+        <p className="f-mono text-[10px] text-center" style={{ color: "rgba(255, 92, 53, .95)" }}>
+          {submitError}
+        </p>
+      )}
 
     </div>
   );

@@ -1,7 +1,8 @@
 import { db } from "../config/db.js";
+import { randomUUID } from "node:crypto";
 
 export async function insertSubmission(data) {
-    const id = CryptoKey.randomUUID();
+    const id = randomUUID();
 
     await db.execute(
         `INSERT INTO submissions (

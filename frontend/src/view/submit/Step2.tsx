@@ -7,6 +7,7 @@ import type { ComponentType } from "react";
 import { FR_COUNTRY_NAMES, getCountryCode, getLanguageFlagCode } from "../../lib/countryMapping";
 import { useLocalStorageState } from "../../lib/useLocalStorageState";
 import { marsaiGradients } from "../../theme/marsai";
+import { Step2Data } from "./submitType";
 
 interface Step2Props {
     onNext: () => void;

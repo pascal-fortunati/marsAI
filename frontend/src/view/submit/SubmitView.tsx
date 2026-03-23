@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Progress from "./Progress";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
@@ -9,6 +9,7 @@ import { Combobox } from "../../components/ui/combobox";
 import * as Flags from "country-flag-icons/react/3x2";
 import { marsaiGradients } from "../../theme/marsai";
 import { Check } from "lucide-react";
+import { submitFilm } from "../../lib/api";
 
 function AccentTitle({ children }: { children: React.ReactNode }) {
     return (
@@ -28,11 +29,171 @@ function AccentTitle({ children }: { children: React.ReactNode }) {
 export function SubmitView() {
     const [step, setStep] = useState(1);
     const [showNotification, setShowNotification] = useState(false);
+    const [confirmation, setConfirmation] = useState<{ id: string; email: string } | null>(null);
+
+    useEffect(() => {
+        const parsePossiblyEncoded = (raw: string) => {
+            let current: unknown = raw;
+            for (let i = 0; i < 4; i++) {
+                if (typeof current !== "string") break;
+                try {
+                    current = JSON.parse(current);
+                } catch {
+                    break;
+                }
+            }
+            return current;
+        };
+
+        const expectedBooleanKeys = new Set([
+            "submit.step2.rights",
+        ]);
+
+        const expectedArrayKeys = new Set([
+            "submit.step2.selectedTools",
+            "submit.step2.selectedTags",
+        ]);
+
+        const expectedStringKeys = new Set([
+            "submit.step1.fullName",
+            "submit.step1.email",
+            "submit.step1.phone",
+            "submit.step1.birthDate",
+            "submit.step1.address",
+            "submit.step1.postalCode",
+            "submit.step1.city",
+            "submit.step1.country",
+            "submit.step1.job",
+            "submit.step1.howFound",
+            "submit.step1.legalName",
+            "submit.step1.legalEmail",
+            "submit.step2.title",
+            "submit.step2.duration",
+            "submit.step2.synopsis",
+            "submit.step2.customTool",
+            "submit.step2.soundMentions",
+            "submit.step3.videoUrl",
+            "submit.step3.posterUrl",
+            "submit.step3.subtitlesUrl",
+        ]);
+
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (!key || !key.startsWith("submit.step")) continue;
+
+            const raw = localStorage.getItem(key);
+            if (raw === null) continue;
+
+            const parsed = parsePossiblyEncoded(raw);
+            let normalized: unknown = parsed;
+
+            if (expectedBooleanKeys.has(key)) {
+                normalized = parsed === true;
+            } else if (expectedArrayKeys.has(key)) {
+                normalized = Array.isArray(parsed)
+                    ? parsed.filter((item) => typeof item === "string")
+                    : [];
+            } else if (expectedStringKeys.has(key)) {
+                normalized = typeof parsed === "string" ? parsed : String(parsed ?? "");
+            }
+
+            const serialized = JSON.stringify(normalized);
+            if (serialized !== raw) {
+                localStorage.setItem(key, serialized);
+            }
+        }
+    }, []);
 
     const goNext = () => setStep((s) => Math.min(s + 1, 5));
     const goPrev = () => setStep((s) => Math.max(s - 1, 1));
 
-    const handleSubmit = () => {
+    const toDurationSeconds = (raw: string) => {
+        const value = raw.trim();
+        if (!value) return 0;
+
+        if (value.includes(":")) {
+            const [minutesRaw, secondsRaw] = value.split(":");
+            const minutes = Number.parseInt(minutesRaw, 10);
+            const seconds = Number.parseInt(secondsRaw, 10);
+            if (Number.isFinite(minutes) && Number.isFinite(seconds)) {
+                return Math.max(0, minutes * 60 + seconds);
+            }
+        }
+
+        if (value.endsWith("'")) {
+            const minutes = Number.parseInt(value.replace("'", ""), 10);
+            if (Number.isFinite(minutes)) return Math.max(0, minutes * 60);
+        }
+
+        const asNumber = Number.parseInt(value, 10);
+        return Number.isFinite(asNumber) ? Math.max(0, asNumber) : 0;
+    };
+
+    const readStored = (key: string) => {
+        try {
+            const raw = localStorage.getItem(key);
+            if (raw === null) return "";
+            const parsed = JSON.parse(raw);
+            return typeof parsed === "string" ? parsed : String(parsed ?? "");
+        } catch {
+            return "";
+        }
+    };
+
+    const readStoredBoolean = (key: string) => {
+        try {
+            const raw = localStorage.getItem(key);
+            if (raw === null) return false;
+            const parsed = JSON.parse(raw);
+            return parsed === true;
+        } catch {
+            return false;
+        }
+    };
+
+    const readStoredJsonArray = (key: string) => {
+        try {
+            const raw = localStorage.getItem(key);
+            if (!raw) return [] as string[];
+            const parsed = JSON.parse(raw);
+            return Array.isArray(parsed) ? parsed.filter((item) => typeof item === "string") : [];
+        } catch {
+            return [] as string[];
+        }
+    };
+
+    const handleSubmit = async () => {
+        const payload = {
+            director_name: readStored("submit.step1.fullName"),
+            director_email: readStored("submit.step1.email"),
+            director_phone: readStored("submit.step1.phone"),
+            director_birthdate: readStored("submit.step1.birthDate"),
+            director_street: readStored("submit.step1.address"),
+            director_zip: readStored("submit.step1.postalCode"),
+            director_city: readStored("submit.step1.city"),
+            director_country: readStored("submit.step1.country"),
+            director_job: readStored("submit.step1.job"),
+            discovery_source: readStored("submit.step1.howFound"),
+            legal_ref_name: readStored("submit.step1.legalName"),
+            legal_ref_email: readStored("submit.step1.legalEmail"),
+            title: readStored("submit.step2.title"),
+            synopsis: readStored("submit.step2.synopsis"),
+            duration_seconds: toDurationSeconds(readStored("submit.step2.duration")),
+            country: readStored("submit.step2.country"),
+            language: readStored("submit.step2.language"),
+            category: readStored("submit.step2.category"),
+            ai_tools: readStoredJsonArray("submit.step2.selectedTools"),
+            semantic_tags: readStoredJsonArray("submit.step2.selectedTags"),
+            music_credits: readStored("submit.step2.soundMentions"),
+            rights_confirmed: readStoredBoolean("submit.step2.rights"),
+            consent_rules: true,
+            consent_promo: true,
+            consent_newsletter: false,
+            consent_copyright: true,
+        };
+
+        const result = await submitFilm(payload);
+        setConfirmation(result);
         setShowNotification(true);
         goNext();
         // Auto-hide after 5 seconds
@@ -88,8 +249,8 @@ export function SubmitView() {
                     </div>
                 )}
                 <Confirmation
-                    submissionId="9adf0ea3-59d3-4eb1-9324-1519e4f11152"
-                    email="pauline.alex@laplateforme.io"
+                    submissionId={confirmation?.id ?? ""}
+                    email={confirmation?.email ?? ""}
                     onHome={() => setStep(1)}
                     onSubmitAnother={() => setStep(1)}
                 />

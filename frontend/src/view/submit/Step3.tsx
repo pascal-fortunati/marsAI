@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Upload, Clock, HardDrive, Film, Check } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { marsaiGradients } from "../../theme/marsai";
+import { Step3Data } from "./submitType";
 
 interface Step3Props {
     onNext: () => void;
