@@ -258,6 +258,21 @@ export const PalmaresView = () => {
 
         </div>
 
+        <footer className="mt-20 pb-14 pt-12 reveal-up" style={{ animationDelay: '0.42s' }}>
+          <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12 xl:gap-16 opacity-95">
+            <img
+              src="/logo-la-plateforme.svg"
+              alt="La Plateforme"
+              className="h-10 md:h-12 lg:h-14 w-auto max-w-[42vw]"
+            />
+            <img
+              src="/logo-mobile-film-festival.svg"
+              alt="Mobile Film Festival"
+              className="h-12 md:h-14 lg:h-16 w-auto max-w-[46vw]"
+            />
+          </div>
+        </footer>
+
       </main>
     </div>
   );

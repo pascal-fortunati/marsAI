@@ -1,0 +1,14 @@
+<svg width="620" height="110" viewBox="0 0 620 110" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="La Plateforme">
+  <defs>
+    <linearGradient id="lpGrad" x1="0" y1="0" x2="620" y2="0" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8B5CF6"/>
+      <stop offset="1" stop-color="#7C3AED"/>
+    </linearGradient>
+  </defs>
+  <g fill="url(#lpGrad)">
+    <path d="M18 30h48v10H18z"/>
+    <path d="M18 46h48v10H18z"/>
+    <path d="M18 62c6 0 6 4 12 4s6-4 12-4 6 4 12 4 6-4 12-4v10c-6 0-6 4-12 4s-6-4-12-4-6 4-12 4-6-4-12-4z"/>
+  </g>
+  <text x="84" y="72" fill="url(#lpGrad)" font-family="Poppins, Orbitron, sans-serif" font-size="64" font-weight="700" letter-spacing="-1.2">La Plateforme</text>
+</svg>
