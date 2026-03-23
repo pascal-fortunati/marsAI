@@ -27,6 +27,16 @@ const filmMetadata = [
   { id: "film-12", duration: "1:59", tags: ["Love", "Quantum"] },
 ];
 
+const DEFAULT_VOTES_BY_FILM: Record<string, VoteDecision> = {
+  "film-02": "review",
+  "film-03": "refuse",
+  "film-07": "validate",
+};
+
+const VALID_DECISIONS: VoteDecision[] = ["validate", "review", "refuse"];
+const JURY_VOTES_STORAGE_KEY = "jury-votes-by-film";
+const JURY_COMMENTS_STORAGE_KEY = "jury-comments-by-film";
+
 export function JuryView() {
   const { t } = useTranslation();
   const [currentLang, setCurrentLang] = useState<"fr" | "en">(() =>
@@ -53,11 +63,44 @@ export function JuryView() {
   const [selectedFilm, setSelectedFilm] = useState<Film | null>(
     localizedFilms[0],
   );
-  const [votesByFilm, setVotesByFilm] = useState<Record<string, VoteDecision>>({
-    "film-02": "review",
-    "film-03": "refuse",
-    "film-07": "validate",
-  });
+  const [votesByFilm, setVotesByFilm] = useState<Record<string, VoteDecision>>(
+    () => {
+      if (typeof window === "undefined") return DEFAULT_VOTES_BY_FILM;
+      try {
+        const raw = window.localStorage.getItem(JURY_VOTES_STORAGE_KEY);
+        if (!raw) return DEFAULT_VOTES_BY_FILM;
+        const parsed = JSON.parse(raw) as Record<string, unknown>;
+        const restored = Object.fromEntries(
+          Object.entries(parsed).filter(([, value]) =>
+            VALID_DECISIONS.includes(value as VoteDecision),
+          ),
+        ) as Record<string, VoteDecision>;
+        return Object.keys(restored).length > 0
+          ? restored
+          : DEFAULT_VOTES_BY_FILM;
+      } catch {
+        return DEFAULT_VOTES_BY_FILM;
+      }
+    },
+  );
+  // Front-only cache: one comment per film id, restored from localStorage.
+  const [commentsByFilm, setCommentsByFilm] = useState<Record<string, string>>(
+    () => {
+      if (typeof window === "undefined") return {};
+      try {
+        const raw = window.localStorage.getItem(JURY_COMMENTS_STORAGE_KEY);
+        if (!raw) return {};
+        const parsed = JSON.parse(raw) as Record<string, unknown>;
+        return Object.fromEntries(
+          Object.entries(parsed).filter(
+            ([, value]) => typeof value === "string",
+          ),
+        ) as Record<string, string>;
+      } catch {
+        return {};
+      }
+    },
+  );
   const [voteStatus, setVoteStatus] = useState<
     "idle" | "submitting" | "success" | "error"
   >("idle");
@@ -108,6 +151,22 @@ export function JuryView() {
     }
   }, [filteredFilms, selectedFilm]);
 
+  useEffect(() => {
+    // Persist votes so they survive page refreshes.
+    window.localStorage.setItem(
+      JURY_VOTES_STORAGE_KEY,
+      JSON.stringify(votesByFilm),
+    );
+  }, [votesByFilm]);
+
+  useEffect(() => {
+    // Persist comment drafts so they survive page refreshes.
+    window.localStorage.setItem(
+      JURY_COMMENTS_STORAGE_KEY,
+      JSON.stringify(commentsByFilm),
+    );
+  }, [commentsByFilm]);
+
   const handleVote = async (
     filmId: string,
     decision: VoteDecision,
@@ -117,6 +176,9 @@ export function JuryView() {
     try {
       // TODO: appeler POST /api/vote avec { filmId, decision, comment }
       setVotesByFilm((previous) => ({ ...previous, [filmId]: decision }));
+      if (typeof comment === "string") {
+        setCommentsByFilm((previous) => ({ ...previous, [filmId]: comment }));
+      }
       setVoteStatus("success");
     } catch (error) {
       setVoteStatus("error");
@@ -224,6 +286,17 @@ export function JuryView() {
                 film={selectedFilm}
                 status={voteStatus}
                 onVote={handleVote}
+                commentValue={
+                  selectedFilm ? (commentsByFilm[selectedFilm.id] ?? "") : ""
+                }
+                onCommentChange={(nextComment) => {
+                  if (!selectedFilm) return;
+                  // Keep draft comments attached to the currently selected film.
+                  setCommentsByFilm((previous) => ({
+                    ...previous,
+                    [selectedFilm.id]: nextComment,
+                  }));
+                }}
                 onNextFilm={handleNextFilm}
                 isVoteLocked={Boolean(
                   selectedFilm && votesByFilm[selectedFilm.id],

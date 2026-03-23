@@ -12,6 +12,8 @@ type JuryVoteProps = {
     decision: VoteDecision,
     comment?: string,
   ) => Promise<void>;
+  commentValue: string;
+  onCommentChange: (nextComment: string) => void;
   onNextFilm: () => void;
   isVoteLocked?: boolean;
   disabled?: boolean;
@@ -21,13 +23,14 @@ export function JuryVote({
   film,
   status,
   onVote,
+  commentValue,
+  onCommentChange,
   onNextFilm,
   isVoteLocked = false,
   disabled,
 }: JuryVoteProps) {
   const { t } = useTranslation();
   const [decision, setDecision] = useState<VoteDecision | null>(null);
-  const [comment, setComment] = useState<string>("");
 
   const isSubmitting = status === "submitting";
 
@@ -38,7 +41,7 @@ export function JuryVote({
 
   const handleSubmit = async () => {
     if (!film || !decision) return;
-    await onVote(film.id, decision, comment);
+    await onVote(film.id, decision, commentValue);
   };
 
   const decisionButtons: Array<{
@@ -128,8 +131,8 @@ export function JuryVote({
                 <span className="ml-1 text-slate-500">(optionnel)</span>
               </label>
               <textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
+                value={commentValue}
+                onChange={(e) => onCommentChange(e.target.value)}
                 className="mt-1 h-20 w-full resize-none rounded border border-slate-800 bg-slate-900 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder={t("jury.commentPlaceholder")}
                 disabled={controlsDisabled}
