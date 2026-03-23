@@ -1,3 +1,45 @@
+// Toutes les fonctions d'appel au backend
+const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
+
+// ── Types réponse home ───────────────────────────────────────────────────────
+export interface HomeData {
+  phase: 1 | 2 | 3 | 4;
+  dates: {
+    phase1_close: string | null;
+    phase2_catalogue: string | null;
+    phase3_palmares: string | null;
+  };
+  stats: {
+    countries: number;
+    films: number;
+    visitors: number;
+  };
+  translations: Record<string, unknown>;
+  site_logo: string | null;
+  partners_logos: unknown[];
+  form_options: Record<string, unknown[]>;
+}
+
+// ── Home ─────────────────────────────────────────────────────────────────────
+/**
+ * Récupère toutes les données de la page d'accueil (phase, stats, traductions…)
+ */
+export async function getHomeData(): Promise<HomeData> {
+  const res = await fetch(`${BASE}/api/site/home`);
+  if (!res.ok) throw new Error("Impossible de charger les données du site");
+  return res.json();
+}
+
+// ── Health check ─────────────────────────────────────────────────────────────
+export async function healthCheck(): Promise<boolean> {
+  try {
+    const res = await fetch(`${BASE}/api/health`);
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 // URL de l'API
 export const getApiBaseUrl = () => {
   const raw = import.meta.env.VITE_API_URL as string | undefined;

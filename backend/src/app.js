@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { env } from "./config/env.js";
 import submissionRouter from "./routes/submission.js";
+import homeRouter from "./routes/home.js";
 
 const app = express();
 

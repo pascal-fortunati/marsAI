@@ -26,7 +26,7 @@ export default function HomeView() {
 
 function HeroSection({ tick }: { tick: number }) {
     return (
-        <section className="flex flex-col items-center text-center pt-10 md:pt-14 pb-10 md:pb-14 gap-5">
+        <section className="flex flex-col items-center text-center pt-6 md:pt-10 pb-10 md:pb-14 gap-5">
             <div
                 className="flex items-center gap-3 px-4 py-2.5 rounded-full border"
                 style={{
@@ -69,7 +69,7 @@ function HeroSection({ tick }: { tick: number }) {
                 <span
                     className="block text-[3.5rem] md:text-[7rem]"
                     style={{
-                        background: "linear-gradient(90deg, #ff6f76 0%, #b867d2 45%, #7d71fb 100%)",
+                        background: "linear-gradient(90deg, #7d71fb 0%, #b867d2 45%, #ff6f76 100%)",
                         WebkitBackgroundClip: "text",
                         WebkitTextFillColor: "transparent",
                     }}
@@ -210,7 +210,7 @@ function StatsSection() {
         <section className="pb-12">
             <div className="flex items-center justify-center gap-10 md:gap-14 text-center">
                 {MAIN_STATS.map(({ value, label }, index) => (
-                    <div key={label} className="flex flex-col items-center gap-1 min-w-[84px]">
+                    <div key={index} className="flex flex-col items-center gap-1 min-w-[84px]">
                         <span
                             className="f-orb text-3xl md:text-4xl font-black"
                             style={{
@@ -232,8 +232,6 @@ function StatsSection() {
 
             <div className="pt-10 flex flex-col items-center gap-2 text-white/40">
                 <span className="f-mono text-[8px] tracking-[0.3rem] uppercase">Scroll</span>
-                <div>
-                </div>
                 <span className="block h-7 w-3 rounded-full border border-white/25 relative">
                     <span className="absolute left-1/2 top-1.5 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-white/50" style={{
                         animation: "float 1.2s ease-in-out infinite",
@@ -288,9 +286,9 @@ function ShowcaseSection() {
                     </p>
 
                     <div className="flex flex-wrap gap-2 pt-1">
-                        {TAGS.map((tag) => (
+                        {TAGS.map((tag, index) => (
                             <span
-                                key={tag}
+                                key={index}
                                 className="f-mono text-[8px] tracking-wider px-3 py-1.5 rounded-full"
                                 style={{
                                     border: "1px solid rgba(255, 255, 255, .12)",
@@ -307,7 +305,7 @@ function ShowcaseSection() {
                 <div className="lg:col-span-4 flex flex-col gap-3">
                     {MAIN_STATS.map(({ value, label }, index) => (
                         <div
-                            key={label}
+                            key={index}
                             className="rounded-2xl flex flex-col items-center justify-center py-5"
                             style={{
                                 border: "1px solid rgba(255,255,255,.09)",
