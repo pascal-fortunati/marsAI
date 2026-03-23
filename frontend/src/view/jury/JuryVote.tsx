@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Check, RotateCcw, X, type LucideIcon } from "lucide-react";
 import { Button } from "../../components/ui/Button";
@@ -12,25 +12,23 @@ type JuryVoteProps = {
     decision: VoteDecision,
     comment?: string,
   ) => Promise<void>;
-  onNextFilm: () => void;
   disabled?: boolean;
 };
 
-export function JuryVote({
-  film,
-  status,
-  onVote,
-  onNextFilm,
-  disabled,
-}: JuryVoteProps) {
+export function JuryVote({ film, status, onVote, disabled }: JuryVoteProps) {
   const { t } = useTranslation();
-  const [decision, setDecision] = useState<VoteDecision>("validate");
+  const [decision, setDecision] = useState<VoteDecision | null>(null);
   const [comment, setComment] = useState<string>("");
 
   const isSubmitting = status === "submitting";
 
+  useEffect(() => {
+    // Every time the selected film changes, require an explicit vote choice.
+    setDecision(null);
+  }, [film?.id]);
+
   const handleSubmit = async () => {
-    if (!film) return;
+    if (!film || !decision) return;
     await onVote(film.id, decision, comment);
   };
 
@@ -124,26 +122,19 @@ export function JuryVote({
               />
             </div>
 
-            <Button
-              variant="outline"
-              size="lg"
-              className="f-mono w-full rounded-2xl border-0 bg-gradient-to-r from-violet-400/95 to-rose-500/95 text-base font-semibold text-white shadow-lg shadow-violet-400/35 hover:from-violet-400 hover:to-rose-500 hover:shadow-violet-400/50"
-              onClick={handleSubmit}
-              disabled={isDisabled || isSubmitting || !film}
-            >
-              {isSubmitting
-                ? t("jury.sending")
-                : t("jury.sendVote", { defaultValue: "Voter" })}
-            </Button>
-
-            <button
-              type="button"
-              className="text-sm text-gray-400 transition-colors hover:text-white"
-              onClick={onNextFilm}
-              disabled={isDisabled || !film}
-            >
-              {t("jury.nextFilm")}
-            </button>
+            <div className="flex justify-end">
+              <Button
+                variant="outline"
+                size="lg"
+                className="f-mono w-fit rounded-2xl border-0 bg-gradient-to-r from-violet-400/95 to-rose-500/95 text-base font-semibold text-white shadow-lg shadow-violet-400/35 hover:from-violet-400 hover:to-rose-500 hover:shadow-violet-400/50"
+                onClick={handleSubmit}
+                disabled={isDisabled || isSubmitting || !film || !decision}
+              >
+                {isSubmitting
+                  ? t("jury.sending")
+                  : t("jury.sendVote", { defaultValue: "Voter" })}
+              </Button>
+            </div>
 
             {status === "success" && (
               <p className="text-sm text-emerald-300">

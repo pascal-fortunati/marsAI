@@ -105,31 +105,18 @@ export function JuryView() {
   const filmsRemaining = filmsTotal - filmsVoted;
   const progression = Math.round((filmsVoted / filmsTotal) * 100);
 
-  const handleNextFilm = () => {
-    if (!selectedFilm) {
-      setSelectedFilm(localizedFilms[0]);
-      return;
-    }
-
-    const currentIndex = localizedFilms.findIndex(
-      (film) => film.id === selectedFilm.id,
-    );
-    const nextIndex = (currentIndex + 1) % localizedFilms.length;
-    setSelectedFilm(localizedFilms[nextIndex]);
-  };
-
   const handleLangChange = (lang: "fr" | "en") => {
     setCurrentLang(lang);
     setLanguage(lang);
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-slate-950 text-white">
+    <div className="relative min-h-screen overflow-x-hidden bg-slate-950 text-white">
       <div className="absolute inset-0 z-0">
         <StarfieldNeural />
       </div>
 
-      <div className="relative z-10">
+      <div className="relative z-10 pt-24">
         <NavBar
           totalFilms={filmsTotal}
           votedFilms={filmsVoted}
@@ -139,7 +126,7 @@ export function JuryView() {
           onLangChange={handleLangChange}
         />
         <div className="mx-auto w-full max-w-7xl p-4 lg:p-5">
-          <div className="mb-4 lg:mb-5">
+          <div className="sticky top-24 z-40 -mx-2 px-2 py-2 bg-slate-950/85 backdrop-blur-md mb-4 lg:mb-5">
             <FilmSearch
               query={searchQuery}
               onSearch={handleSearch}
@@ -171,7 +158,6 @@ export function JuryView() {
                 film={selectedFilm}
                 status={voteStatus}
                 onVote={handleVote}
-                onNextFilm={handleNextFilm}
                 disabled={!isLoggedIn || !selectedFilm}
               />
             </main>

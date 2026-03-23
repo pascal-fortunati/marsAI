@@ -130,7 +130,7 @@ export default function NavBar({
 
   return (
     <div
-      className="relative w-full bg-slate-950 backdrop-blur-[12px]"
+      className="fixed inset-x-0 top-0 z-50 w-full bg-slate-950/95 backdrop-blur-[12px]"
       data-name="NavBar"
     >
       <div

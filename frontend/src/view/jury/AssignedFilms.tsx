@@ -94,12 +94,6 @@ export function AssignedFilms({
       {searchResults.length === 0 && (
         <p className="px-6 py-5 text-sm text-gray-400">{t("jury.noFilm")}</p>
       )}
-
-      <div className="px-6 pb-4 pt-3 text-xs text-gray-400">
-        {filmsRemaining} {t("jury.remaining", { defaultValue: "restants" })}
-        {" · "}
-        {progression}%
-      </div>
     </div>
   );
 }
