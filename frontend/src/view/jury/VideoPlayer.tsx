@@ -11,7 +11,7 @@ export function VideoPlayer({ film }: VideoPlayerProps) {
 
   // TODO: utiliser un lecteur plus robuste si besoin (Vimeo, MP4, etc.)
   return (
-    <div className="aspect-video w-full max-w-[1120px] overflow-hidden rounded-md border border-slate-800">
+    <div className="aspect-video w-full max-w-[1120px] overflow-hidden rounded-[20px] border border-slate-800">
       <iframe
         className="h-full w-full"
         src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}

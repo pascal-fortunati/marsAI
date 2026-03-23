@@ -1,17 +1,18 @@
 import { useTranslation } from "react-i18next";
-import { getFilmNumberPrefix, type Film } from "./types";
+import type { Film } from "./types";
 
 type FilmDetailProps = {
   film: Film | null;
+  isVoted?: boolean;
 };
 
-export function FilmDetail({ film }: FilmDetailProps) {
+export function FilmDetail({ film, isVoted = false }: FilmDetailProps) {
   const { t } = useTranslation();
 
   if (!film) {
     return (
       <div className="f-mono rounded-lg border border-slate-800 bg-slate-900/45 p-8 text-white shadow-lg">
-        <h2 className="text-2xl font-bold mb-4">
+        <h2 className="f-orb text-2xl font-bold mb-4">
           {t("jury.filmDetailsTitle")}
         </h2>
         <p className="text-gray-400">{t("jury.filmSelectPrompt")}</p>
@@ -20,16 +21,22 @@ export function FilmDetail({ film }: FilmDetailProps) {
   }
 
   const tags = film.tags ?? [];
-  const prefix = getFilmNumberPrefix(film);
-
   return (
     <div className="f-mono rounded-lg border border-slate-800 bg-slate-900/45 p-8 text-white shadow-lg">
-      <h2 className="text-2xl font-bold">
-        {prefix && (
-          <span className="text-sm font-normal text-gray-400">{prefix} </span>
-        )}
-        {film.title}
-      </h2>
+      <div className="flex items-start justify-between gap-3">
+        <h2 className="f-orb text-2xl font-bold">{film.title}</h2>
+
+        <span
+          className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium ${
+            isVoted
+              ? "border-emerald-400/60 bg-emerald-950/60 text-emerald-300"
+              : "border-amber-400/60 bg-amber-950/50 text-amber-300"
+          }`}
+        >
+          {isVoted ? t("jury.votedStatus") : t("jury.pendingStatus")}
+        </span>
+      </div>
+
       <p className="mt-1 text-sm text-gray-400">
         {[film.country, film.duration].filter(Boolean).join(" • ") ||
           t("jury.unknownYear", { defaultValue: "Année inconnue" })}

@@ -833,7 +833,7 @@ export const resources = {
         panel: "Panel",
         jury: "Jury",
         dashboard: "Dashboard",
-        jurySpace: "Jury Panel",
+        jurySpace: "Jury Room",
         sessionActive: "Active session",
         secureAccess: "Active session · Secure access",
         statusOpen: "SYS:MARS_AI_2026 // STATUS:OPEN",

@@ -163,7 +163,10 @@ export function JuryView() {
 
             <main className="space-y-4 lg:space-y-5">
               <VideoPlayer film={selectedFilm} />
-              <FilmDetail film={selectedFilm} />
+              <FilmDetail
+                film={selectedFilm}
+                isVoted={Boolean(selectedFilm && votesByFilm[selectedFilm.id])}
+              />
               <JuryVote
                 film={selectedFilm}
                 status={voteStatus}

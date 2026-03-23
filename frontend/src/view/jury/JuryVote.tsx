@@ -65,7 +65,7 @@ export function JuryVote({
 
   return (
     <div className="f-mono rounded-lg border border-slate-800 bg-slate-900/45 p-8 text-white shadow-lg">
-      <h2 className="text-2xl font-bold mb-4">{t("jury.voteTitle")}</h2>
+      <h2 className="f-orb text-2xl font-bold mb-4">{t("jury.voteTitle")}</h2>
 
       {!film ? (
         <p className="text-gray-400">{t("jury.pendingStatus")}</p>

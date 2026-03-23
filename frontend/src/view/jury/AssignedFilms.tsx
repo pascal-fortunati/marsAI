@@ -25,17 +25,16 @@ export function AssignedFilms({
   const { t } = useTranslation();
 
   return (
-    <div className="f-mono rounded-lg border border-slate-800 bg-slate-900/45 p-5 shadow-lg">
-      <h2 className="text-lg font-semibold">
-        {t("jury.assigned", { count: filmsTotal })}
-      </h2>
-      <p className="mt-1 text-xs text-gray-400">
-        {filmsRemaining} {t("jury.remaining", { defaultValue: "restants" })}
-        {" · "}
-        {progression}%
-      </p>
+    <div className="f-mono overflow-hidden rounded-[20px] border border-slate-800 bg-slate-900/45 shadow-lg">
+      <div className="px-6 pt-5 pb-4">
+        <h2 className="f-orb text-lg font-semibold leading-none">
+          {t("jury.assigned", { count: filmsTotal })}
+        </h2>
+      </div>
 
-      <ul className="mt-4 space-y-2">
+      <div className="h-px w-full bg-slate-800" aria-hidden="true" />
+
+      <ul className="divide-y divide-slate-800/80">
         {searchResults.map((film) => {
           const isSelected = selectedFilm?.id === film.id;
           const isVoted = Boolean(votesByFilm[film.id]);
@@ -46,31 +45,46 @@ export function AssignedFilms({
               <button
                 type="button"
                 onClick={() => onSelectFilm(film)}
-                className={`w-full rounded-md border px-3 py-3 text-left transition ${
+                className={`w-full px-6 py-6 text-left transition ${
                   isSelected
-                    ? "border-primary bg-indigo-950"
-                    : "border-slate-800 bg-slate-900 hover:border-slate-600 hover:bg-slate-800"
+                    ? "bg-indigo-900/30 ring-1 ring-inset ring-indigo-400/35"
+                    : "bg-transparent hover:bg-slate-800/35"
                 }`}
                 disabled={!isLoggedIn}
               >
-                <p className="font-semibold text-white">
-                  {prefix && (
-                    <span className="text-xs font-normal text-gray-400">
-                      {prefix}{" "}
-                    </span>
-                  )}
-                  {film.title}
-                </p>
+                <div className="flex items-start justify-between gap-3">
+                  <p className="font-semibold text-white">
+                    {prefix && (
+                      <span className="text-xs font-normal text-gray-400">
+                        {prefix}{" "}
+                      </span>
+                    )}
+                    {film.title}
+                  </p>
+
+                  <span
+                    className={`mt-[7px] h-2 w-2 shrink-0 rounded-full ${
+                      isVoted ? "bg-emerald-400" : "bg-amber-400"
+                    }`}
+                    aria-label={
+                      isVoted ? t("jury.votedStatus") : t("jury.pendingStatus")
+                    }
+                    title={
+                      isVoted ? t("jury.votedStatus") : t("jury.pendingStatus")
+                    }
+                  />
+                </div>
+
                 <p className="mt-1 text-xs text-gray-400">
                   {[film.country, film.duration].filter(Boolean).join(" • ")}
                 </p>
-                <p
-                  className={`mt-2 text-xs font-medium ${
-                    isVoted ? "text-emerald-300" : "text-amber-300"
+
+                <div
+                  className={`mt-4 h-[2px] w-full rounded-full ${
+                    isSelected ? "bg-indigo-400/70" : "bg-transparent"
                   }`}
-                >
-                  {isVoted ? t("jury.votedStatus") : t("jury.pendingStatus")}
-                </p>
+                  aria-hidden="true"
+                />
               </button>
             </li>
           );
@@ -78,8 +92,14 @@ export function AssignedFilms({
       </ul>
 
       {searchResults.length === 0 && (
-        <p className="mt-4 text-sm text-gray-400">{t("jury.noFilm")}</p>
+        <p className="px-6 py-5 text-sm text-gray-400">{t("jury.noFilm")}</p>
       )}
+
+      <div className="px-6 pb-4 pt-3 text-xs text-gray-400">
+        {filmsRemaining} {t("jury.remaining", { defaultValue: "restants" })}
+        {" · "}
+        {progression}%
+      </div>
     </div>
   );
 }
