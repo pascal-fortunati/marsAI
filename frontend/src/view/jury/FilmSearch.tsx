@@ -4,9 +4,9 @@ import { Search } from "lucide-react";
 type FilmSearchProps = {
   query: string;
   onSearch: (query: string) => void;
-  activeFilter: "all" | "pending" | "voted";
-  onFilterChange: (filter: "all" | "pending" | "voted") => void;
-  votedFilms: number;
+  activeFilter: "all" | "voted" | "remaining";
+  onFilterChange: (filter: "all" | "voted" | "remaining") => void;
+  decidedFilms: number;
   totalFilms: number;
   progression: number;
   disabled?: boolean;
@@ -17,7 +17,7 @@ export function FilmSearch({
   onSearch,
   activeFilter,
   onFilterChange,
-  votedFilms,
+  decidedFilms,
   totalFilms,
   progression,
   disabled,
@@ -45,6 +45,28 @@ export function FilmSearch({
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
+            onClick={() => onFilterChange("voted")}
+            className={`f-mono rounded-md px-3 py-2 text-sm transition ${
+              activeFilter === "voted"
+                ? "bg-slate-900 text-white"
+                : "text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            {t("jury.filterVotedSearch")}
+          </button>
+          <button
+            type="button"
+            onClick={() => onFilterChange("remaining")}
+            className={`f-mono rounded-md px-3 py-2 text-sm transition ${
+              activeFilter === "remaining"
+                ? "bg-slate-900 text-white"
+                : "text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            {t("jury.filterRemaining")}
+          </button>
+          <button
+            type="button"
             onClick={() => onFilterChange("all")}
             className={`f-mono rounded-md px-3 py-2 text-sm transition ${
               activeFilter === "all"
@@ -53,28 +75,6 @@ export function FilmSearch({
             }`}
           >
             {t("jury.filterAll")}
-          </button>
-          <button
-            type="button"
-            onClick={() => onFilterChange("pending")}
-            className={`f-mono rounded-md px-3 py-2 text-sm transition ${
-              activeFilter === "pending"
-                ? "bg-slate-900 text-white"
-                : "text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            {t("jury.filterPending")}
-          </button>
-          <button
-            type="button"
-            onClick={() => onFilterChange("voted")}
-            className={`f-mono rounded-md px-3 py-2 text-sm transition ${
-              activeFilter === "voted"
-                ? "bg-slate-900 text-white"
-                : "text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            {t("jury.filterVoted")}
           </button>
 
           <div className="ml-2 flex min-w-[230px] items-center gap-3 pl-2">
@@ -88,7 +88,7 @@ export function FilmSearch({
               />
             </div>
             <span className="f-orb text-lg font-black text-white">
-              {votedFilms}/{totalFilms}
+              {decidedFilms}/{totalFilms}
             </span>
           </div>
         </div>

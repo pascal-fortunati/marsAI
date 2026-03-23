@@ -1,12 +1,13 @@
 import { useTranslation } from "react-i18next";
-import type { Film } from "./types";
+import { MousePointerClick, RotateCcw } from "lucide-react";
+import type { Film, VoteDecision } from "./types";
 
 type FilmDetailProps = {
   film: Film | null;
-  isVoted?: boolean;
+  voteDecision?: VoteDecision;
 };
 
-export function FilmDetail({ film, isVoted = false }: FilmDetailProps) {
+export function FilmDetail({ film, voteDecision }: FilmDetailProps) {
   const { t } = useTranslation();
 
   if (!film) {
@@ -21,19 +22,39 @@ export function FilmDetail({ film, isVoted = false }: FilmDetailProps) {
   }
 
   const tags = film.tags ?? [];
+  const isValidated = voteDecision === "validate";
+  const isRefused = voteDecision === "refuse";
+  const isReview = voteDecision === "review";
+
+  const badgeClass = isValidated
+    ? "border-emerald-400/60 bg-emerald-950/60 text-emerald-300"
+    : isRefused
+      ? "border-rose-400/60 bg-rose-950/50 text-rose-300"
+      : isReview
+        ? "border-amber-400/60 bg-amber-950/50 text-amber-300"
+        : "border-slate-500/60 bg-slate-800/60 text-slate-300";
+
+  const badgeLabel = isValidated
+    ? t("jury.votedStatus")
+    : isRefused
+      ? `x ${t("common.status.refused")}`
+      : isReview
+        ? t("jury.actions.review")
+        : t("jury.pendingStatus");
+
   return (
     <div className="f-mono rounded-lg border border-slate-800 bg-slate-900/45 p-8 text-white shadow-lg">
       <div className="flex items-start justify-between gap-3">
         <h2 className="f-orb text-2xl font-bold">{film.title}</h2>
 
         <span
-          className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium ${
-            isVoted
-              ? "border-emerald-400/60 bg-emerald-950/60 text-emerald-300"
-              : "border-amber-400/60 bg-amber-950/50 text-amber-300"
-          }`}
+          className={`shrink-0 inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium ${badgeClass}`}
         >
-          {isVoted ? t("jury.votedStatus") : t("jury.pendingStatus")}
+          {isReview && <RotateCcw className="h-3 w-3" aria-hidden="true" />}
+          {!isValidated && !isRefused && !isReview && (
+            <MousePointerClick className="h-4 w-4" aria-hidden="true" />
+          )}
+          {badgeLabel}
         </span>
       </div>
 

@@ -47,9 +47,9 @@ export function JuryView() {
 
   const [isLoggedIn] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilter, setActiveFilter] = useState<"all" | "pending" | "voted">(
-    "all",
-  );
+  const [activeFilter, setActiveFilter] = useState<
+    "all" | "voted" | "remaining"
+  >("all");
   const [selectedFilm, setSelectedFilm] = useState<Film | null>(
     localizedFilms[0],
   );
@@ -79,7 +79,7 @@ export function JuryView() {
       const passesFilter =
         activeFilter === "all" ||
         (activeFilter === "voted" && isVoted) ||
-        (activeFilter === "pending" && !isVoted);
+        (activeFilter === "remaining" && !isVoted);
 
       if (!passesFilter) return false;
 
@@ -124,9 +124,18 @@ export function JuryView() {
   };
 
   const filmsTotal = filmMetadata.length;
-  const filmsVoted = Object.keys(votesByFilm).length;
-  const filmsRemaining = filmsTotal - filmsVoted;
-  const progression = Math.round((filmsVoted / filmsTotal) * 100);
+  const filmsValidated = Object.values(votesByFilm).filter(
+    (decision) => decision === "validate",
+  ).length;
+  const filmsToReview = Object.values(votesByFilm).filter(
+    (decision) => decision === "review",
+  ).length;
+  const filmsRefused = Object.values(votesByFilm).filter(
+    (decision) => decision === "refuse",
+  ).length;
+  const filmsDecided = filmsValidated + filmsToReview + filmsRefused;
+  const filmsRemaining = filmsTotal - filmsDecided;
+  const progression = Math.round((filmsDecided / filmsTotal) * 100);
 
   const handleNextFilm = () => {
     const source = filteredFilms.length > 0 ? filteredFilms : localizedFilms;
@@ -166,7 +175,9 @@ export function JuryView() {
       <div className="relative z-10 pt-24">
         <NavBar
           totalFilms={filmsTotal}
-          votedFilms={filmsVoted}
+          votedFilms={filmsValidated}
+          reviewFilms={filmsToReview}
+          refusedFilms={filmsRefused}
           remainingFilms={filmsRemaining}
           progression={progression}
           currentLang={currentLang}
@@ -179,7 +190,7 @@ export function JuryView() {
               onSearch={handleSearch}
               activeFilter={activeFilter}
               onFilterChange={setActiveFilter}
-              votedFilms={filmsVoted}
+              decidedFilms={filmsDecided}
               totalFilms={filmsTotal}
               progression={progression}
               disabled={!isLoggedIn}
@@ -205,7 +216,9 @@ export function JuryView() {
               <VideoPlayer film={selectedFilm} />
               <FilmDetail
                 film={selectedFilm}
-                isVoted={Boolean(selectedFilm && votesByFilm[selectedFilm.id])}
+                voteDecision={
+                  selectedFilm ? votesByFilm[selectedFilm.id] : undefined
+                }
               />
               <JuryVote
                 film={selectedFilm}

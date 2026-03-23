@@ -1,12 +1,12 @@
 import { useTranslation } from "react-i18next";
-import { Check, CircleDashed, RotateCcw, X } from "lucide-react";
+import { Check, MousePointerClick, RotateCcw, X } from "lucide-react";
 import { getFilmNumberPrefix, type Film, type VoteDecision } from "./types";
 
 type AssignedFilmsProps = {
   filmsTotal: number;
   filmsRemaining: number;
   progression: number;
-  activeFilter: "all" | "pending" | "voted";
+  activeFilter: "all" | "voted" | "remaining";
   searchResults: Film[];
   selectedFilm: Film | null;
   votesByFilm: Record<string, VoteDecision>;
@@ -95,8 +95,8 @@ export function AssignedFilms({
                       />
                     )
                   ) : (
-                    <CircleDashed
-                      className="h-4 w-4 shrink-0 text-slate-400"
+                    <MousePointerClick
+                      className="h-5 w-5 shrink-0 text-slate-400"
                       aria-label={t("jury.pendingStatus")}
                       title={t("jury.pendingStatus")}
                     />

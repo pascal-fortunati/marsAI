@@ -8,6 +8,8 @@ import logo from "../../assets/mars_ai_logo.png";
 interface NavBarProps {
   totalFilms?: number;
   votedFilms?: number;
+  reviewFilms?: number;
+  refusedFilms?: number;
   remainingFilms?: number;
   progression?: number;
   currentLang?: "fr" | "en";
@@ -121,6 +123,8 @@ function FlagButton({
 export default function NavBar({
   totalFilms = 12,
   votedFilms = 3,
+  reviewFilms = 2,
+  refusedFilms = 1,
   remainingFilms = 9,
   progression = 25,
   currentLang = "fr",
@@ -202,7 +206,9 @@ export default function NavBar({
                       >
                         <div className="flex items-center gap-1 rounded-full bg-slate-800 px-2 py-1">
                           <span className="h-2 w-2 rounded-full bg-white" />
-                          <span className="h-2 w-2 rounded-full bg-violet-400" />
+                          <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                          <span className="h-2 w-2 rounded-full bg-amber-400" />
+                          <span className="h-2 w-2 rounded-full bg-rose-400" />
                           <span className="h-2 w-2 rounded-full bg-slate-400" />
                           <span className="h-2 w-2 rounded-full bg-violet-400" />
                         </div>
@@ -247,13 +253,29 @@ export default function NavBar({
                             <span className="f-mono text-sm text-slate-300">
                               {t("jury.filterVoted")}
                             </span>
-                            <span className="f-orb text-lg font-black text-violet-400">
+                            <span className="f-orb text-lg font-black text-emerald-400">
                               {votedFilms}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="f-mono text-sm text-slate-300">
                               {t("jury.filterPending")}
+                            </span>
+                            <span className="f-orb text-lg font-black text-amber-400">
+                              {reviewFilms}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="f-mono text-sm text-slate-300">
+                              {t("jury.filterRefused")}
+                            </span>
+                            <span className="f-orb text-lg font-black text-rose-400">
+                              {refusedFilms}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="f-mono text-sm text-slate-300">
+                              {t("jury.filterRemaining")}
                             </span>
                             <span className="f-orb text-lg font-black text-slate-400">
                               {remainingFilms}
@@ -272,7 +294,7 @@ export default function NavBar({
                     </Popover.Portal>
                   </Popover.Root>
 
-                  <div className="hidden lg:flex w-full max-w-[340px] items-center justify-center gap-4 xl:max-w-[380px] xl:gap-5">
+                  <div className="hidden lg:flex w-full max-w-[520px] items-center justify-center gap-4 xl:max-w-[580px] xl:gap-5">
                     {/* Total Films */}
                     <div className="flex min-w-[62px] flex-col items-center justify-center gap-1 xl:min-w-[70px]">
                       <div className="f-orb text-[22px] font-black text-white xl:text-[24px]">
@@ -290,7 +312,7 @@ export default function NavBar({
 
                     {/* Voted Films */}
                     <div className="flex min-w-[62px] flex-col items-center justify-center gap-1 xl:min-w-[70px]">
-                      <div className="f-orb text-[22px] font-black text-violet-400 xl:text-[24px]">
+                      <div className="f-orb text-[22px] font-black text-emerald-400 xl:text-[24px]">
                         {votedFilms}
                       </div>
                       <div className="f-mono text-[12px] text-slate-500">
@@ -305,11 +327,41 @@ export default function NavBar({
 
                     {/* Remaining Films */}
                     <div className="flex min-w-[62px] flex-col items-center justify-center gap-1 xl:min-w-[70px]">
+                      <div className="f-orb text-[22px] font-black text-amber-400 xl:text-[24px]">
+                        {reviewFilms}
+                      </div>
+                      <div className="f-mono text-[12px] text-slate-500">
+                        {t("jury.filterPending")}
+                      </div>
+                    </div>
+
+                    <div
+                      aria-hidden="true"
+                      className="h-[64px] w-px shrink-0 bg-slate-700"
+                    />
+
+                    {/* Refused Films */}
+                    <div className="flex min-w-[62px] flex-col items-center justify-center gap-1 xl:min-w-[70px]">
+                      <div className="f-orb text-[22px] font-black text-rose-400 xl:text-[24px]">
+                        {refusedFilms}
+                      </div>
+                      <div className="f-mono text-[12px] text-slate-500">
+                        {t("jury.filterRefused")}
+                      </div>
+                    </div>
+
+                    <div
+                      aria-hidden="true"
+                      className="h-[64px] w-px shrink-0 bg-slate-700"
+                    />
+
+                    {/* Remaining Films */}
+                    <div className="flex min-w-[62px] flex-col items-center justify-center gap-1 xl:min-w-[70px]">
                       <div className="f-orb text-[22px] font-black text-slate-400 xl:text-[24px]">
                         {remainingFilms}
                       </div>
                       <div className="f-mono text-[12px] text-slate-500">
-                        {t("jury.filterPending")}
+                        {t("jury.filterRemaining")}
                       </div>
                     </div>
 

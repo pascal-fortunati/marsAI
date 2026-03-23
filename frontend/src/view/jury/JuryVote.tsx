@@ -54,16 +54,16 @@ export function JuryVote({
       activeClassName: "border-emerald-400 bg-emerald-950 text-emerald-300",
     },
     {
-      value: "refuse",
-      label: t("jury.actions.refuse"),
-      icon: X,
-      activeClassName: "border-rose-400 bg-rose-950 text-rose-300",
-    },
-    {
       value: "review",
       label: t("jury.actions.review"),
       icon: RotateCcw,
       activeClassName: "border-amber-400 bg-amber-950 text-amber-300",
+    },
+    {
+      value: "refuse",
+      label: t("jury.actions.refuse"),
+      icon: X,
+      activeClassName: "border-rose-400 bg-rose-950 text-rose-300",
     },
   ];
 
