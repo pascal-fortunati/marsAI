@@ -90,33 +90,33 @@ export const PalmaresView = () => {
       `}</style>
 
       {/* --- NAVBAR --- */}
-      <nav className="flex items-center justify-between px-10 py-4 border-b border-white/5 backdrop-blur-md sticky top-0 z-50">
-        <div className="flex items-center gap-3">
-          <img src="/logo_marsai.png" alt="Logo" className="h-10 w-auto object-contain" />
+      <nav className="flex items-center justify-between px-10 md:px-12 py-[22px] md:py-[26px] border-b border-white/5 backdrop-blur-md sticky top-0 z-50">
+        <div className="flex items-center gap-4">
+          <img src="/logo_marsai.png" alt="Logo" className="h-[52px] md:h-[58px] w-auto object-contain" />
           <div className="flex flex-col leading-none uppercase">
-            <span className="font-black text-lg tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-purple-500">MarsAI</span>
-            <span className="text-[7px] tracking-[0.4em] opacity-50">Festival |||</span>
+            <span className="font-black text-[22px] md:text-[28px] tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-purple-500">MarsAI</span>
+            <span className="text-[8px] tracking-[0.4em] opacity-50">Festival |||</span>
           </div>
         </div>
 
         <div className="hidden lg:block absolute left-1/2 -translate-x-1/2">
-          <p className="font-mono text-[9px] tracking-[0.4em] text-white/20 uppercase font-bold">
+          <p className="font-mono text-[10px] tracking-[0.4em] text-white/20 uppercase font-bold">
             SYS:MARS_AI_2026 // <span className="opacity-60 text-white">STATUS:OPEN</span>
           </p>
         </div>
 
-        <div className="flex items-center gap-8">
-          <div className="flex items-center gap-6 text-[10px] tracking-[0.2em] font-bold text-white/40 uppercase">
+        <div className="flex items-center gap-10 md:gap-11">
+          <div className="flex items-center gap-6 text-[11.5px] tracking-[0.2em] font-bold text-white/40 uppercase">
             <a href="#" className="hover:text-white transition-colors">Catalogue</a>
             <span className="opacity-10 text-white">|</span>
             <a href="#" className="text-white border-b-2 border-white pb-1">Palmarès</a>
           </div>
           
           <div className="flex gap-3 items-center">
-            <div className="w-6 h-6 rounded-full border border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.3)] overflow-hidden cursor-pointer transition-transform">
+            <div className="w-[30px] h-[30px] rounded-full border border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.3)] overflow-hidden cursor-pointer transition-transform">
                <img src="https://flagcdn.com/w80/fr.png" alt="FR" className="w-full h-full object-cover" />
             </div>
-            <div className="w-6 h-6 rounded-full border border-white/10 overflow-hidden opacity-30 hover:opacity-100 cursor-pointer transition-all">
+            <div className="w-[30px] h-[30px] rounded-full border border-white/10 overflow-hidden opacity-30 hover:opacity-100 cursor-pointer transition-all">
                <img src="https://flagcdn.com/w80/gb.png" alt="EN" className="w-full h-full object-cover" />
             </div>
           </div>
