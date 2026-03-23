@@ -83,7 +83,7 @@ export function FilmSearch({
             </span>
             <div className="h-3 flex-1 overflow-hidden rounded-full bg-slate-800">
               <div
-                className="h-full rounded-l-full rounded-r-none bg-indigo-400"
+                className="h-full rounded-l-full rounded-r-none bg-violet-400"
                 style={{ width: `${progression}%` }}
               />
             </div>

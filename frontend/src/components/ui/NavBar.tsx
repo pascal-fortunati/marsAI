@@ -202,9 +202,9 @@ export default function NavBar({
                       >
                         <div className="flex items-center gap-1 rounded-full bg-slate-800 px-2 py-1">
                           <span className="h-2 w-2 rounded-full bg-white" />
-                          <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                          <span className="h-2 w-2 rounded-full bg-amber-500" />
-                          <span className="h-2 w-2 rounded-full bg-indigo-400" />
+                          <span className="h-2 w-2 rounded-full bg-violet-400" />
+                          <span className="h-2 w-2 rounded-full bg-slate-400" />
+                          <span className="h-2 w-2 rounded-full bg-violet-400" />
                         </div>
                         <span className="text-xs text-slate-500">Stats</span>
                       </Button>
@@ -239,7 +239,7 @@ export default function NavBar({
                             <span className="f-mono text-sm text-slate-300">
                               {t("nav.stats.films")}
                             </span>
-                            <span className="f-orb text-lg font-black">
+                            <span className="f-orb text-lg font-black text-white">
                               {totalFilms}
                             </span>
                           </div>
@@ -247,7 +247,7 @@ export default function NavBar({
                             <span className="f-mono text-sm text-slate-300">
                               {t("jury.filterVoted")}
                             </span>
-                            <span className="f-orb text-lg font-black text-emerald-500">
+                            <span className="f-orb text-lg font-black text-violet-400">
                               {votedFilms}
                             </span>
                           </div>
@@ -255,7 +255,7 @@ export default function NavBar({
                             <span className="f-mono text-sm text-slate-300">
                               {t("jury.filterPending")}
                             </span>
-                            <span className="f-orb text-lg font-black text-amber-500">
+                            <span className="f-orb text-lg font-black text-slate-400">
                               {remainingFilms}
                             </span>
                           </div>
@@ -263,7 +263,7 @@ export default function NavBar({
                             <span className="f-mono text-sm text-slate-300">
                               {t("nav.stats.progress")}
                             </span>
-                            <span className="f-orb text-lg font-black text-indigo-400">
+                            <span className="f-orb text-lg font-black text-violet-400">
                               {progression}%
                             </span>
                           </div>
@@ -290,7 +290,7 @@ export default function NavBar({
 
                     {/* Voted Films */}
                     <div className="flex min-w-[62px] flex-col items-center justify-center gap-1 xl:min-w-[70px]">
-                      <div className="f-orb text-[22px] font-black text-emerald-500 xl:text-[24px]">
+                      <div className="f-orb text-[22px] font-black text-violet-400 xl:text-[24px]">
                         {votedFilms}
                       </div>
                       <div className="f-mono text-[12px] text-slate-500">
@@ -305,7 +305,7 @@ export default function NavBar({
 
                     {/* Remaining Films */}
                     <div className="flex min-w-[62px] flex-col items-center justify-center gap-1 xl:min-w-[70px]">
-                      <div className="f-orb text-[22px] font-black text-amber-500 xl:text-[24px]">
+                      <div className="f-orb text-[22px] font-black text-slate-400 xl:text-[24px]">
                         {remainingFilms}
                       </div>
                       <div className="f-mono text-[12px] text-slate-500">
@@ -320,7 +320,7 @@ export default function NavBar({
 
                     {/* Progression */}
                     <div className="flex min-w-[62px] flex-col items-center justify-center gap-1 xl:min-w-[70px]">
-                      <div className="f-orb text-[22px] font-black text-indigo-400 xl:text-[24px]">
+                      <div className="f-orb text-[22px] font-black text-violet-400 xl:text-[24px]">
                         {progression}%
                       </div>
                       <div className="f-mono text-[12px] text-slate-500">

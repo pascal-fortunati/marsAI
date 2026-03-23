@@ -128,6 +128,30 @@ export function JuryView() {
   const filmsRemaining = filmsTotal - filmsVoted;
   const progression = Math.round((filmsVoted / filmsTotal) * 100);
 
+  const handleNextFilm = () => {
+    const source = filteredFilms.length > 0 ? filteredFilms : localizedFilms;
+    if (source.length === 0) {
+      setSelectedFilm(null);
+      return;
+    }
+
+    if (!selectedFilm) {
+      setSelectedFilm(source[0]);
+      return;
+    }
+
+    const currentIndex = source.findIndex(
+      (film) => film.id === selectedFilm.id,
+    );
+    if (currentIndex === -1) {
+      setSelectedFilm(source[0]);
+      return;
+    }
+
+    const nextIndex = (currentIndex + 1) % source.length;
+    setSelectedFilm(source[nextIndex]);
+  };
+
   const handleLangChange = (lang: "fr" | "en") => {
     setCurrentLang(lang);
     setLanguage(lang);
@@ -187,6 +211,10 @@ export function JuryView() {
                 film={selectedFilm}
                 status={voteStatus}
                 onVote={handleVote}
+                onNextFilm={handleNextFilm}
+                isVoteLocked={Boolean(
+                  selectedFilm && votesByFilm[selectedFilm.id],
+                )}
                 disabled={!isLoggedIn || !selectedFilm}
               />
             </main>

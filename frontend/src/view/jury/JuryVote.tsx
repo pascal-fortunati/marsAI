@@ -12,10 +12,19 @@ type JuryVoteProps = {
     decision: VoteDecision,
     comment?: string,
   ) => Promise<void>;
+  onNextFilm: () => void;
+  isVoteLocked?: boolean;
   disabled?: boolean;
 };
 
-export function JuryVote({ film, status, onVote, disabled }: JuryVoteProps) {
+export function JuryVote({
+  film,
+  status,
+  onVote,
+  onNextFilm,
+  isVoteLocked = false,
+  disabled,
+}: JuryVoteProps) {
   const { t } = useTranslation();
   const [decision, setDecision] = useState<VoteDecision | null>(null);
   const [comment, setComment] = useState<string>("");
@@ -59,10 +68,15 @@ export function JuryVote({ film, status, onVote, disabled }: JuryVoteProps) {
   ];
 
   const isDisabled = Boolean(disabled);
+  const controlsDisabled = isDisabled || isSubmitting || isVoteLocked;
   const filmPrefix = film ? getFilmNumberPrefix(film) : null;
 
   return (
-    <div className="f-mono rounded-lg border border-slate-800 bg-slate-900/45 p-8 text-white shadow-lg">
+    <div
+      className={`f-mono rounded-lg border border-slate-800 bg-slate-900/45 p-8 text-white shadow-lg ${
+        isVoteLocked ? "opacity-65" : ""
+      }`}
+    >
       <h2 className="f-orb text-2xl font-bold mb-4">{t("jury.voteTitle")}</h2>
 
       {!film ? (
@@ -94,7 +108,7 @@ export function JuryVote({ film, status, onVote, disabled }: JuryVoteProps) {
                         ? item.activeClassName
                         : "border-slate-800 bg-slate-900 text-white hover:border-slate-600 hover:bg-slate-800"
                     }`}
-                    disabled={isDisabled || isSubmitting}
+                    disabled={controlsDisabled}
                   >
                     <span className="inline-flex items-center justify-center gap-2">
                       <Icon
@@ -118,7 +132,7 @@ export function JuryVote({ film, status, onVote, disabled }: JuryVoteProps) {
                 onChange={(e) => setComment(e.target.value)}
                 className="mt-1 h-20 w-full resize-none rounded border border-slate-800 bg-slate-900 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder={t("jury.commentPlaceholder")}
-                disabled={isDisabled || isSubmitting}
+                disabled={controlsDisabled}
               />
             </div>
 
@@ -126,9 +140,13 @@ export function JuryVote({ film, status, onVote, disabled }: JuryVoteProps) {
               <Button
                 variant="outline"
                 size="lg"
-                className="f-mono w-fit rounded-2xl border-0 bg-gradient-to-r from-violet-400/95 to-rose-500/95 text-base font-semibold text-white shadow-lg shadow-violet-400/35 hover:from-violet-400 hover:to-rose-500 hover:shadow-violet-400/50"
+                className={`f-mono w-fit rounded-2xl border-0 text-base font-semibold ${
+                  isVoteLocked
+                    ? "bg-slate-700 text-slate-300 shadow-none"
+                    : "bg-gradient-to-r from-violet-400/95 to-rose-500/95 text-white shadow-lg shadow-violet-400/35 hover:from-violet-400 hover:to-rose-500 hover:shadow-violet-400/50"
+                }`}
                 onClick={handleSubmit}
-                disabled={isDisabled || isSubmitting || !film || !decision}
+                disabled={controlsDisabled || !film || !decision}
               >
                 {isSubmitting
                   ? t("jury.sending")
@@ -136,13 +154,17 @@ export function JuryVote({ film, status, onVote, disabled }: JuryVoteProps) {
               </Button>
             </div>
 
-            {status === "success" && (
-              <p className="text-sm text-emerald-300">
-                {t("jury.voteAlreadySubmitted", {
-                  defaultValue: "Vote envoyé avec succès !",
-                })}
-              </p>
+            {isVoteLocked && (
+              <button
+                type="button"
+                className="w-fit rounded-md px-2 py-1 text-sm text-white transition-colors hover:bg-slate-800/70"
+                onClick={onNextFilm}
+                disabled={isDisabled || !film}
+              >
+                {t("jury.nextFilm")}
+              </button>
             )}
+
             {status === "error" && (
               <p className="text-sm text-rose-300">
                 {t("jury.errorSending", {

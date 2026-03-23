@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { Check, CircleDashed, RotateCcw, X } from "lucide-react";
 import { getFilmNumberPrefix, type Film, type VoteDecision } from "./types";
 
 type AssignedFilmsProps = {
@@ -45,7 +46,10 @@ export function AssignedFilms({
       <ul className="divide-y divide-slate-800/80">
         {searchResults.map((film) => {
           const isSelected = selectedFilm?.id === film.id;
-          const isVoted = Boolean(votesByFilm[film.id]);
+          const voteDecision = votesByFilm[film.id];
+          const isVoted = Boolean(voteDecision);
+          const isRefused = voteDecision === "refuse";
+          const isReview = voteDecision === "review";
           const prefix = getFilmNumberPrefix(film);
 
           return (
@@ -60,7 +64,7 @@ export function AssignedFilms({
                 }`}
                 disabled={!isLoggedIn}
               >
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center justify-between gap-3">
                   <p className="font-semibold text-white">
                     {prefix && (
                       <span className="text-xs font-normal text-gray-400">
@@ -70,17 +74,33 @@ export function AssignedFilms({
                     {film.title}
                   </p>
 
-                  <span
-                    className={`mt-[7px] h-2 w-2 shrink-0 rounded-full ${
-                      isVoted ? "bg-emerald-400" : "bg-amber-400"
-                    }`}
-                    aria-label={
-                      isVoted ? t("jury.votedStatus") : t("jury.pendingStatus")
-                    }
-                    title={
-                      isVoted ? t("jury.votedStatus") : t("jury.pendingStatus")
-                    }
-                  />
+                  {isVoted ? (
+                    isRefused ? (
+                      <X
+                        className="h-4 w-4 shrink-0 text-red-400"
+                        aria-label={t("jury.actions.refuse")}
+                        title={t("jury.actions.refuse")}
+                      />
+                    ) : isReview ? (
+                      <RotateCcw
+                        className="h-4 w-4 shrink-0 text-amber-400"
+                        aria-label={t("jury.actions.review")}
+                        title={t("jury.actions.review")}
+                      />
+                    ) : (
+                      <Check
+                        className="h-4 w-4 shrink-0 text-emerald-400"
+                        aria-label={t("jury.votedStatus")}
+                        title={t("jury.votedStatus")}
+                      />
+                    )
+                  ) : (
+                    <CircleDashed
+                      className="h-4 w-4 shrink-0 text-slate-400"
+                      aria-label={t("jury.pendingStatus")}
+                      title={t("jury.pendingStatus")}
+                    />
+                  )}
                 </div>
 
                 <p className="mt-1 text-xs text-gray-400">
