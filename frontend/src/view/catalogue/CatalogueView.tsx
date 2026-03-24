@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { X, Play, ChevronLeft, ChevronRight } from "lucide-react";
 import type { ComponentType } from "react";
 import { getCatalogue, getFilmById } from "../../lib/catalogueApi";
@@ -70,9 +71,9 @@ function FilmModal({ filmId, onClose }: { filmId: string; onClose: () => void })
     const FlagComponent = (Flags as Record<string, ComponentType<{ className?: string }>>)[flagCode];
     const durationLabel = film?.duration_seconds ? formatDuration(Number(film.duration_seconds)) : null;
 
-    return (
+    return createPortal(
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 z-[80] flex items-center justify-center p-4"
             onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
         >
             {/* Backdrop */}
@@ -199,7 +200,8 @@ function FilmModal({ filmId, onClose }: { filmId: string; onClose: () => void })
                     </>
                 )}
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
 

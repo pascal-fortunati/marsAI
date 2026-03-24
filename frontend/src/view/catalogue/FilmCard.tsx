@@ -3,6 +3,7 @@ import type { ComponentType } from "react";
 import type { CatalogueFilm } from "./CatalogueTypes";
 import { BADGE_CONFIG } from "./catalogueHelpers";
 import { getCountryCode } from "../../lib/countryMapping";
+import { getAIToolDescription } from "../../lib/aiToolsMetadata";
 import * as Flags from "country-flag-icons/react/3x2";
 
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
@@ -112,17 +113,28 @@ export default function FilmCard({ film, onClick }: FilmCardProps) {
                 <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between gap-2">
                     <div className="flex gap-1 flex-wrap">
                         {film.ai_tools.slice(0, 2).map((tool) => (
-                            <span
-                                key={tool}
-                                className="font-mono text-[7px] tracking-wider px-1.5 py-0.5 rounded"
-                                style={{
-                                    background: "rgba(125,113,251,.15)",
-                                    color: "rgba(125,113,251,.9)",
-                                    border: "1px solid rgba(125,113,251,.2)",
-                                }}
-                            >
-                                {tool}
-                            </span>
+                            <div key={tool} className="relative group">
+                                <span
+                                    className="font-mono text-[7px] tracking-wider px-1.5 py-0.5 rounded cursor-help hover:bg-violet-500/20 transition-colors"
+                                    style={{
+                                        background: "rgba(125,113,251,.15)",
+                                        color: "rgba(125,113,251,.9)",
+                                        border: "1px solid rgba(125,113,251,.2)",
+                                    }}
+                                >
+                                    {tool}
+                                </span>
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-[9999]">
+                                    <div 
+                                        className="px-3 py-1.5 rounded-md bg-violet-950/50 border border-violet-500/60 backdrop-blur-xl text-center whitespace-nowrap"
+                                        style={{ boxShadow: "0 0 20px rgba(125, 113, 251, 0.6), 0 0 40px rgba(125, 113, 251, 0.3)" }}
+                                    >
+                                        <p className="font-mono text-[8px] leading-tight text-white font-semibold">
+                                            {getAIToolDescription(tool)}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         ))}
                     </div>
 
