@@ -15,6 +15,7 @@ function parseJsonField(value) {
 function prepareDbFilms(rows) {
     return rows.map((r) => ({
         ...r,
+        duration_seconds: Number(r.duration_seconds ?? 0),
         ai_tools: parseJsonField(r.ai_tools),
         semantic_tags: parseJsonField(r.semantic_tags),
     }));

@@ -1,8 +1,11 @@
 import { useEffect, useState, useCallback } from "react";
-import { X, Play, Globe, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, Play, ChevronLeft, ChevronRight } from "lucide-react";
+import type { ComponentType } from "react";
 import { getCatalogue, getFilmById } from "../../lib/catalogueApi";
 import type { CatalogueFilm, CatalogueFilmDetail, CataloguePagination } from "./CatalogueTypes";
 import FilmCard from "./FilmCard";
+import { getCountryCode } from "../../lib/countryMapping";
+import * as Flags from "country-flag-icons/react/3x2";
 
 const PER_PAGE = 20;
 const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
@@ -13,7 +16,7 @@ const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
 function formatDuration(secs: number): string {
     const m = Math.floor(secs / 60);
     const s = secs % 60;
-    return `${m}'${String(s).padStart(2, "0")}`;
+    return `${m}:${String(s).padStart(2, "0")}`;
 }
 
 function posterSrc(film: CatalogueFilm): string {
@@ -63,6 +66,9 @@ function FilmModal({ filmId, onClose }: { filmId: string; onClose: () => void })
         ? `https://www.youtube.com/embed/${film.youtube_public_id}?autoplay=1&rel=0`
         : null;
     const uploadedVideo = film?.video_url ? mediaSrc(film.video_url) : null;
+    const flagCode = getCountryCode(film?.country ?? "") ?? "";
+    const FlagComponent = (Flags as Record<string, ComponentType<{ className?: string }>>)[flagCode];
+    const durationLabel = film?.duration_seconds ? formatDuration(Number(film.duration_seconds)) : null;
 
     return (
         <div
@@ -70,19 +76,19 @@ function FilmModal({ filmId, onClose }: { filmId: string; onClose: () => void })
             onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
         >
             {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+            <div className="absolute inset-0 bg-black/55 backdrop-blur-[1px]" />
 
             {/* Panel */}
-            <div className="relative z-10 w-full max-w-2xl rounded-xl overflow-hidden
-                      border border-white/10 bg-[#0d0d1a] shadow-2xl
-                      max-h-[90vh] overflow-y-auto">
+            <div className="relative z-10 w-full max-w-[760px] rounded-2xl overflow-hidden
+                      border border-white/15 bg-[#070812] shadow-2xl
+                      max-h-[86vh] overflow-y-auto">
                 {/* Close button */}
                 <button
                     onClick={onClose}
-                    className="absolute top-3 right-3 z-20 w-7 h-7 rounded-full bg-white/10
-                     hover:bg-white/20 flex items-center justify-center transition-colors"
+                    className="absolute top-3 right-3 z-50 w-8 h-8 rounded-md border border-white/30
+                     bg-black/45 hover:bg-black/65 flex items-center justify-center transition-colors"
                 >
-                    <X className="w-3.5 h-3.5 text-white" />
+                    <X className="w-4 h-4 text-white" />
                 </button>
 
                 {loading && (
@@ -95,6 +101,9 @@ function FilmModal({ filmId, onClose }: { filmId: string; onClose: () => void })
                     <>
                         {/* Video player */}
                         <div className="relative aspect-video bg-black">
+                            <ModalFilmStrip side="left" />
+                            <ModalFilmStrip side="right" />
+
                             {youtubeEmbed ? (
                                 <iframe
                                     src={youtubeEmbed}
@@ -117,58 +126,74 @@ function FilmModal({ filmId, onClose }: { filmId: string; onClose: () => void })
                                     <Play className="w-12 h-12 text-white/20" />
                                 </div>
                             )}
-                            {/* Prize overlay */}
-                            {film.prize && (
-                                <div className="absolute top-3 left-3 flex items-center gap-1.5
-                                bg-amber-500/90 text-black px-2.5 py-1 rounded font-mono text-xs font-bold uppercase tracking-wider">
-                                    🏆 {film.prize}
-                                </div>
-                            )}
                         </div>
 
                         {/* Meta */}
-                        <div className="p-5">
-                            {/* Breadcrumb */}
-                            <p className="text-[10px] font-mono uppercase tracking-widest text-white/30 mb-2">
-                                Sélection officielle · Festival MarsAI {film.year}
-                                {film.category && ` · ${film.category}`}
-                                {film.duration_seconds && ` · ${formatDuration(film.duration_seconds)}`}
+                        <div className="px-6 pt-4 pb-6">
+                            <div className="flex items-center justify-between gap-3 mb-4">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                    {FlagComponent && <FlagComponent className="w-4 h-3 rounded-sm flex-shrink-0" />}
+                                    {film.country && (
+                                        <span className="font-mono text-[10px] tracking-widest uppercase text-white/55">
+                                            {film.country}
+                                        </span>
+                                    )}
+                                    {durationLabel && <span className="font-mono text-[10px] text-white/30">·</span>}
+                                    {durationLabel && (
+                                        <span className="font-mono text-[10px] text-white/65">{durationLabel}</span>
+                                    )}
+                                    {film.year && <span className="font-mono text-[10px] text-white/30">·</span>}
+                                    {film.year && (
+                                        <span className="font-mono text-[10px] text-white/55">{film.year}</span>
+                                    )}
+                                    {film.director_name && <span className="font-mono text-[10px] text-white/30">·</span>}
+                                    {film.director_name && (
+                                        <span className="font-mono text-[10px] text-white/58">{film.director_name}</span>
+                                    )}
+                                </div>
+
+                                {film.prize && (
+                                    <span
+                                        className="font-mono text-[10px] tracking-wider px-3 py-1 rounded-lg font-bold whitespace-nowrap"
+                                        style={{
+                                            background: "rgba(255,255,255,0.06)",
+                                            color: "rgba(255,255,255,0.8)",
+                                            border: "1px solid rgba(255,255,255,0.25)",
+                                        }}
+                                    >
+                                        ★ {film.prize.toUpperCase()}
+                                    </span>
+                                )}
+                            </div>
+
+                            <h2 className="f-orb font-black text-[26px] leading-tight text-white mb-4">{film.title}</h2>
+
+                            <div className="h-px w-full mb-4" style={{ background: "rgba(255,255,255,0.09)" }} />
+
+                            <p className="font-mono text-[15px] text-white/70 leading-[1.85] tracking-[0.03em] mb-4">
+                                {film.synopsis}
                             </p>
 
-                            <h2 className="f-orb font-black text-xl text-white mb-1 leading-tight">{film.title}</h2>
-                            <p className="text-white/40 font-mono text-xs mb-3">{film.director_name}</p>
-                            <p className="text-white/60 text-sm leading-relaxed mb-4">{film.synopsis}</p>
+                            <div className="h-px w-full mb-6" style={{ background: "rgba(255,255,255,0.09)" }} />
 
-                            {/* Tags */}
-                            <div className="flex flex-wrap gap-1.5 mb-4">
-                                {film.semantic_tags?.map((tag) => (
-                                    <span key={tag}
-                                        className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded
-                               bg-violet-500/10 text-violet-400 border border-violet-500/20">
-                                        {tag}
-                                    </span>
-                                ))}
+                            <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/28 mb-2">
+                                Outils IA :
+                            </p>
+
+                            <div className="flex flex-wrap gap-1.5">
                                 {film.ai_tools?.map((tool) => (
-                                    <span key={tool}
-                                        className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded
-                               bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                                    <span
+                                        key={tool}
+                                        className="font-mono text-[10px] tracking-wider px-2 py-1 rounded-md"
+                                        style={{
+                                            background: "rgba(125, 113, 251, 0.16)",
+                                            color: "rgba(154, 145, 255, 0.95)",
+                                            border: "1px solid rgba(125, 113, 251, 0.35)",
+                                        }}
+                                    >
                                         {tool}
                                     </span>
                                 ))}
-                            </div>
-
-                            {/* Infos ligne */}
-                            <div className="flex flex-wrap gap-3 text-[11px] font-mono text-white/35">
-                                {film.country && (
-                                    <span className="flex items-center gap-1">
-                                        <Globe className="w-3 h-3" /> {film.country}
-                                    </span>
-                                )}
-                                {film.language && (
-                                    <span className="flex items-center gap-1">
-                                        <Clock className="w-3 h-3" /> {film.language}
-                                    </span>
-                                )}
                             </div>
                         </div>
                     </>
@@ -224,6 +249,33 @@ function Pagination({ pagination, onPage }: { pagination: CataloguePagination; o
             <span className="text-[10px] font-mono text-white/20 ml-2">
                 Page {page} / {total_pages}
             </span>
+        </div>
+    );
+}
+
+function ModalFilmStrip({ side }: { side: "left" | "right" }) {
+    const holes = Array.from({ length: 6 });
+    const sideClass = side === "left" ? "left-0" : "right-0";
+
+    return (
+        <div
+            className={`absolute inset-y-0 ${sideClass} z-10 w-[20px] flex flex-col justify-around items-center py-3 pointer-events-none`}
+            style={{
+                background:
+                    "linear-gradient(180deg, rgb(88, 92, 104) 0%, rgb(54, 58, 70) 14%, rgb(28, 31, 40) 32%, rgb(13, 15, 22) 58%, rgb(4, 5, 9) 100%)",
+            }}
+        >
+            {holes.map((_, i) => (
+                <div
+                    key={i}
+                    style={{
+                        width: "8px",
+                        height: "14px",
+                        background: "rgba(255,255,255,0.72)",
+                        borderRadius: "2px",
+                    }}
+                />
+            ))}
         </div>
     );
 }

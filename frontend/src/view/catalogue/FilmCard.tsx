@@ -1,7 +1,7 @@
 import { Play } from "lucide-react";
 import type { ComponentType } from "react";
 import type { CatalogueFilm } from "./CatalogueTypes";
-import { formatDuration, BADGE_CONFIG } from "./catalogueHelpers";
+import { BADGE_CONFIG } from "./catalogueHelpers";
 import { getCountryCode } from "../../lib/countryMapping";
 import * as Flags from "country-flag-icons/react/3x2";
 
@@ -18,6 +18,10 @@ export default function FilmCard({ film, onClick }: FilmCardProps) {
         ? `${BASE}${film.poster_url}`
         : "/placeholder-poster.jpg";
     const posterHeight = "166.5px";
+    const durationSeconds = Number(film.duration_seconds ?? 0);
+    const durationLabel = durationSeconds > 0
+        ? `${Math.floor(durationSeconds / 60)}:${String(durationSeconds % 60).padStart(2, "0")}`
+        : null;
 
     const flagCode = getCountryCode(film.country) ?? "";
     const FlagComponent = (Flags as Record<string, ComponentType<{ className?: string }>>)[flagCode];
@@ -43,17 +47,21 @@ export default function FilmCard({ film, onClick }: FilmCardProps) {
                     alt={film.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-
-                {film.duration_seconds > 0 && (
-                    <div
-                        className="absolute bottom-1.5 right-6 font-mono text-[9px] text-white/70 px-1.5 py-0.5 rounded z-20"
-                        style={{ background: "rgba(0,0,0,.55)" }}
-                    >
-                        {formatDuration(film.duration_seconds)}
-                    </div>
-                )}
-
             </div>
+
+            {durationLabel && (
+                <div
+                    className="absolute font-mono text-[10px] font-semibold text-white px-2 py-0.5 rounded-full z-50 pointer-events-none"
+                    style={{
+                        top: "146px",
+                        right: "24px",
+                        background: "rgba(0,0,0,.78)",
+                        border: "1px solid rgba(255,255,255,.25)",
+                    }}
+                >
+                    {durationLabel}
+                </div>
+            )}
 
             <div
                 className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none"
@@ -97,7 +105,7 @@ export default function FilmCard({ film, onClick }: FilmCardProps) {
                     {film.title}
                 </h3>
 
-                <p className="font-mono text-[9px] text-white/40 leading-relaxed line-clamp-2 mt-2">
+                <p className="font-mono text-[9px] text-white/40 leading-[1.9] tracking-[0.03em] line-clamp-2 mt-2.5">
                     {film.synopsis}
                 </p>
 
