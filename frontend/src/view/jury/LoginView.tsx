@@ -2,6 +2,102 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { StarfieldNeural } from "../../components/ui/StarfieldNeural";
 import marsAiLogo from "../../assets/mars_ai_logo.png";
+import { apiFetchJson } from "../../lib/api";
+
+type GoogleCredentialResponse = {
+  credential?: string;
+};
+
+type GoogleIdApi = {
+  initialize: (options: {
+    client_id: string;
+    callback: (response: GoogleCredentialResponse) => void;
+  }) => void;
+  prompt: () => void;
+};
+
+declare global {
+  interface Window {
+    google?: {
+      accounts?: {
+        id?: GoogleIdApi;
+      };
+    };
+  }
+}
+
+let googleScriptPromise: Promise<void> | null = null;
+
+function getGoogleClientId() {
+  const value = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
+  return value?.trim() || "";
+}
+
+function loadGoogleScript() {
+  if (window.google?.accounts?.id) {
+    return Promise.resolve();
+  }
+
+  if (googleScriptPromise) {
+    return googleScriptPromise;
+  }
+
+  googleScriptPromise = new Promise((resolve, reject) => {
+    const existingScript = document.querySelector(
+      'script[src="https://accounts.google.com/gsi/client"]',
+    ) as HTMLScriptElement | null;
+    if (existingScript) {
+      existingScript.addEventListener("load", () => resolve(), {
+        once: true,
+      });
+      existingScript.addEventListener(
+        "error",
+        () => reject(new Error("Unable to load Google Identity script")),
+        { once: true },
+      );
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = () => resolve();
+    script.onerror = () =>
+      reject(new Error("Unable to load Google Identity script"));
+    document.head.appendChild(script);
+  });
+
+  return googleScriptPromise;
+}
+
+function requestGoogleCredential(clientId: string) {
+  return new Promise<string>((resolve, reject) => {
+    const idApi = window.google?.accounts?.id;
+    if (!idApi) {
+      reject(new Error("Google Identity API unavailable"));
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      reject(new Error("Google sign-in timed out"));
+    }, 20000);
+
+    idApi.initialize({
+      client_id: clientId,
+      callback: (response) => {
+        window.clearTimeout(timeout);
+        if (!response?.credential) {
+          reject(new Error("No Google credential received"));
+          return;
+        }
+        resolve(response.credential);
+      },
+    });
+
+    idApi.prompt();
+  });
+}
 
 type LoginViewProps = {
   isLoggedIn: boolean;
@@ -19,24 +115,49 @@ export function LoginView({ isLoggedIn, onLogin, onLogout }: LoginViewProps) {
     setError("");
 
     try {
-      // Simuler un délai API
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const clientId = getGoogleClientId();
+      if (!clientId) {
+        throw new Error("VITE_GOOGLE_CLIENT_ID is missing");
+      }
 
-      // Pour une vraie intégration, utiliser google-auth-library:
-      // const result = await window.google?.accounts?.id?.initialize(...)
-      // Pour la démo, on génère un token simulé
-      const token = `google-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+      await loadGoogleScript();
+      const credential = await requestGoogleCredential(clientId);
+
+      const response = await apiFetchJson<{ token: string }>(
+        "/api/auth/google",
+        {
+          method: "POST",
+          body: JSON.stringify({ credential }),
+        },
+      );
+
+      const token = response.token;
       onLogin(token);
-    } catch (err) {
-      setError("Google Sign-In failed. Please try again.");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Google Sign-In failed. Please try again.";
+      setError(message);
+    } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSkip = () => {
-    // Token de démo pour passer sans connexion
-    const token = `demo-${Date.now()}`;
-    onLogin(token);
+  const handleSkip = async () => {
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const response = await apiFetchJson<{ token: string }>("/api/auth/demo", {
+        method: "POST",
+      });
+      onLogin(response.token);
+    } catch {
+      setError("Unable to create demo session.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

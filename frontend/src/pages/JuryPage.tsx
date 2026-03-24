@@ -1,30 +1,62 @@
 import { useEffect, useState } from "react";
 import { JuryView } from "../view/jury/JuryView";
 import { LoginView } from "../view/jury/LoginView";
-
-const AUTH_TOKEN_KEY = "jury-auth-token";
+import {
+  apiFetchJson,
+  clearStoredToken,
+  getStoredToken,
+  setStoredToken,
+} from "../lib/api";
 
 // Page du jury
 export function JuryPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Vérifier si l'utilisateur a un token valide au chargement
   useEffect(() => {
-    const token = localStorage.getItem(AUTH_TOKEN_KEY);
-    if (token) {
-      setIsLoggedIn(true);
-    }
-    setIsLoading(false);
+    let cancelled = false;
+
+    const checkSession = async () => {
+      const token = getStoredToken();
+      if (!token) {
+        if (!cancelled) {
+          setIsLoggedIn(false);
+          setIsLoading(false);
+        }
+        return;
+      }
+
+      try {
+        await apiFetchJson<{ user: unknown }>("/api/auth/me");
+        if (!cancelled) {
+          setIsLoggedIn(true);
+        }
+      } catch {
+        clearStoredToken();
+        if (!cancelled) {
+          setIsLoggedIn(false);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    checkSession();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleLogin = (token: string) => {
-    localStorage.setItem(AUTH_TOKEN_KEY, token);
+    setStoredToken(token);
     setIsLoggedIn(true);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem(AUTH_TOKEN_KEY);
+    clearStoredToken();
     setIsLoggedIn(false);
   };
 

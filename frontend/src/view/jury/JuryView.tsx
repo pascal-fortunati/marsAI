@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import i18n, { setLanguage } from "../../lib/i18n";
+import { apiFetchJson } from "../../lib/api";
 import NavBar from "../../components/ui/NavBar";
 import { StarfieldNeural } from "../../components/ui/StarfieldNeural";
 
@@ -11,31 +12,10 @@ import { JuryVote } from "./JuryVote";
 import { AssignedFilms } from "./AssignedFilms";
 import type { Film, VoteDecision } from "./types";
 
-// Static film metadata (IDs, durations, tags)
-const filmMetadata = [
-  { id: "film-01", duration: "2:00", tags: ["Humanity", "AIJourney"] },
-  { id: "film-02", duration: "1:52", tags: ["Resilience", "UrbanFuture"] },
-  { id: "film-03", duration: "2:10", tags: ["FoodTech", "City"] },
-  { id: "film-04", duration: "1:34", tags: ["Climate", "Hope"] },
-  { id: "film-05", duration: "1:48", tags: ["Art", "Industry"] },
-  { id: "film-06", duration: "1:58", tags: ["Family", "Biodiversity"] },
-  { id: "film-07", duration: "2:01", tags: ["Community", "Signal"] },
-  { id: "film-08", duration: "1:46", tags: ["Ocean", "Memory"] },
-  { id: "film-09", duration: "1:41", tags: ["Care", "Ethics"] },
-  { id: "film-10", duration: "1:55", tags: ["Language", "Sea"] },
-  { id: "film-11", duration: "2:03", tags: ["Music", "Space"] },
-  { id: "film-12", duration: "1:59", tags: ["Love", "Quantum"] },
-];
-
-const DEFAULT_VOTES_BY_FILM: Record<string, VoteDecision> = {
-  "film-02": "review",
-  "film-03": "refuse",
-  "film-07": "validate",
+type ApiFilm = Film & {
+  voteDecision?: VoteDecision;
+  voteComment?: string;
 };
-
-const VALID_DECISIONS: VoteDecision[] = ["validate", "review", "refuse"];
-const JURY_VOTES_STORAGE_KEY = "jury-votes-by-film";
-const JURY_COMMENTS_STORAGE_KEY = "jury-comments-by-film";
 
 export function JuryView() {
   const { t } = useTranslation();
@@ -43,71 +23,75 @@ export function JuryView() {
     i18n.language?.toLowerCase().startsWith("en") ? "en" : "fr",
   );
 
-  // Load localized films from i18n
-  const localizedFilms = useMemo<Film[]>(() => {
-    return filmMetadata.map((meta) => ({
-      id: meta.id,
-      title: t(`films.${meta.id}.title`),
-      country: t(`films.${meta.id}.country`),
-      synopsis: t(`films.${meta.id}.synopsis`),
-      duration: meta.duration,
-      tags: meta.tags,
-    }));
-  }, [t]);
+  const [films, setFilms] = useState<Film[]>([]);
+  const [isFetchingFilms, setIsFetchingFilms] = useState(true);
+  const [filmsError, setFilmsError] = useState("");
 
   const [isLoggedIn] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<
     "all" | "voted" | "remaining"
   >("all");
-  const [selectedFilm, setSelectedFilm] = useState<Film | null>(
-    localizedFilms[0],
-  );
+  const [selectedFilm, setSelectedFilm] = useState<Film | null>(null);
   const [votesByFilm, setVotesByFilm] = useState<Record<string, VoteDecision>>(
-    () => {
-      if (typeof window === "undefined") return DEFAULT_VOTES_BY_FILM;
-      try {
-        const raw = window.localStorage.getItem(JURY_VOTES_STORAGE_KEY);
-        if (!raw) return DEFAULT_VOTES_BY_FILM;
-        const parsed = JSON.parse(raw) as Record<string, unknown>;
-        const restored = Object.fromEntries(
-          Object.entries(parsed).filter(([, value]) =>
-            VALID_DECISIONS.includes(value as VoteDecision),
-          ),
-        ) as Record<string, VoteDecision>;
-        return Object.keys(restored).length > 0
-          ? restored
-          : DEFAULT_VOTES_BY_FILM;
-      } catch {
-        return DEFAULT_VOTES_BY_FILM;
-      }
-    },
+    {},
   );
-  // Front-only cache: one comment per film id, restored from localStorage.
   const [commentsByFilm, setCommentsByFilm] = useState<Record<string, string>>(
-    () => {
-      if (typeof window === "undefined") return {};
-      try {
-        const raw = window.localStorage.getItem(JURY_COMMENTS_STORAGE_KEY);
-        if (!raw) return {};
-        const parsed = JSON.parse(raw) as Record<string, unknown>;
-        return Object.fromEntries(
-          Object.entries(parsed).filter(
-            ([, value]) => typeof value === "string",
-          ),
-        ) as Record<string, string>;
-      } catch {
-        return {};
-      }
-    },
+    {},
   );
   const [voteStatus, setVoteStatus] = useState<
     "idle" | "submitting" | "success" | "error"
   >("idle");
 
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadAssignedFilms = async () => {
+      setIsFetchingFilms(true);
+      setFilmsError("");
+
+      try {
+        const response = await apiFetchJson<{ films: ApiFilm[] }>("/api/films");
+        if (cancelled) return;
+
+        const nextFilms = response.films ?? [];
+        setFilms(nextFilms);
+
+        const nextVotes: Record<string, VoteDecision> = {};
+        const nextComments: Record<string, string> = {};
+        for (const film of nextFilms) {
+          if (film.voteDecision) {
+            nextVotes[film.id] = film.voteDecision;
+          }
+          if (film.voteComment) {
+            nextComments[film.id] = film.voteComment;
+          }
+        }
+        setVotesByFilm(nextVotes);
+        setCommentsByFilm(nextComments);
+      } catch (error) {
+        if (cancelled) return;
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Unable to load assigned films.";
+        setFilmsError(message);
+      } finally {
+        if (!cancelled) {
+          setIsFetchingFilms(false);
+        }
+      }
+    };
+
+    loadAssignedFilms();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const handleSelectFilm = (film: Film) => {
     setSelectedFilm(film);
-    // TODO: charger les détails du film si nécessaire (API /api/films/:id)
   };
 
   const handleSearch = (query: string) => {
@@ -117,7 +101,7 @@ export function JuryView() {
   const filteredFilms = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
 
-    return localizedFilms.filter((film) => {
+    return films.filter((film) => {
       const isVoted = Boolean(votesByFilm[film.id]);
       const passesFilter =
         activeFilter === "all" ||
@@ -134,7 +118,7 @@ export function JuryView() {
         .toLowerCase();
       return haystack.includes(normalizedQuery);
     });
-  }, [localizedFilms, searchQuery, activeFilter, votesByFilm]);
+  }, [films, searchQuery, activeFilter, votesByFilm]);
 
   useEffect(() => {
     // Keep selection consistent with active filters/search.
@@ -151,22 +135,6 @@ export function JuryView() {
     }
   }, [filteredFilms, selectedFilm]);
 
-  useEffect(() => {
-    // Persist votes so they survive page refreshes.
-    window.localStorage.setItem(
-      JURY_VOTES_STORAGE_KEY,
-      JSON.stringify(votesByFilm),
-    );
-  }, [votesByFilm]);
-
-  useEffect(() => {
-    // Persist comment drafts so they survive page refreshes.
-    window.localStorage.setItem(
-      JURY_COMMENTS_STORAGE_KEY,
-      JSON.stringify(commentsByFilm),
-    );
-  }, [commentsByFilm]);
-
   const handleVote = async (
     filmId: string,
     decision: VoteDecision,
@@ -174,18 +142,21 @@ export function JuryView() {
   ) => {
     setVoteStatus("submitting");
     try {
-      // TODO: appeler POST /api/vote avec { filmId, decision, comment }
+      await apiFetchJson<{ ok: boolean }>("/api/vote", {
+        method: "POST",
+        body: JSON.stringify({ filmId, decision, comment }),
+      });
       setVotesByFilm((previous) => ({ ...previous, [filmId]: decision }));
       if (typeof comment === "string") {
         setCommentsByFilm((previous) => ({ ...previous, [filmId]: comment }));
       }
       setVoteStatus("success");
-    } catch (error) {
+    } catch {
       setVoteStatus("error");
     }
   };
 
-  const filmsTotal = filmMetadata.length;
+  const filmsTotal = films.length;
   const filmsValidated = Object.values(votesByFilm).filter(
     (decision) => decision === "validate",
   ).length;
@@ -197,10 +168,11 @@ export function JuryView() {
   ).length;
   const filmsDecided = filmsValidated + filmsToReview + filmsRefused;
   const filmsRemaining = filmsTotal - filmsDecided;
-  const progression = Math.round((filmsDecided / filmsTotal) * 100);
+  const progression =
+    filmsTotal > 0 ? Math.round((filmsDecided / filmsTotal) * 100) : 0;
 
   const handleNextFilm = () => {
-    const source = filteredFilms.length > 0 ? filteredFilms : localizedFilms;
+    const source = filteredFilms.length > 0 ? filteredFilms : films;
     if (source.length === 0) {
       setSelectedFilm(null);
       return;
@@ -275,6 +247,18 @@ export function JuryView() {
             </aside>
 
             <main className="space-y-4 lg:space-y-5">
+              {isFetchingFilms && (
+                <div className="rounded-xl border border-slate-700/60 bg-slate-900/60 px-4 py-3 text-sm text-slate-300">
+                  Chargement des films assignes...
+                </div>
+              )}
+
+              {filmsError && (
+                <div className="rounded-xl border border-red-700/40 bg-red-950/30 px-4 py-3 text-sm text-red-200">
+                  {filmsError}
+                </div>
+              )}
+
               <VideoPlayer film={selectedFilm} />
               <FilmDetail
                 film={selectedFilm}

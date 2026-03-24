@@ -79,26 +79,22 @@ export function AssignedFilms({
                       <X
                         className="h-4 w-4 shrink-0 text-red-400"
                         aria-label={t("jury.actions.refuse")}
-                        title={t("jury.actions.refuse")}
                       />
                     ) : isReview ? (
                       <RotateCcw
                         className="h-4 w-4 shrink-0 text-amber-400"
                         aria-label={t("jury.actions.review")}
-                        title={t("jury.actions.review")}
                       />
                     ) : (
                       <Check
                         className="h-4 w-4 shrink-0 text-emerald-400"
                         aria-label={t("jury.votedStatus")}
-                        title={t("jury.votedStatus")}
                       />
                     )
                   ) : (
                     <MousePointerClick
                       className="h-5 w-5 shrink-0 text-slate-400"
                       aria-label={t("jury.pendingStatus")}
-                      title={t("jury.pendingStatus")}
                     />
                   )}
                 </div>
