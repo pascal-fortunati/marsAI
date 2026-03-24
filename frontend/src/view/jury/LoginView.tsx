@@ -51,7 +51,7 @@ export function LoginView({ isLoggedIn, onLogin, onLogout }: LoginViewProps) {
       <div className="relative z-20 flex flex-col items-center gap-3">
         <div className="w-[384px] h-[389px] rounded-[20px] border border-slate-800 bg-slate-900/45 p-8 shadow-lg text-white flex flex-col justify-center overflow-hidden">
           {!isLoggedIn && (
-            <div className="text-center space-y-6">
+            <div className="text-center space-y-5">
               {/* Logo */}
               <div className="flex justify-center mb-1">
                 <img
@@ -62,28 +62,23 @@ export function LoginView({ isLoggedIn, onLogin, onLogout }: LoginViewProps) {
               </div>
 
               {/* Texte restreint */}
-              <p className="text-slate-400 text-[9px] f-mono tracking-[0.15em] uppercase">
+              <p className="text-slate-400 text-[12px] f-mono tracking-[0.15em] uppercase mb-0">
                 ACCÈS RESTREINT · JURY
               </p>
 
-              {/* Titre principal */}
-              <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight f-orb">
-                Espace Jury
-              </h1>
+              {/* Titre + sous-texte */}
+              <div className="flex flex-col items-center space-y-1">
+                <h1 className="text-[24px] font-black text-foreground tracking-tight f-orb">
+                  Espace Jury
+                </h1>
 
-              {/* Sous-titre et description */}
-              <div className="text-xs tracking-wider flex items-center justify-center gap-1">
-                <div className="f-orb font-black">
-                  <span className="text-foreground">MARS</span>
-                  <span className="text-orange-500">AI</span>
-                </div>
-                <span className="text-slate-400">·</span>
-                <span className="text-slate-400 f-mono">Festival 2026</span>
+                <p className="text-slate-400 text-[14px] f-mono tracking-wider">
+                  MARSAI · Festival 2026
+                </p>
+                <p className="text-slate-400 text-[14px] f-mono tracking-wider">
+                  Authentication Google requise.
+                </p>
               </div>
-
-              <p className="f-orb text-slate-400 text-xs">
-                Authentication Google requise.
-              </p>
 
               {error && (
                 <div className="rounded-lg bg-red-900/40 border border-red-500/40 px-2 py-1 text-red-200 text-[10px] f-mono">
@@ -95,7 +90,7 @@ export function LoginView({ isLoggedIn, onLogin, onLogout }: LoginViewProps) {
               <button
                 onClick={handleGoogleSignIn}
                 disabled={isLoading}
-                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-secondary hover:bg-secondary/80 text-foreground px-4 py-2.5 font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed border border-border hover:border-border/80 f-mono"
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground px-4 py-2.5 text-xs font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed border border-border hover:border-border/80 f-mono"
               >
                 {/* Google G Logo en couleur */}
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
@@ -126,8 +121,8 @@ export function LoginView({ isLoggedIn, onLogin, onLogout }: LoginViewProps) {
               </button>
 
               {/* Footer */}
-              <p className="text-slate-500 text-[9px] f-orb tracking-wider pt-3">
-                MARSAI · Festival 2026
+              <p className="text-slate-500 text-[10px] f-orb tracking-wider pt-2">
+                MARSAI · Espace Jury
               </p>
             </div>
           )}
