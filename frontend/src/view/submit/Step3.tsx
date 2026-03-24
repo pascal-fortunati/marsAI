@@ -106,6 +106,17 @@ export default function Step3({ onNext, onPrev }: Step3Props) {
     const [error, setError] = useState<string | null>(null);
     const [showValidation, setShowValidation] = useState(false);
 
+    const readStored = (key: string) => {
+        try {
+            const raw = localStorage.getItem(key);
+            if (raw === null) return "";
+            const parsed = JSON.parse(raw);
+            return typeof parsed === "string" ? parsed : String(parsed ?? "");
+        } catch {
+            return "";
+        }
+    };
+
     const handleNext = async () => {
         if (!video || !poster) {
             setShowValidation(true);
@@ -121,6 +132,7 @@ export default function Step3({ onNext, onPrev }: Step3Props) {
             form.append("video", video);
             form.append("poster", poster);
             if (subtitle) form.append("subtitles", subtitle);
+            form.append("country", readStored("submit.step2.country"));
 
             const res = await fetch(`${BASE}/api/upload`, { method: "POST", body: form });
             const data = await res.json();

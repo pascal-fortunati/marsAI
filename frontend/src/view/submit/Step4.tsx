@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Rocket, AlertTriangle, Loader2 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { marsaiGradients } from "../../theme/marsai";
-import { Step4Data } from "./submitType";
 
 interface Step4Props {
   onSubmit: () => Promise<void>;

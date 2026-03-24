@@ -12,6 +12,14 @@ function parseJsonField(value) {
     return value;
 }
 
+function prepareDbFilms(rows) {
+    return rows.map((r) => ({
+        ...r,
+        ai_tools: parseJsonField(r.ai_tools),
+        semantic_tags: parseJsonField(r.semantic_tags),
+    }));
+}
+
 export async function getCatalogue(req, res) {
     try {
         const page = Math.max(1, parseInt(req.query.page ?? "1", 10));
@@ -21,14 +29,11 @@ export async function getCatalogue(req, res) {
         const q = req.query.q || null;
 
         const uploadsOnly = String(category ?? "").toLowerCase() === "uploads";
-
         if (uploadsOnly) {
             const uploads = await listUploadedFilms({ q });
             const offset = (page - 1) * perPage;
-            const films = uploads.slice(offset, offset + perPage);
-
             return res.json({
-                films,
+                films: uploads.slice(offset, offset + perPage),
                 pagination: {
                     page,
                     per_page: perPage,
@@ -38,25 +43,15 @@ export async function getCatalogue(req, res) {
             });
         }
 
-        const noCategoryFilter = !category;
-        if (noCategoryFilter) {
+        if (!category) {
             const [uploads, rows] = await Promise.all([
                 listUploadedFilms({ q }),
                 findAllCatalogueFilms({ q }),
             ]);
-
-            const dbFilms = rows.map((r) => ({
-                ...r,
-                ai_tools: parseJsonField(r.ai_tools),
-                semantic_tags: parseJsonField(r.semantic_tags),
-            }));
-
-            const combined = [...uploads, ...dbFilms];
+            const combined = [...uploads, ...prepareDbFilms(rows)];
             const offset = (page - 1) * perPage;
-            const films = combined.slice(offset, offset + perPage);
-
             return res.json({
-                films,
+                films: combined.slice(offset, offset + perPage),
                 pagination: {
                     page,
                     per_page: perPage,
@@ -67,15 +62,8 @@ export async function getCatalogue(req, res) {
         }
 
         const { rows, total } = await findCatalogueFilms({ page, perPage, category, q });
-
-        const dbFilms = rows.map((r) => ({
-            ...r,
-            ai_tools: parseJsonField(r.ai_tools),
-            semantic_tags: parseJsonField(r.semantic_tags),
-        }));
-
         return res.json({
-            films: dbFilms,
+            films: prepareDbFilms(rows),
             pagination: {
                 page,
                 per_page: perPage,
@@ -89,7 +77,6 @@ export async function getCatalogue(req, res) {
     }
 }
 
-// GET /api/catalogue/:id
 export async function getFilmById(req, res) {
     try {
         const film = await findFilmById(req.params.id);
@@ -99,11 +86,12 @@ export async function getFilmById(req, res) {
             return res.json(uploadedFilm);
         }
 
-        film.ai_tools = parseJsonField(film.ai_tools);
-        film.semantic_tags = parseJsonField(film.semantic_tags);
-        film.director_socials = parseJsonField(film.director_socials);
-
-        return res.json(film);
+        return res.json({
+            ...film,
+            ai_tools: parseJsonField(film.ai_tools),
+            semantic_tags: parseJsonField(film.semantic_tags),
+            director_socials: parseJsonField(film.director_socials),
+        });
     } catch (err) {
         console.error("[getFilmById]", err);
         return res.status(500).json({ error: "Erreur serveur" });

@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { db } from "../config/db.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const UPLOAD_ROOT = path.resolve(__dirname, "../../upload");
@@ -8,6 +9,8 @@ const UPLOAD_ROOT = path.resolve(__dirname, "../../upload");
 const VIDEO_EXTS = new Set([".mp4", ".mov", ".webm", ".mkv", ".avi", ".m4v"]);
 const POSTER_EXTS = new Set([".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp"]);
 const SUBTITLE_EXTS = new Set([".srt", ".vtt"]);
+const UUID_REGEX =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function buildUploadId(folderName) {
     return `upload-${folderName}`;
@@ -30,6 +33,47 @@ async function safeReadDir(dirPath) {
     }
 }
 
+async function safeReadJson(filePath) {
+    try {
+        const raw = await fs.readFile(filePath, "utf8");
+        const parsed = JSON.parse(raw);
+        return parsed && typeof parsed === "object" ? parsed : {};
+    } catch {
+        return {};
+    }
+}
+
+async function getSubmissionMetadataByIds(ids) {
+    if (!ids.length) return new Map();
+
+    const placeholders = ids.map(() => "?").join(",");
+    const [rows] = await db.execute(
+        `SELECT id, country, title, synopsis, director_name, year, duration_seconds, ai_tools
+         FROM submissions
+         WHERE id IN (${placeholders})`,
+        ids
+    );
+
+    const byId = new Map();
+    for (const row of rows) {
+        byId.set(row.id, row);
+    }
+    return byId;
+}
+
+function parseJsonArray(value) {
+    if (Array.isArray(value)) return value;
+    if (typeof value === "string") {
+        try {
+            const parsed = JSON.parse(value);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch {
+            return [];
+        }
+    }
+    return [];
+}
+
 function detectKind(filename) {
     const lower = filename.toLowerCase();
     if (lower.startsWith("video_")) return "video";
@@ -49,37 +93,37 @@ function selectLatest(files, kind) {
         .sort((a, b) => b.stats.mtimeMs - a.stats.mtimeMs)[0] ?? null;
 }
 
-async function buildFlatFolderUpload(folderName) {
-    const folderPath = path.join(UPLOAD_ROOT, folderName);
-    const entries = await safeReadDir(folderPath);
-    const fileEntries = entries.filter((entry) => entry.isFile());
-    if (fileEntries.length === 0) return null;
-
-    const files = await Promise.all(
-        fileEntries.map(async (entry) => ({
-            name: entry.name,
-            stats: await fs.stat(path.join(folderPath, entry.name)),
-        }))
-    );
-
-    const video = selectLatest(files, "video");
-    if (!video) return null;
-
-    const poster = selectLatest(files, "poster");
-    const subtitles = selectLatest(files, "subtitles");
+function buildUploadFilm(id, folderName, video, poster, subtitles, mtime, metadata = {}, dbMeta = null) {
+    const country = typeof metadata.country === "string" && metadata.country.trim().length > 0
+        ? metadata.country.trim()
+        : (typeof dbMeta?.country === "string" ? dbMeta.country.trim() : "");
+    const title = typeof dbMeta?.title === "string" && dbMeta.title.trim().length > 0
+        ? dbMeta.title.trim()
+        : displayTitle(video.name);
+    const synopsis = typeof dbMeta?.synopsis === "string" && dbMeta.synopsis.trim().length > 0
+        ? dbMeta.synopsis.trim()
+        : "";
+    const directorName = typeof dbMeta?.director_name === "string" && dbMeta.director_name.trim().length > 0
+        ? dbMeta.director_name.trim()
+        : "Soumission incomplète";
+    const year = Number.isFinite(Number(dbMeta?.year)) ? Number(dbMeta.year) : new Date().getFullYear();
+    const durationSeconds = Number.isFinite(Number(dbMeta?.duration_seconds))
+        ? Number(dbMeta.duration_seconds)
+        : 0;
+    const aiTools = parseJsonArray(dbMeta?.ai_tools);
 
     return {
-        id: buildUploadId(folderName),
-        title: displayTitle(video.name),
-        synopsis: "Vidéo uploadée à l'étape 3 (soumission non finalisée).",
-        country: "",
+        id,
+        title,
+        synopsis,
+        country,
         language: "",
         category: "uploads",
-        year: new Date().getFullYear(),
-        duration_seconds: 0,
-        ai_tools: [],
+        year,
+        duration_seconds: durationSeconds,
+        ai_tools: aiTools,
         semantic_tags: [],
-        director_name: "Soumission incomplète",
+        director_name: directorName,
         poster_url: poster ? `/uploads/${folderName}/${poster.name}` : null,
         video_url: `/uploads/${folderName}/${video.name}`,
         subtitles_url: subtitles ? `/uploads/${folderName}/${subtitles.name}` : null,
@@ -92,125 +136,104 @@ async function buildFlatFolderUpload(folderName) {
         director_job: null,
         director_country: null,
         admin_comment: null,
-        _mtime: video.stats.mtimeMs,
+        _mtime: mtime,
     };
 }
 
-async function buildNestedFolderUploads(folderName) {
-    const baseDir = path.join(UPLOAD_ROOT, folderName);
+
+async function collectUploads() {
+    const rootEntries = await safeReadDir(UPLOAD_ROOT);
+    const allUploads = [];
+    const submissionIds = rootEntries
+        .filter((entry) => entry.isDirectory() && UUID_REGEX.test(entry.name))
+        .map((entry) => entry.name);
+    const dbMetadataById = await getSubmissionMetadataByIds(submissionIds);
+
+    for (const entry of rootEntries) {
+        if (!entry.isDirectory()) continue;
+        const folderPath = path.join(UPLOAD_ROOT, entry.name);
+
+        // Filtrer les anciens dossiers plats (video, poster, subtitles)
+        if (["video", "poster", "subtitles"].includes(entry.name)) {
+            if (entry.name === "video") {
+                const legacyUploads = await collectLegacyVideoFolder(folderPath);
+                allUploads.push(...legacyUploads);
+            }
+            continue;
+        }
+
+        const files = await safeReadDir(folderPath);
+        const flat = files.filter((f) => f.isFile());
+
+        if (flat.length === 0) continue;
+
+        const filesWithStats = await Promise.all(
+            flat.map(async (f) => ({
+                name: f.name,
+                stats: await fs.stat(path.join(folderPath, f.name)),
+            }))
+        );
+
+        const metadata = await safeReadJson(path.join(folderPath, "metadata.json"));
+        const dbMeta = dbMetadataById.get(entry.name) ?? null;
+
+        const video = selectLatest(filesWithStats, "video");
+        if (!video) continue;
+
+        const poster = selectLatest(filesWithStats, "poster");
+        const subtitles = selectLatest(filesWithStats, "subtitles");
+
+        const upload = buildUploadFilm(
+            buildUploadId(entry.name),
+            entry.name,
+            video,
+            poster,
+            subtitles,
+            video.stats.mtimeMs,
+            metadata,
+            dbMeta
+        );
+        allUploads.push(upload);
+    }
+
+    return allUploads;
+}
+
+async function collectLegacyVideoFolder(videoDir) {
     const [videos, posters, subtitles] = await Promise.all([
-        safeReadDir(path.join(baseDir, "video")),
-        safeReadDir(path.join(baseDir, "poster")),
-        safeReadDir(path.join(baseDir, "subtitles")),
+        safeReadDir(videoDir),
+        safeReadDir(path.join(UPLOAD_ROOT, "poster")),
+        safeReadDir(path.join(UPLOAD_ROOT, "subtitles")),
     ]);
 
-    const videoEntries = videos.filter((entry) => entry.isFile());
-    if (videoEntries.length === 0) return [];
-
-    const posterEntries = posters.filter((entry) => entry.isFile());
-    const subtitleEntries = subtitles.filter((entry) => entry.isFile());
-
-    const posterFile = posterEntries[0]?.name ?? null;
-    const subtitleFile = subtitleEntries[0]?.name ?? null;
+    const videoFiles = videos.filter((f) => f.isFile());
+    const posterFile = posters.find((f) => f.isFile())?.name ?? null;
+    const subtitleFile = subtitles.find((f) => f.isFile())?.name ?? null;
 
     return Promise.all(
-        videoEntries.map(async (entry) => {
-            const stats = await fs.stat(path.join(baseDir, "video", entry.name));
-            return {
-                id: buildUploadId(`${folderName}:${entry.name}`),
-                title: displayTitle(entry.name),
-                synopsis: "Vidéo uploadée à l'étape 3 (soumission non finalisée).",
-                country: "",
-                language: "",
-                category: "uploads",
-                year: new Date().getFullYear(),
-                duration_seconds: 0,
-                ai_tools: [],
-                semantic_tags: [],
-                director_name: "Soumission incomplète",
-                poster_url: posterFile ? `/uploads/${folderName}/poster/${posterFile}` : null,
-                video_url: `/uploads/${folderName}/video/${entry.name}`,
-                subtitles_url: subtitleFile ? `/uploads/${folderName}/subtitles/${subtitleFile}` : null,
-                youtube_public_id: null,
-                status: "uploaded",
-                badge: null,
-                prize: null,
-                music_credits: null,
-                director_socials: {},
-                director_job: null,
-                director_country: null,
-                admin_comment: null,
-                _mtime: stats.mtimeMs,
-            };
+        videoFiles.map(async (entry) => {
+            const stats = await fs.stat(path.join(videoDir, entry.name));
+            const poster = posterFile ? { name: posterFile, stats: { mtimeMs: 0 } } : null;
+            const sub = subtitleFile ? { name: subtitleFile, stats: { mtimeMs: 0 } } : null;
+
+            return buildUploadFilm(
+                buildUploadId(`legacy:${entry.name}`),
+                "legacy",
+                { name: entry.name, stats },
+                poster,
+                sub,
+                stats.mtimeMs
+            );
         })
     );
 }
 
-async function buildLegacyUploads() {
-    const legacyVideoDir = path.join(UPLOAD_ROOT, "video");
-    const legacyPosterDir = path.join(UPLOAD_ROOT, "poster");
-    const legacySubtitleDir = path.join(UPLOAD_ROOT, "subtitles");
-    const [legacyVideos, legacyPosters, legacySubtitles] = await Promise.all([
-        safeReadDir(legacyVideoDir),
-        safeReadDir(legacyPosterDir),
-        safeReadDir(legacySubtitleDir),
-    ]);
-
-    const posterFile = legacyPosters.find((entry) => entry.isFile())?.name ?? null;
-    const subtitleFile = legacySubtitles.find((entry) => entry.isFile())?.name ?? null;
-
-    return Promise.all(
-        legacyVideos
-            .filter((entry) => entry.isFile())
-            .map(async (entry) => {
-                const stats = await fs.stat(path.join(legacyVideoDir, entry.name));
-                return {
-                    id: buildUploadId(`legacy:${entry.name}`),
-                    title: displayTitle(entry.name),
-                    synopsis: "Vidéo uploadée à l'étape 3 (soumission non finalisée).",
-                    country: "",
-                    language: "",
-                    category: "uploads",
-                    year: new Date().getFullYear(),
-                    duration_seconds: 0,
-                    ai_tools: [],
-                    semantic_tags: [],
-                    director_name: "Soumission incomplète",
-                    poster_url: posterFile ? `/uploads/poster/${posterFile}` : null,
-                    video_url: `/uploads/video/${entry.name}`,
-                    subtitles_url: subtitleFile ? `/uploads/subtitles/${subtitleFile}` : null,
-                    youtube_public_id: null,
-                    status: "uploaded",
-                    badge: null,
-                    prize: null,
-                    music_credits: null,
-                    director_socials: {},
-                    director_job: null,
-                    director_country: null,
-                    admin_comment: null,
-                    _mtime: stats.mtimeMs,
-                };
-            })
-    );
-}
 
 export async function listUploadedFilms({ q } = {}) {
-    const rootEntries = await safeReadDir(UPLOAD_ROOT);
-    const folderEntries = rootEntries.filter((entry) => entry.isDirectory());
-    const uploadsByFolder = await Promise.all(
-        folderEntries
-            .filter((folder) => !["video", "poster", "subtitles"].includes(folder.name))
-            .map(async (folder) => {
-                const flat = await buildFlatFolderUpload(folder.name);
-                if (flat) return [flat];
-                return buildNestedFolderUploads(folder.name);
-            })
-    );
-    const legacyUploads = await buildLegacyUploads();
-
+    const uploads = await collectUploads();
     const loweredQuery = String(q ?? "").trim().toLowerCase();
 
-    const uploads = [...uploadsByFolder.flat(), ...legacyUploads]
+    return uploads
         .sort((a, b) => b._mtime - a._mtime)
         .filter((film) => {
             if (!loweredQuery) return true;
@@ -220,8 +243,6 @@ export async function listUploadedFilms({ q } = {}) {
             );
         })
         .map(({ _mtime, ...film }) => film);
-
-    return uploads;
 }
 
 export async function findUploadedFilmById(id) {

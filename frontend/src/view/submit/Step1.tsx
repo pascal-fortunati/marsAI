@@ -8,7 +8,6 @@ import * as Flags from "country-flag-icons/react/3x2";
 import { FR_COUNTRY_NAMES, getCountryCode } from "../../lib/countryMapping";
 import { useLocalStorageState } from "../../lib/useLocalStorageState";
 import { marsaiGradients } from "../../theme/marsai";
-import { Step1Data } from "./submitType";
 
 interface Step1Props {
     onNext: () => void;

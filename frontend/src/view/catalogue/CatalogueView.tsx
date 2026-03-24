@@ -1,12 +1,12 @@
-import { useEffect, useState, useCallback, type ComponentType, type SVGProps } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { X, Play, Globe, Clock, ChevronLeft, ChevronRight } from "lucide-react";
-import * as FlagIcons from "country-flag-icons/react/3x2";
 import { getCatalogue, getFilmById } from "../../lib/catalogueApi";
-import { getCountryCode } from "../../lib/countryMapping";
 import type { CatalogueFilm, CatalogueFilmDetail, CataloguePagination } from "./CatalogueTypes";
+import FilmCard from "./FilmCard";
 
 const PER_PAGE = 20;
 const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
+
 
 // Helpers 
 
@@ -38,106 +38,6 @@ function mediaSrc(pathOrUrl: string): string {
     const normalizedBase = API_BASE.replace(/\/$/, "");
     const normalizedPath = pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`;
     return `${normalizedBase}${normalizedPath}`;
-}
-
-function getCountryFlagComponent(country: string): ComponentType<SVGProps<SVGSVGElement>> | null {
-    const code = getCountryCode(country ?? "");
-    if (!code) return null;
-    const flag = (FlagIcons as Record<string, ComponentType<SVGProps<SVGSVGElement>>>)[code];
-    return flag ?? null;
-}
-
-// FilmCard 
-
-function FilmCard({ film, onClick }: { film: CatalogueFilm; onClick: () => void }) {
-    const CountryFlag = getCountryFlagComponent(film.country);
-    const hasDuration = Number.isFinite(film.duration_seconds) && film.duration_seconds > 0;
-
-    return (
-        <button
-            onClick={onClick}
-            className="group relative text-left w-full rounded-2xl overflow-hidden border border-white/10
-                 bg-[#0b0b1a]/80 hover:border-violet-500/45 transition-all duration-300 hover:-translate-y-0.5"
-        >
-            {/* Poster */}
-            <div className="relative aspect-video overflow-hidden bg-black border-b border-white/10">
-                <img
-                    src={posterSrc(film)}
-                    alt={film.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    loading="lazy"
-                />
-                {/* Play overlay */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300
-                        flex items-center justify-center">
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300
-                          w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm border border-white/30
-                          flex items-center justify-center">
-                        <Play className="w-4 h-4 text-white fill-white ml-0.5" />
-                    </div>
-                </div>
-                {/* Duration badge */}
-                {hasDuration && (
-                    <span className="absolute bottom-1.5 right-1.5 text-[9px] font-mono text-white/75
-                         bg-black/70 backdrop-blur-sm px-1.5 py-0.5 rounded">
-                        {formatDuration(film.duration_seconds)}
-                    </span>
-                )}
-            </div>
-
-            {/* Info */}
-            <div className="p-3.5">
-                <div className="flex items-center gap-1.5 text-[9px] font-mono uppercase tracking-wider text-white/45 mb-2 min-w-0">
-                    {CountryFlag && <CountryFlag className="w-3.5 h-[10px] rounded-[2px] shrink-0" />}
-                    {film.country && <span className="shrink-0">{film.country}</span>}
-                    {film.year > 0 && <span className="text-white/35 shrink-0">{film.year}</span>}
-                    {film.director_name && (
-                        <span className="text-white/40 truncate min-w-0">{film.director_name}</span>
-                    )}
-                </div>
-
-                <h3 className="f-orb font-semibold text-white text-[28px] leading-none mb-1 line-clamp-2">
-                    {film.title}
-                </h3>
-
-                <p className="text-white/55 text-[11px] leading-relaxed line-clamp-2 mb-2.5 min-h-[34px]">
-                    {film.synopsis}
-                </p>
-
-                {/* Tags */}
-                <div className="flex flex-wrap gap-1 min-h-[20px]">
-                    {film.semantic_tags?.slice(0, 2).map((tag) => (
-                        <span key={tag}
-                            className="text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded
-                         bg-violet-500/12 text-violet-300 border border-violet-500/25">
-                            {tag}
-                        </span>
-                    ))}
-                    {film.ai_tools?.slice(0, 1).map((tool) => (
-                        <span key={tool}
-                            className="text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded
-                         bg-orange-500/12 text-orange-300 border border-orange-500/25">
-                            {tool}
-                        </span>
-                    ))}
-                </div>
-
-                {(film.prize || film.badge) && (
-                    <div className="mt-2.5 flex justify-end">
-                        {film.prize ? (
-                            <span className="text-[9px] font-mono uppercase tracking-widest bg-amber-500/90 text-black px-2 py-0.5 rounded font-bold">
-                                {film.prize}
-                            </span>
-                        ) : (
-                            <span className="text-[9px] font-mono uppercase tracking-widest bg-white/10 border border-white/25 text-white/80 px-2 py-0.5 rounded">
-                                {film.badge}
-                            </span>
-                        )}
-                    </div>
-                )}
-            </div>
-        </button>
-    );
 }
 
 // FilmModal 
@@ -392,42 +292,8 @@ export default function CatalogueView() {
                 <h1 className="f-orb font-black text-[48px] leading-none text-white mb-2">
                     Catalogue <span className="text-gradient-flow-ltr">2026</span>
                 </h1>
-                {pagination && (
-                    <p className="text-white/30 text-xs font-mono">
-                        {pagination.total} film{pagination.total > 1 ? "s" : ""} sélectionné{pagination.total > 1 ? "s" : ""} · {PER_PAGE} par page · Toujours faire des futurs souhaitables
-                    </p>
-                )}
             </div>
-
-            {/* Filters */}
-            <div className="flex flex-wrap gap-3 mb-6">
-                {/* Category filters */}
-                {categories.length > 0 && (
-                    <div className="flex gap-1.5 flex-wrap">
-                        <button
-                            onClick={() => handleCategory("")}
-                            className={`px-3 py-1.5 rounded-lg text-[10px] font-mono uppercase tracking-wider border transition-colors
-                ${!category
-                                    ? "bg-violet-600 border-violet-500 text-white"
-                                    : "border-white/10 text-white/40 hover:border-white/25 hover:text-white/70"}`}
-                        >
-                            Tous
-                        </button>
-                        {categories.map((cat) => (
-                            <button
-                                key={cat}
-                                onClick={() => handleCategory(cat === category ? "" : cat)}
-                                className={`px-3 py-1.5 rounded-lg text-[10px] font-mono uppercase tracking-wider border transition-colors
-                  ${cat === category
-                                        ? "bg-violet-600 border-violet-500 text-white"
-                                        : "border-white/10 text-white/40 hover:border-white/25 hover:text-white/70"}`}
-                            >
-                                {cat}
-                            </button>
-                        ))}
-                    </div>
-                )}
-            </div>
+            <div className="mt-6 mb-8 h-px w-full" style={{ background: "linear-gradient(90deg, transparent, rgba(125, 113, 251, 0.6), transparent)" }}></div>
 
             {/* Grid */}
             {loading && (

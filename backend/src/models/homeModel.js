@@ -1,7 +1,8 @@
 import { db } from "../config/db.js";
 
-export async function getSettings() {
-    const placeholders = KeyboardEvent.map(() => "?").join(", ");
+export async function getSettings(keys = []) {
+    if (keys.length === 0) return {};
+    const placeholders = keys.map(() => "?").join(", ");
     const [rows] = await db.execute(
         `SELECT \`key\`, \`value\` FROM site_settings WHERE \`key\` IN (${placeholders})`,
         keys
@@ -12,12 +13,12 @@ export async function getSettings() {
 export async function getSubmissionStats() {
     const [[row]] = await db.execute(
         `SELECT
-      COUNT(*)                    AS films_count,
+      COUNT(*)                    AS film_count,
       COUNT(DISTINCT country)     AS country_count
      FROM submissions`
     );
     return {
-        films_count: Number(row.films_count),
+        film_count: Number(row.film_count),
         country_count: Number(row.country_count)
     };
 }
