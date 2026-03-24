@@ -53,11 +53,11 @@ export function LoginView({ isLoggedIn, onLogin, onLogout }: LoginViewProps) {
           {!isLoggedIn && (
             <div className="text-center space-y-5">
               {/* Logo */}
-              <div className="flex justify-center mb-1">
+              <div className="flex justify-center mb-6">
                 <img
                   src={marsAiLogo}
                   alt="MARSAI"
-                  className="h-24 object-contain opacity-95"
+                  className="h-14 w-14 object-contain opacity-95"
                 />
               </div>
 
@@ -72,12 +72,14 @@ export function LoginView({ isLoggedIn, onLogin, onLogout }: LoginViewProps) {
                   Espace Jury
                 </h1>
 
-                <p className="text-slate-400 text-[14px] f-mono tracking-wider">
-                  MARSAI · Festival 2026
-                </p>
-                <p className="text-slate-400 text-[14px] f-mono tracking-wider">
-                  Authentication Google requise.
-                </p>
+                <div className="flex flex-col items-center space-y-[2px]">
+                  <p className="text-slate-400 text-[14px] f-mono tracking-wider mb-0">
+                    MARSAI · Festival 2026
+                  </p>
+                  <p className="text-slate-400 text-[14px] f-mono tracking-wider mt-0">
+                    Authentication Google requise.
+                  </p>
+                </div>
               </div>
 
               {error && (
