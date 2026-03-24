@@ -34,13 +34,15 @@ body,
 body {
     margin: 0;
     font-size: 16px;
-    background: var(--col-bg);
-    color: #fff;
 }
 
 * {
     scrollbar-width: thin;
     scrollbar-color: rgba(125, 113, 251, 0.75) rgba(255, 255, 255, 0.06);
+}
+
+.light * {
+    scrollbar-color: rgba(125, 113, 251, 0.5) rgba(0, 0, 0, 0.05);
 }
 
 *::-webkit-scrollbar {
@@ -50,6 +52,10 @@ body {
 
 *::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.05);
+}
+
+.light *::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
 }
 
 *::-webkit-scrollbar-thumb {
@@ -62,10 +68,24 @@ body {
     background: linear-gradient(180deg, rgba(125, 113, 251, 1), rgba(255, 92, 53, 1));
 }
 
+.light *::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(125, 113, 251, 0.6), rgba(255, 92, 53, 0.6));
+    border: 1px solid rgba(125, 113, 251, 0.2);
+}
+
+.light *::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgba(125, 113, 251, 0.8), rgba(255, 92, 53, 0.8));
+}
+
 :root {
     --col-vi: #7d71fb;
     --col-or: #ff5c35;
     --col-bg: #05030d;
+    --radius: 0.75rem;
+}
+
+:root:has(.dark),
+.dark {
     color-scheme: dark;
     --background: 255 67% 3%;
     --foreground: 0 0% 96%;
@@ -86,7 +106,29 @@ body {
     --border: 255 20% 13%;
     --input: 255 30% 10%;
     --ring: 246 94% 71%;
-    --radius: 0.75rem;
+}
+
+.light {
+    color-scheme: light;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
+    --card: 0 0% 96%;
+    --card-foreground: 0 0% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+    --primary: 246 94% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 255 30% 92%;
+    --secondary-foreground: 0 0% 20%;
+    --muted: 255 25% 88%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 14 100% 45%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 255 20% 85%;
+    --input: 255 20% 92%;
+    --ring: 246 94% 50%;
 }
 
 @layer base {
