@@ -1,5 +1,6 @@
 import { Play } from "lucide-react";
 import type { ComponentType } from "react";
+import { useState } from "react";
 import type { CatalogueFilm } from "./CatalogueTypes";
 import { BADGE_CONFIG } from "./catalogueHelpers";
 import { getCountryCode } from "../../lib/countryMapping";
@@ -14,6 +15,7 @@ interface FilmCardProps {
 }
 
 export default function FilmCard({ film, onClick }: FilmCardProps) {
+    const [hoveredTool, setHoveredTool] = useState<string | null>(null);
     const badge = film.badge ? BADGE_CONFIG[film.badge] : null;
     const posterSrc = film.poster_url
         ? `${BASE}${film.poster_url}`
@@ -113,7 +115,12 @@ export default function FilmCard({ film, onClick }: FilmCardProps) {
                 <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between gap-2">
                     <div className="flex gap-1 flex-wrap">
                         {film.ai_tools.slice(0, 2).map((tool) => (
-                            <div key={tool} className="relative group">
+                            <div 
+                                key={tool} 
+                                className="relative"
+                                onMouseEnter={() => setHoveredTool(tool)}
+                                onMouseLeave={() => setHoveredTool(null)}
+                            >
                                 <span
                                     className="font-mono text-[7px] tracking-wider px-1.5 py-0.5 rounded cursor-help hover:bg-violet-500/20 transition-colors"
                                     style={{
@@ -124,16 +131,18 @@ export default function FilmCard({ film, onClick }: FilmCardProps) {
                                 >
                                     {tool}
                                 </span>
-                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-[9999]">
-                                    <div 
-                                        className="px-3 py-1.5 rounded-md bg-violet-950/50 border border-violet-500/60 backdrop-blur-xl text-center whitespace-nowrap"
-                                        style={{ boxShadow: "0 0 20px rgba(125, 113, 251, 0.6), 0 0 40px rgba(125, 113, 251, 0.3)" }}
-                                    >
-                                        <p className="font-mono text-[8px] leading-tight text-white font-semibold">
-                                            {getAIToolDescription(tool)}
-                                        </p>
+                                {hoveredTool === tool && (
+                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-[9999]">
+                                        <div 
+                                            className="px-3 py-1.5 rounded-md bg-violet-950/50 border border-violet-500/60 backdrop-blur-xl text-center whitespace-nowrap"
+                                            style={{ boxShadow: "0 0 20px rgba(125, 113, 251, 0.6), 0 0 40px rgba(125, 113, 251, 0.3)" }}
+                                        >
+                                            <p className="font-mono text-[8px] leading-tight text-white font-semibold">
+                                                {getAIToolDescription(tool)}
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
                         ))}
                     </div>
