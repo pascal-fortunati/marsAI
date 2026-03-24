@@ -30,6 +30,7 @@ export interface Step2Data {
 
 // Étape 3 - Fichiers
 export interface Step3Data {
+    submission_id: string;
     video_url: string;
     poster_url: string;
     subtitles_url: string;

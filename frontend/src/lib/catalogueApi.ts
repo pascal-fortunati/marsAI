@@ -1,6 +1,6 @@
 import type { CatalogueResponse, CatalogueFilmDetail } from "../view/catalogue/CatalogueTypes";
 
-const BASE = import.meta.env.VITE_API_URL ?? "localhost:4000";
+const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
 
 export interface CatalogueParams {
     page?: number;

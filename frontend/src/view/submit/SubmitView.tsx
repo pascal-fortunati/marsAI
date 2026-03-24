@@ -10,6 +10,7 @@ import * as Flags from "country-flag-icons/react/3x2";
 import { marsaiGradients } from "../../theme/marsai";
 import { Check } from "lucide-react";
 import { submitFilm } from "../../lib/api";
+import type { Step3Data } from "./submitType";
 
 function AccentTitle({ children }: { children: React.ReactNode }) {
     return (
@@ -75,6 +76,7 @@ export function SubmitView() {
             "submit.step3.videoUrl",
             "submit.step3.posterUrl",
             "submit.step3.subtitlesUrl",
+            "submit.step3.submissionId",
         ]);
 
         for (let i = 0; i < localStorage.length; i++) {
@@ -106,6 +108,14 @@ export function SubmitView() {
 
     const goNext = () => setStep((s) => Math.min(s + 1, 5));
     const goPrev = () => setStep((s) => Math.max(s - 1, 1));
+
+    const handleStep3Next = (data: Step3Data) => {
+        localStorage.setItem("submit.step3.submissionId", JSON.stringify(data.submission_id));
+        localStorage.setItem("submit.step3.videoUrl", JSON.stringify(data.video_url));
+        localStorage.setItem("submit.step3.posterUrl", JSON.stringify(data.poster_url));
+        localStorage.setItem("submit.step3.subtitlesUrl", JSON.stringify(data.subtitles_url));
+        goNext();
+    };
 
     const toDurationSeconds = (raw: string) => {
         const value = raw.trim();
@@ -164,6 +174,7 @@ export function SubmitView() {
 
     const handleSubmit = async () => {
         const payload = {
+            submission_id: readStored("submit.step3.submissionId"),
             director_name: readStored("submit.step1.fullName"),
             director_email: readStored("submit.step1.email"),
             director_phone: readStored("submit.step1.phone"),
@@ -186,6 +197,9 @@ export function SubmitView() {
             semantic_tags: readStoredJsonArray("submit.step2.selectedTags"),
             music_credits: readStored("submit.step2.soundMentions"),
             rights_confirmed: readStoredBoolean("submit.step2.rights"),
+            video_url: readStored("submit.step3.videoUrl"),
+            poster_url: readStored("submit.step3.posterUrl"),
+            subtitles_url: readStored("submit.step3.subtitlesUrl"),
             consent_rules: true,
             consent_promo: true,
             consent_newsletter: false,
@@ -293,7 +307,7 @@ export function SubmitView() {
 
                     {step === 1 && <Step1 onNext={goNext} />}
                     {step === 2 && <Step2 onNext={goNext} onPrev={goPrev} />}
-                    {step === 3 && <Step3 onNext={goNext} onPrev={goPrev} />}
+                    {step === 3 && <Step3 onNext={handleStep3Next} onPrev={goPrev} />}
                     {step === 4 && <Step4 onSubmit={handleSubmit} onPrev={goPrev} />}
                 </div>
 

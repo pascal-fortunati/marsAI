@@ -1,10 +1,15 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 import { env } from "./config/env.js";
 import submissionRouter from "./routes/submission.js";
 import homeRouter from "./routes/home.js";
+import catalogueRouter from "./routes/catalogue.js";
+import uploadRouter from "./routes/upload.js";
 
 const app = express();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const defaultDevOrigins = [
   "http://localhost:4001",
@@ -39,7 +44,11 @@ app.use(
   })
 );
 app.use(express.json());
+app.use("/api/site/home", homeRouter);
+app.use("/api/catalogue", catalogueRouter);
 app.use("/api/submissions", submissionRouter);
+app.use("/api/upload", uploadRouter);
+app.use("/uploads", express.static(path.resolve(__dirname, "../upload")));
 
 app.get("/", (_req, res) => {
   res.json({

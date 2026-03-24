@@ -1,5 +1,5 @@
 import { MarsBackground } from "../components/MarsBackground";
-import CatalogueView from "../view/catalogue/CatalogueView";
+import CatalogueView from "../view/catalogue/CatalogueView.tsx";
 
 export default function CataloguePage() {
     return (

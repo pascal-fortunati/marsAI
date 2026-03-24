@@ -1,13 +1,15 @@
 import { useState, useRef } from "react";
-import { Upload, Clock, HardDrive, Film, Check } from "lucide-react";
+import { Upload, Clock, HardDrive, Film, Check, Loader } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { marsaiGradients } from "../../theme/marsai";
-import { Step3Data } from "./submitType";
+import type { Step3Data } from "./submitType";
 
 interface Step3Props {
-    onNext: () => void;
+    onNext: (data: Step3Data) => void;
     onPrev: () => void;
 }
+
+const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
 
 // Zone de dépôt générique réutilisable
 interface DropZoneProps {
@@ -38,13 +40,11 @@ function DropZone({ label, required, accept, hint, formats, file, onFileChange, 
 
     return (
         <div className="space-y-1.5">
-            {/* Label */}
             <p className="f-mono text-[8px] sm:text-[9px] tracking-widest uppercase text-white/40">
                 {label}
                 {required && <span className="ml-1" style={{ color: "var(--col-or)" }}>*</span>}
             </p>
 
-            {/* Zone de dépôt */}
             <div
                 onClick={() => inputRef.current?.click()}
                 onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
@@ -65,7 +65,6 @@ function DropZone({ label, required, accept, hint, formats, file, onFileChange, 
                 <input ref={inputRef} type="file" accept={accept} className="hidden" onChange={handleChange} />
 
                 {file ? (
-                    // Fichier sélectionné
                     <>
                         <Check size={24} strokeWidth={2.4} style={{ color: "rgba(0, 237, 143, .95)" }} />
                         <p className="f-orb text-[11px] sm:text-[12px] md:text-[14px] leading-none text-[#00ed8f] break-all text-center max-w-xs">
@@ -87,7 +86,6 @@ function DropZone({ label, required, accept, hint, formats, file, onFileChange, 
                         </button>
                     </>
                 ) : (
-                    // État vide
                     <>
                         <Upload size={18} className="text-white/20" />
                         <p className="f-orb text-[12px] sm:text-[14px] md:text-[16px] leading-none text-white/58">Glisser-déposer ou cliquer</p>
@@ -101,30 +99,56 @@ function DropZone({ label, required, accept, hint, formats, file, onFileChange, 
 }
 
 export default function Step3({ onNext, onPrev }: Step3Props) {
-    const [videoFile, setVideoFile] = useState<File | null>(null);
-    const [posterFile, setPosterFile] = useState<File | null>(null);
-    const [subtitleFile, setSubtitleFile] = useState<File | null>(null);
+    const [video, setVideo] = useState<File | null>(null);
+    const [poster, setPoster] = useState<File | null>(null);
+    const [subtitle, setSubtitle] = useState<File | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const [showValidation, setShowValidation] = useState(false);
 
-    const missing = {
-        videoFile: !videoFile,
-        posterFile: !posterFile,
-    };
+    const handleNext = async () => {
+        if (!video || !poster) {
+            setShowValidation(true);
+            setError("La vidéo et le poster sont obligatoires");
+            return;
+        }
 
-    const hasMissingRequired = Object.values(missing).some(Boolean);
+        setLoading(true);
+        setError(null);
 
-    const handleNext = () => {
-        setShowValidation(true);
+        try {
+            const form = new FormData();
+            form.append("video", video);
+            form.append("poster", poster);
+            if (subtitle) form.append("subtitles", subtitle);
 
-        if (!hasMissingRequired) {
-            onNext();
+            const res = await fetch(`${BASE}/api/upload`, { method: "POST", body: form });
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(
+                    typeof data === "object" && data !== null && "error" in data
+                        ? String((data as { error?: unknown }).error ?? "Erreur upload")
+                        : "Erreur upload"
+                );
+            }
+
+            onNext({
+                submission_id: typeof data.submission_id === "string" ? data.submission_id : "",
+                video_url: typeof data.video_url === "string" ? data.video_url : "",
+                poster_url: typeof data.poster_url === "string" ? data.poster_url : "",
+                subtitles_url: typeof data.subtitles_url === "string" ? data.subtitles_url : "",
+            });
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Erreur lors de l'upload");
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <div className="space-y-4 sm:space-y-6 relative overflow-hidden rounded-2xl sm:rounded-3xl p-4 sm:p-6" style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px  solid rgba(255, 255, 255, 0.07)" }}>
 
-            {/* En-tête étape */}
             <div className="flex items-center gap-4 pb-2">
                 <span className="f-mono text-[11px] tracking-[0.28em] uppercase shrink-0" style={{ color: "rgba(162, 151, 255, .9)" }}>
                     Étape 3/4
@@ -135,7 +159,6 @@ export default function Step3({ onNext, onPrev }: Step3Props) {
                 </span>
             </div>
 
-            {/* Avertissement */}
             <p
                 className="f-mono text-[8px] sm:text-[9px] text-white/35 leading-relaxed rounded-lg sm:rounded-xl px-3 sm:px-4 py-2 sm:py-3"
                 style={{ border: "1px solid rgba(255,255,255,.07)", background: "rgba(255,255,255,.02)" }}
@@ -144,41 +167,37 @@ export default function Step3({ onNext, onPrev }: Step3Props) {
                 copyright automatique.
             </p>
 
-            {/* Vidéo du film */}
             <DropZone
                 label="Vidéo du film"
                 required
                 accept="video/mp4,video/quicktime"
                 formats="MP4, MOV — Max 3000 Mo"
                 hint="Format 16:9 · Formats min · son min · Max 3000 Mo"
-                file={videoFile}
-                onFileChange={setVideoFile}
-                hasError={showValidation && missing.videoFile}
+                file={video}
+                onFileChange={setVideo}
+                hasError={showValidation && !video}
             />
 
-            {/* Poster / Affiche */}
             <DropZone
                 label="Poster / Affiche"
                 required
                 accept="image/png,image/jpeg,image/gif,image/webp"
                 formats="PNG, JPEG, GIF, ZIP — Max 5 Mo"
                 hint="Format 2:3 (portrait) · Min 2 Mo · Ratio 2:3 recommandé"
-                file={posterFile}
-                onFileChange={setPosterFile}
-                hasError={showValidation && missing.posterFile}
+                file={poster}
+                onFileChange={setPoster}
+                hasError={showValidation && !poster}
             />
 
-            {/* Sous-titres */}
             <DropZone
                 label="Sous-titres"
                 accept=".srt,.vtt"
                 formats="SRT, VTT — Max 5 Mo"
                 hint="Format · .srt · langue basée sur votre choix · Non requis si film muet/international"
-                file={subtitleFile}
-                onFileChange={setSubtitleFile}
+                file={subtitle}
+                onFileChange={setSubtitle}
             />
 
-            {/* Récapitulatif des contraintes */}
             <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {[
                     { icon: Clock, label: "Durée max", value: "2 minutes" },
@@ -197,30 +216,36 @@ export default function Step3({ onNext, onPrev }: Step3Props) {
                 ))}
             </div>
 
-            {/* Navigation */}
+            {error && <p className="f-mono text-[9px] text-center" style={{ color: "var(--col-or)" }}>{error}</p>}
+
             <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center pt-2 sm:pt-4">
                 <button
                     onClick={onPrev}
+                    disabled={loading}
                     className="f-mono text-[10px] sm:text-[9px] tracking-widest uppercase px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl transition-opacity hover:opacity-70 w-full sm:w-auto"
                     style={{ border: "1px solid rgba(255,255,255,.15)", color: "rgba(255,255,255,.4)" }}
                 >
                     ← Précédent
                 </button>
+
                 <Button
                     type="button"
                     onClick={handleNext}
+                    disabled={loading}
                     className="f-orb group relative overflow-hidden rounded-full px-8 text-xs font-bold uppercase tracking-widest text-white transition-all duration-300"
                     style={{ background: marsaiGradients.primaryToAccent }}
                 >
                     <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-                    <span className="relative">Étape suivante →</span>
+                    <span className="relative flex items-center gap-2">
+                        {loading && <Loader size={13} className="animate-spin" />}
+                        {loading ? "Soumission en cours..." : "Étape suivante →"}
+                    </span>
                 </Button>
             </div>
 
             <p className="f-mono text-[9px] text-white/25 tracking-wide text-center">
                 Aucune modification possible après soumission · Les champs sont mémorisés sur cet appareil
             </p>
-
         </div>
     );
 }

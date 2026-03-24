@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
 import SubmitPage from "./pages/SubmitPage";
+import CataloguePage from "./pages/CataloguePage";
 
 export default function App() {
   // État de langue global — à connecter à i18n.ts si besoin
@@ -17,6 +18,7 @@ export default function App() {
       <div className="pt-20">
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/catalogue" element={<CataloguePage />} />
           <Route path="/submit" element={<SubmitPage />} />
         </Routes>
       </div>
