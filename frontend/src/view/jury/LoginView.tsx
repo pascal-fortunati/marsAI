@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { StarfieldNeural } from "../../components/ui/StarfieldNeural";
 import marsAiLogo from "../../assets/mars_ai_logo.png";
-import { apiFetchJson } from "../../lib/api";
+import { apiFetchJson, DEMO_LOCAL_TOKEN } from "../../lib/api";
 
 type GoogleCredentialResponse = {
   credential?: string;
@@ -145,19 +145,8 @@ export function LoginView({ isLoggedIn, onLogin, onLogout }: LoginViewProps) {
   };
 
   const handleSkip = async () => {
-    setIsLoading(true);
     setError("");
-
-    try {
-      const response = await apiFetchJson<{ token: string }>("/api/auth/demo", {
-        method: "POST",
-      });
-      onLogin(response.token);
-    } catch {
-      setError("Unable to create demo session.");
-    } finally {
-      setIsLoading(false);
-    }
+    onLogin(DEMO_LOCAL_TOKEN);
   };
 
   return (

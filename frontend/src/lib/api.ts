@@ -19,6 +19,12 @@ export const apiUrl = (path: string) =>
 // Clé de stockage du token d'authentification
 const tokenKey = "marsai_token";
 
+// Token sentinel utilise pour forcer un mode demo 100% frontend.
+export const DEMO_LOCAL_TOKEN = "__marsai_demo_local__";
+
+export const isDemoLocalToken = (token: string | null | undefined) =>
+  token === DEMO_LOCAL_TOKEN;
+
 // Récupère le token d'authentification stocké
 export const getStoredToken = () => {
   try {

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import i18n, { setLanguage } from "../../lib/i18n";
-import { apiFetchJson } from "../../lib/api";
+import { apiFetchJson, getStoredToken, isDemoLocalToken } from "../../lib/api";
 import NavBar from "../../components/ui/NavBar";
 import { StarfieldNeural } from "../../components/ui/StarfieldNeural";
 
@@ -17,8 +17,48 @@ type ApiFilm = Film & {
   voteComment?: string;
 };
 
+const DEMO_FILMS: Film[] = [
+  {
+    id: "demo-1",
+    title: "Marseille 2040 : Les Jardins Suspendus",
+    country: "France",
+    duration: "1m58",
+    synopsis:
+      "Dans un futur proche, Marseille verdit grace a des jardins suspendus co-crees par citoyens et IA.",
+    tags: ["Futur souhaitable", "Ecologie", "Innovation sociale"],
+    year: "2026",
+    director: "Nadia B.",
+    youtubeId: "yZt-LKoIyLA",
+  },
+  {
+    id: "demo-2",
+    title: "La Mediterranee Recomposee",
+    country: "France",
+    duration: "1m52",
+    synopsis:
+      "Une IA cartographie les futurs de la Mediterranee et revele des routes solidaires entre les rives.",
+    tags: ["Solidarite", "Nature", "Paix"],
+    year: "2026",
+    director: "Lucie M.",
+    youtubeId: "OFRn_T7pOcw",
+  },
+  {
+    id: "demo-3",
+    title: "Reseau Solidaire",
+    country: "France",
+    duration: "2m00",
+    synopsis:
+      "Une plateforme open-source guidee par IA relie les besoins urgents aux ressources locales.",
+    tags: ["Solidarite", "Espoir", "Education"],
+    year: "2026",
+    director: "Ines K.",
+    youtubeId: "B4lvob2KmhA",
+  },
+];
+
 export function JuryView() {
   const { t } = useTranslation();
+  const isDemoMode = useMemo(() => isDemoLocalToken(getStoredToken()), []);
   const [currentLang, setCurrentLang] = useState<"fr" | "en">(() =>
     i18n.language?.toLowerCase().startsWith("en") ? "en" : "fr",
   );
@@ -49,6 +89,14 @@ export function JuryView() {
     const loadAssignedFilms = async () => {
       setIsFetchingFilms(true);
       setFilmsError("");
+
+      if (isDemoMode) {
+        setFilms(DEMO_FILMS);
+        setVotesByFilm({});
+        setCommentsByFilm({});
+        setIsFetchingFilms(false);
+        return;
+      }
 
       try {
         const response = await apiFetchJson<{ films: ApiFilm[] }>("/api/films");
@@ -88,7 +136,7 @@ export function JuryView() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [isDemoMode]);
 
   const handleSelectFilm = (film: Film) => {
     setSelectedFilm(film);
@@ -140,6 +188,15 @@ export function JuryView() {
     decision: VoteDecision,
     comment?: string,
   ) => {
+    if (isDemoMode) {
+      setVotesByFilm((previous) => ({ ...previous, [filmId]: decision }));
+      if (typeof comment === "string") {
+        setCommentsByFilm((previous) => ({ ...previous, [filmId]: comment }));
+      }
+      setVoteStatus("success");
+      return;
+    }
+
     setVoteStatus("submitting");
     try {
       await apiFetchJson<{ ok: boolean }>("/api/vote", {
@@ -217,7 +274,7 @@ export function JuryView() {
           currentLang={currentLang}
           onLangChange={handleLangChange}
         />
-        <div className="mx-auto w-full max-w-7xl p-4 lg:p-5">
+        <div className="mx-auto w-full max-w-screen-2xl p-4 lg:p-5">
           <div className="sticky top-24 z-40 -mx-2 px-2 py-2 bg-slate-950/85 backdrop-blur-md mb-4 lg:mb-5">
             <FilmSearch
               query={searchQuery}

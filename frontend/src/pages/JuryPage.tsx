@@ -5,6 +5,7 @@ import {
   apiFetchJson,
   clearStoredToken,
   getStoredToken,
+  isDemoLocalToken,
   setStoredToken,
 } from "../lib/api";
 
@@ -21,6 +22,14 @@ export function JuryPage() {
       if (!token) {
         if (!cancelled) {
           setIsLoggedIn(false);
+          setIsLoading(false);
+        }
+        return;
+      }
+
+      if (isDemoLocalToken(token)) {
+        if (!cancelled) {
+          setIsLoggedIn(true);
           setIsLoading(false);
         }
         return;
