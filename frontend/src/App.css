@@ -110,24 +110,24 @@ body {
 
 .light {
     color-scheme: light;
-    --background: 0 0% 100%;
-    --foreground: 0 0% 10%;
-    --card: 0 0% 96%;
-    --card-foreground: 0 0% 10%;
+    --background: 0 0% 95%;
+    --foreground: 0 0% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 15%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
+    --popover-foreground: 0 0% 15%;
     --primary: 246 94% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 255 30% 92%;
+    --secondary: 0 0% 90%;
     --secondary-foreground: 0 0% 20%;
-    --muted: 255 25% 88%;
+    --muted: 0 0% 85%;
     --muted-foreground: 0 0% 45%;
-    --accent: 14 100% 45%;
+    --accent: 14 100% 50%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 255 20% 85%;
-    --input: 255 20% 92%;
+    --border: 0 0% 85%;
+    --input: 0 0% 92%;
     --ring: 246 94% 50%;
 }
 

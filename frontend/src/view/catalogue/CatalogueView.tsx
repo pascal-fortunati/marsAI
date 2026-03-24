@@ -32,7 +32,7 @@ export function CatalogueView() {
 
     return (
         /* Le conteneur extérieur qui prend tout l'écran avec un fond sombre */
-        <div className="min-h-screen bg-[#0a0a0c] text-foreground relative overflow-x-hidden">
+        <div className="min-h-screen bg-background text-foreground relative overflow-x-hidden">
 
             {/* Halo */}
             <div className="fixed top-1/4 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
