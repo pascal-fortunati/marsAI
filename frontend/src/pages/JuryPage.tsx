@@ -5,7 +5,9 @@ export default function JuryPage() {
     return (
         <div className="min-h-screen relative overflow-hidden" style={{ background: "var(--col-bg)" }}>
             <MarsBackground />
-            <JuryView />
+            <div className="relative z-10">
+                <JuryView />
+            </div>
         </div>
     )
 }
