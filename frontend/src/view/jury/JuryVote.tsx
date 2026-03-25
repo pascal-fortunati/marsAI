@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Check, RotateCcw, X, type LucideIcon } from "lucide-react";
 import { Button } from "../../components/ui/Button";
@@ -31,6 +31,7 @@ export function JuryVote({
 }: JuryVoteProps) {
   const { t } = useTranslation();
   const [decision, setDecision] = useState<VoteDecision | null>(null);
+  const commentId = useId();
 
   const isSubmitting = status === "submitting";
 
@@ -128,13 +129,17 @@ export function JuryVote({
             </div>
 
             <div>
-              <label className="text-sm text-muted-foreground">
+              <label
+                htmlFor={commentId}
+                className="text-sm text-muted-foreground"
+              >
                 {t("jury.commentLabel")}
                 <span className="ml-1 text-muted-foreground/70">
                   (optionnel)
                 </span>
               </label>
               <textarea
+                id={commentId}
                 value={commentValue}
                 onChange={(e) => onCommentChange(e.target.value)}
                 className="f-mono mt-1 h-20 w-full resize-none rounded border border-border bg-input px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors"

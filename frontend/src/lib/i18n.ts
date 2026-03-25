@@ -14,17 +14,27 @@ function detectLanguage() {
   return 'fr'
 }
 
+function syncDocumentLanguage(lang: 'fr' | 'en') {
+  if (typeof document === 'undefined') return
+  document.documentElement.lang = lang
+}
+
+const initialLanguage = detectLanguage()
+
 // Initialise i18next avec les ressources et la langue détectée
 i18n.use(initReactI18next).init({
   resources,
-  lng: detectLanguage(),
+  lng: initialLanguage,
   fallbackLng: 'fr',
   interpolation: { escapeValue: false },
 })
 
+syncDocumentLanguage(initialLanguage)
+
 // Change la langue utilisée par i18next et stocke la sélection dans le stockage local
 export function setLanguage(lang: 'fr' | 'en') {
   localStorage.setItem(STORAGE_KEY, lang)
+  syncDocumentLanguage(lang)
   void i18n.changeLanguage(lang)
 }
 

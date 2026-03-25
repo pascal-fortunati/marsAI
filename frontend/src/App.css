@@ -73,7 +73,7 @@ body {
   --secondary:     214 32% 91%;
   --secondary-foreground: 263 70% 23%;
   --muted:         214 32% 91%;
-  --muted-foreground: 215 16% 47%;
+  --muted-foreground: 215 20% 40%;
   --accent:        24 95% 53%;
   --accent-foreground: 0  0%  100%;
   --destructive:   0  84% 60%;
@@ -247,7 +247,7 @@ body {
 }
 
 [data-theme="light"] .status-pending {
-  @apply bg-slate-500/10 text-slate-700 border-slate-400/50;
+  @apply bg-slate-500/16 text-slate-800 border-slate-500/50;
 }
 
 .feedback-success {

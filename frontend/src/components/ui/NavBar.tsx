@@ -221,7 +221,7 @@ export default function NavBar({
                         }
                       >
                         <div className="flex items-center gap-1 rounded-full bg-secondary/80 border border-border px-2 py-1">
-                          <span className="h-2 w-2 rounded-full bg-white" />
+                          <span className="h-2 w-2 rounded-full bg-foreground" />
                           <span className="h-2 w-2 rounded-full bg-emerald-400" />
                           <span className="h-2 w-2 rounded-full bg-amber-400" />
                           <span className="h-2 w-2 rounded-full bg-rose-400" />

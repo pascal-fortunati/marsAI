@@ -159,7 +159,7 @@ export function LoginView({ isLoggedIn, onLogin, onLogout }: LoginViewProps) {
 
       {/* Contenu */}
       <div className="relative z-20 flex flex-col items-center gap-3">
-        <div className="panel flex h-[389px] w-[384px] flex-col justify-center overflow-hidden rounded-[20px] p-8">
+        <div className="panel flex h-[389px] w-[min(384px,92vw)] flex-col justify-center overflow-hidden rounded-[20px] p-6 sm:p-8">
           {!isLoggedIn && (
             <div className="text-center space-y-5">
               {/* Logo */}
@@ -193,7 +193,7 @@ export function LoginView({ isLoggedIn, onLogin, onLogout }: LoginViewProps) {
               </div>
 
               {error && (
-                <div className="feedback-error text-[10px] px-2 py-1">
+                <div className="feedback-error text-[11px] px-2 py-1">
                   {error}
                 </div>
               )}
@@ -234,7 +234,7 @@ export function LoginView({ isLoggedIn, onLogin, onLogout }: LoginViewProps) {
               </button>
 
               {/* Footer */}
-              <p className="text-muted-foreground text-[10px] f-orb tracking-wider pt-2">
+              <p className="text-muted-foreground text-[11px] f-orb tracking-wider pt-2">
                 MARSAI · Espace Jury
               </p>
             </div>

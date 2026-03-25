@@ -259,6 +259,13 @@ export function JuryView() {
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-background text-foreground transition-colors">
+      <a
+        href="#jury-main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-background focus:px-3 focus:py-2 focus:text-foreground focus:ring-2 focus:ring-ring"
+      >
+        Aller au contenu principal
+      </a>
+
       <div className="absolute inset-0 z-0">
         <StarfieldNeural />
       </div>
@@ -303,7 +310,7 @@ export function JuryView() {
               />
             </aside>
 
-            <main className="space-y-4 lg:space-y-5">
+            <main id="jury-main-content" className="space-y-4 lg:space-y-5">
               {isFetchingFilms && (
                 <div className="rounded-xl border border-border bg-card/80 px-4 py-3 text-sm text-muted-foreground">
                   Chargement des films assignes...

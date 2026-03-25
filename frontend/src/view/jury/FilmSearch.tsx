@@ -33,11 +33,15 @@ export function FilmSearch({
     <div className="panel rounded-[20px] p-4 md:p-5">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
         <div className="relative min-w-0 flex-1">
+          <label htmlFor="jury-film-search" className="sr-only">
+            {t("jury.searchPlaceholder")}
+          </label>
           <Search
             className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground"
             aria-hidden="true"
           />
           <input
+            id="jury-film-search"
             className="f-mono w-full rounded border border-border bg-input py-2 pl-12 pr-3 text-foreground placeholder:text-muted-foreground hover:border-ring focus:outline-none focus:ring-2 focus:ring-primary active:border-ring"
             placeholder={t("jury.searchPlaceholder")}
             value={query}
@@ -50,6 +54,7 @@ export function FilmSearch({
           <button
             type="button"
             onClick={() => onFilterChange("voted")}
+            aria-pressed={activeFilter === "voted"}
             className={`f-mono rounded-md px-3 py-2 text-sm font-medium transition ${
               activeFilter === "voted" ? activeFilterClass : inactiveFilterClass
             }`}
@@ -59,6 +64,7 @@ export function FilmSearch({
           <button
             type="button"
             onClick={() => onFilterChange("remaining")}
+            aria-pressed={activeFilter === "remaining"}
             className={`f-mono rounded-md px-3 py-2 text-sm font-medium transition ${
               activeFilter === "remaining"
                 ? activeFilterClass
@@ -70,6 +76,7 @@ export function FilmSearch({
           <button
             type="button"
             onClick={() => onFilterChange("all")}
+            aria-pressed={activeFilter === "all"}
             className={`f-mono rounded-md px-3 py-2 text-sm font-medium transition ${
               activeFilter === "all" ? activeFilterClass : inactiveFilterClass
             }`}
