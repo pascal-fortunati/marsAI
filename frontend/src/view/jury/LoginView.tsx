@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { StarfieldNeural } from "../../components/ui/StarfieldNeural";
-import marsAiLogo from "../../assets/mars_ai_logo.png";
+import marsAiLogo from "../../assets/marsai_logo.png";
 import { apiFetchJson, DEMO_LOCAL_TOKEN } from "../../lib/api";
 
 type GoogleCredentialResponse = {
@@ -150,16 +150,16 @@ export function LoginView({ isLoggedIn, onLogin, onLogout }: LoginViewProps) {
   };
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden">
+    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-background text-foreground transition-colors">
       {/* Fond animé */}
       <StarfieldNeural className="absolute inset-0 z-0" />
 
-      {/* Overlay sombre */}
-      <div className="absolute inset-0 bg-black/40 z-10" />
+      {/* Overlay léger pour lisibilité, compatible light/dark */}
+      <div className="absolute inset-0 z-10 bg-background/35" />
 
       {/* Contenu */}
       <div className="relative z-20 flex flex-col items-center gap-3">
-        <div className="w-[384px] h-[389px] rounded-[20px] border border-slate-800 bg-slate-900/45 p-8 shadow-lg text-white flex flex-col justify-center overflow-hidden">
+        <div className="panel flex h-[389px] w-[384px] flex-col justify-center overflow-hidden rounded-[20px] p-8">
           {!isLoggedIn && (
             <div className="text-center space-y-5">
               {/* Logo */}
@@ -172,7 +172,7 @@ export function LoginView({ isLoggedIn, onLogin, onLogout }: LoginViewProps) {
               </div>
 
               {/* Texte restreint */}
-              <p className="text-slate-400 text-[12px] f-mono tracking-[0.15em] uppercase mb-0">
+              <p className="text-muted-foreground text-[12px] f-mono tracking-[0.15em] uppercase mb-0">
                 ACCÈS RESTREINT · JURY
               </p>
 
@@ -183,17 +183,17 @@ export function LoginView({ isLoggedIn, onLogin, onLogout }: LoginViewProps) {
                 </h1>
 
                 <div className="flex flex-col items-center space-y-[2px]">
-                  <p className="text-slate-400 text-[14px] f-mono tracking-wider mb-0">
+                  <p className="text-muted-foreground text-[14px] f-mono tracking-wider mb-0">
                     MARSAI · Festival 2026
                   </p>
-                  <p className="text-slate-400 text-[14px] f-mono tracking-wider mt-0">
+                  <p className="text-muted-foreground text-[14px] f-mono tracking-wider mt-0">
                     Authentication Google requise.
                   </p>
                 </div>
               </div>
 
               {error && (
-                <div className="rounded-lg bg-red-900/40 border border-red-500/40 px-2 py-1 text-red-200 text-[10px] f-mono">
+                <div className="feedback-error text-[10px] px-2 py-1">
                   {error}
                 </div>
               )}
@@ -233,7 +233,7 @@ export function LoginView({ isLoggedIn, onLogin, onLogout }: LoginViewProps) {
               </button>
 
               {/* Footer */}
-              <p className="text-slate-500 text-[10px] f-orb tracking-wider pt-2">
+              <p className="text-muted-foreground text-[10px] f-orb tracking-wider pt-2">
                 MARSAI · Espace Jury
               </p>
             </div>
@@ -258,7 +258,7 @@ export function LoginView({ isLoggedIn, onLogin, onLogout }: LoginViewProps) {
           <button
             onClick={handleSkip}
             disabled={isLoading}
-            className="text-slate-400 hover:text-slate-200 text-xs f-mono underline transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="text-muted-foreground hover:text-foreground text-xs f-mono underline transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             ou continuer en démo
           </button>

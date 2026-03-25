@@ -23,18 +23,22 @@ export function FilmSearch({
   disabled,
 }: FilmSearchProps) {
   const { t } = useTranslation();
+  const activeFilterClass =
+    "bg-primary/20 text-primary border border-primary/40";
+  const inactiveFilterClass =
+    "text-muted-foreground hover:text-foreground border border-transparent hover:border-border hover:bg-secondary/30";
 
   // TODO: appeler l'API /api/films?search=...
   return (
-    <div className="rounded-[20px] border border-slate-800 bg-slate-900/45 p-4 text-white shadow-lg md:p-5">
+    <div className="panel rounded-[20px] p-4 md:p-5">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
         <div className="relative min-w-0 flex-1">
           <Search
-            className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
+            className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground"
             aria-hidden="true"
           />
           <input
-            className="f-mono w-full rounded border border-slate-800 bg-slate-900 py-2 pl-12 pr-3 text-white placeholder:text-slate-400 hover:border-slate-700 focus:outline-none focus:ring-2 focus:ring-primary"
+            className="f-mono w-full rounded border border-border bg-input py-2 pl-12 pr-3 text-foreground placeholder:text-muted-foreground hover:border-ring focus:outline-none focus:ring-2 focus:ring-primary active:border-ring"
             placeholder={t("jury.searchPlaceholder")}
             value={query}
             onChange={(event) => onSearch(event.target.value)}
@@ -46,10 +50,8 @@ export function FilmSearch({
           <button
             type="button"
             onClick={() => onFilterChange("voted")}
-            className={`f-mono rounded-md px-3 py-2 text-sm transition ${
-              activeFilter === "voted"
-                ? "bg-slate-900 text-white"
-                : "text-slate-400 hover:text-slate-200"
+            className={`f-mono rounded-md px-3 py-2 text-sm font-medium transition ${
+              activeFilter === "voted" ? activeFilterClass : inactiveFilterClass
             }`}
           >
             {t("jury.filterVotedSearch")}
@@ -57,10 +59,10 @@ export function FilmSearch({
           <button
             type="button"
             onClick={() => onFilterChange("remaining")}
-            className={`f-mono rounded-md px-3 py-2 text-sm transition ${
+            className={`f-mono rounded-md px-3 py-2 text-sm font-medium transition ${
               activeFilter === "remaining"
-                ? "bg-slate-900 text-white"
-                : "text-slate-400 hover:text-slate-200"
+                ? activeFilterClass
+                : inactiveFilterClass
             }`}
           >
             {t("jury.filterRemaining")}
@@ -68,26 +70,24 @@ export function FilmSearch({
           <button
             type="button"
             onClick={() => onFilterChange("all")}
-            className={`f-mono rounded-md px-3 py-2 text-sm transition ${
-              activeFilter === "all"
-                ? "bg-slate-900 text-white"
-                : "text-slate-400 hover:text-slate-200"
+            className={`f-mono rounded-md px-3 py-2 text-sm font-medium transition ${
+              activeFilter === "all" ? activeFilterClass : inactiveFilterClass
             }`}
           >
             {t("jury.filterAll")}
           </button>
 
           <div className="ml-2 flex min-w-[230px] items-center gap-3 pl-2">
-            <span className="f-mono text-sm text-slate-300">
+            <span className="f-mono text-sm text-muted-foreground">
               {t("nav.stats.progress")}
             </span>
-            <div className="h-3 flex-1 overflow-hidden rounded-full bg-slate-800">
+            <div className="h-3 flex-1 overflow-hidden rounded-full bg-secondary border border-border">
               <div
-                className="h-full rounded-l-full rounded-r-none bg-violet-400"
+                className="h-full rounded-l-full rounded-r-none bg-gradient-to-r from-primary to-primary/60"
                 style={{ width: `${progression}%` }}
               />
             </div>
-            <span className="f-orb text-lg font-black text-white">
+            <span className="f-orb text-lg font-black text-primary">
               {decidedFilms}/{totalFilms}
             </span>
           </div>

@@ -30,12 +30,12 @@ body {
   margin: 0;
   font-size: 16px;
   background: var(--col-bg);
-  color: #fff;
+  color: hsl(var(--foreground));
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(125, 113, 251, 0.75) rgba(255, 255, 255, 0.06);
+  scrollbar-color: #7d71fb rgba(255, 255, 255, 0.1);
 }
 
 *::-webkit-scrollbar {
@@ -57,31 +57,63 @@ body {
   background: linear-gradient(180deg, rgba(125, 113, 251, 1), rgba(255, 92, 53, 1));
 }
 
-:root {
+:root,
+[data-theme="light"] {
+  --col-vi: #6366f1;
+  --col-or: #f97316;
+  --col-bg: #f8f9fa;
+  color-scheme: light;
+  
+  /* Couleurs claires avec meilleurs contrastes */
+  --background:    260 30% 95%;
+  --foreground:    260 20% 10%;
+  --card:          0   0% 100%;
+  --card-foreground: 260 20% 10%;
+  --popover:       0   0% 100%;
+  --popover-foreground: 260 20% 10%;
+  --primary:       260 84% 55%;
+  --primary-foreground: 0  0%  100%;
+  --secondary:     260 30% 85%;
+  --secondary-foreground: 260 20% 10%;
+  --muted:         260 15% 80%;
+  --muted-foreground: 260 20% 35%;
+  --accent:        14 100% 50%;
+  --accent-foreground: 0  0%  100%;
+  --destructive:   0  84% 50%;
+  --destructive-foreground: 0  0%  100%;
+  --border:        260 15% 85%;
+  --input:         0   0% 100%;
+  --ring:          260 84% 55%;
+  --radius:        0.75rem;
+}
+
+[data-theme="dark"] {
   --col-vi: #7d71fb;
   --col-or: #ff5c35;
   --col-bg: #05030d;
   color-scheme: dark;
-  --background:    255 67% 3%;
-  --foreground:    0   0%  96%;
-  --card:              255 40% 5%;
-  --card-foreground:   0   0%  96%;
-  --popover:           255 40% 5%;
-  --popover-foreground: 0  0%  96%;
-  --primary:            246 94% 71%;
-  --primary-foreground: 0   0% 100%;
-  --secondary:             255 30% 9%;
-  --secondary-foreground:  0   0% 85%;
-  --muted:             255 25% 9%;
-  --muted-foreground:  0   0% 55%;
-  --accent:            14  100% 60%;
-  --accent-foreground: 0   0%  100%;
-  --destructive:            0  84% 60%;
-  --destructive-foreground: 0   0% 100%;
-  --border: 255 20% 13%;
-  --input: 255 30% 10%;
-  --ring: 246 94% 71%;
-  --radius: 0.75rem;
+
+  /* Couleurs système améliorées pour meilleurs contrastes */
+  --background:    260 30% 6%;
+  --foreground:    0   0%  100%;
+  --card:          260 20% 10%;
+  --card-foreground: 0  0%  100%;
+  --popover:       260 20% 10%;
+  --popover-foreground: 0 0%  100%;
+  --primary:       260 84% 65%;
+  --primary-foreground: 0  0%  100%;
+  --secondary:     260 30% 15%;
+  --secondary-foreground: 0  0%  100%;
+  --muted:         260 15% 20%;
+  --muted-foreground: 0  0%  65%;
+  --accent:        14 100% 60%;
+  --accent-foreground: 0  0%  100%;
+  --destructive:   0  84% 60%;
+  --destructive-foreground: 0  0%  100%;
+  --border:        260 15% 18%;
+  --input:         260 25% 12%;
+  --ring:          260 84% 65%;
+  --radius:        0.75rem;
 }
 
 @layer base {
@@ -92,52 +124,179 @@ body {
     @apply bg-background text-foreground;
   }
 
-  /* Input shadcn */
+  /* Input et textarea avec meilleur contraste */
   input[data-slot="input"],
-  textarea[data-slot="input"] {
+  textarea[data-slot="input"],
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea {
     font-family: 'Share Tech Mono', monospace;
     font-size: 0.875rem;
   }
 
-  /* Select option dark bg */
+  /* Select option suit le theme actif */
   option {
-    background: #05030d;
-    color: #fff;
+    @apply bg-popover text-popover-foreground;
+  }
+}
+
+@layer components {
+  /* Base input styling amélioré */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea {
+    @apply bg-input border border-border text-foreground placeholder:text-muted-foreground rounded transition-colors;
+    @apply focus:border-ring focus:ring-1 focus:ring-ring outline-none;
+  }
+
+  /* Focus styles with proper contrast */
+  button:focus-visible {
+    @apply ring-2 ring-offset-2 ring-offset-background ring-ring;
+  }
+
+  /* Disabled state clarity */
+  button:disabled {
+    @apply opacity-50 cursor-not-allowed;
   }
 }
 
 /* Card — s'assure qu'elle prend bien le bon bg sans sur-teinte */
 .card-marsai {
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
+  @apply bg-card border border-border rounded-lg shadow-lg;
+}
+
+/* Panel — styling adapté pour les deux thèmes */
+.panel {
+  @apply rounded-lg border border-border text-foreground shadow-lg transition-all;
+}
+
+:root .panel,
+[data-theme="dark"] .panel {
+  @apply bg-card/80 backdrop-blur-sm;
+}
+
+[data-theme="light"] .panel {
+  @apply bg-white shadow-md;
 }
 
 /* Tabs — override l'indicateur actif en violet */
 [data-slot="tabs-indicator"] {
-  background: hsl(var(--primary)) !important;
+  @apply bg-primary;
 }
 
 [data-state="active"][data-slot="tabs-trigger"] {
-  color: hsl(var(--primary)) !important;
-  background: hsl(var(--primary) / 0.12) !important;
+  @apply text-primary bg-primary/15;
 }
 
-/* Badge / Tag inline dans AlertDescription */
+/* Badge / Tag inline */
 [data-slot="alert"] {
-  border-color: hsl(var(--border));
-  background: hsl(var(--secondary));
+  @apply border-border bg-secondary;
 }
 
-/* AlertDialog — fond dark, pas de blanc */
+/* AlertDialog — fond dark */
 [data-slot="alert-dialog-content"] {
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
-  color: hsl(var(--foreground));
+  @apply bg-card border border-border text-foreground rounded-lg;
 }
 
 .f-orb  { font-family: 'Orbitron', monospace; }
 .f-mono { font-family: 'Share Tech Mono', monospace; }
+
+/* Utility classes pour états visuels */
+.btn-validate {
+  @apply border-emerald-500/70 bg-emerald-950/50 text-emerald-100 hover:bg-emerald-900 hover:border-emerald-400;
+}
+
+.btn-review {
+  @apply border-amber-500/70 bg-amber-950/50 text-amber-100 hover:bg-amber-900 hover:border-amber-400;
+}
+
+.btn-refuse {
+  @apply border-red-500/70 bg-red-950/50 text-red-100 hover:bg-red-900 hover:border-red-400;
+}
+
+.status-voted {
+  @apply border-emerald-500/60 bg-emerald-950/60 text-emerald-200 font-medium;
+}
+
+.status-refused {
+  @apply border-red-500/60 bg-red-950/60 text-red-200 font-medium;
+}
+
+.status-review {
+  @apply border-amber-500/60 bg-amber-950/60 text-amber-200 font-medium;
+}
+
+.status-pending {
+  @apply border-slate-500/60 bg-slate-800/60 text-slate-300 font-medium;
+}
+
+[data-theme="light"] .btn-validate {
+  @apply bg-emerald-500/12 text-emerald-700 border-emerald-500/50 hover:bg-emerald-500/20;
+}
+
+[data-theme="light"] .btn-review {
+  @apply bg-amber-500/12 text-amber-700 border-amber-500/50 hover:bg-amber-500/20;
+}
+
+[data-theme="light"] .btn-refuse {
+  @apply bg-red-500/12 text-red-700 border-red-500/50 hover:bg-red-500/20;
+}
+
+[data-theme="light"] .status-voted {
+  @apply bg-emerald-500/12 text-emerald-700 border-emerald-500/50;
+}
+
+[data-theme="light"] .status-refused {
+  @apply bg-red-500/12 text-red-700 border-red-500/50;
+}
+
+[data-theme="light"] .status-review {
+  @apply bg-amber-500/12 text-amber-700 border-amber-500/50;
+}
+
+[data-theme="light"] .status-pending {
+  @apply bg-slate-500/10 text-slate-700 border-slate-400/50;
+}
+
+.feedback-success {
+  @apply rounded-md border border-emerald-500/50 bg-emerald-500/12 p-3 mt-4;
+}
+
+.feedback-success-text {
+  @apply text-sm text-emerald-700;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.feedback-success-action {
+  @apply text-emerald-700 hover:text-emerald-800 hover:bg-emerald-500/10;
+}
+
+.feedback-error {
+  @apply rounded-md border border-red-500/50 bg-red-500/12 p-3 mt-4;
+}
+
+.feedback-error-text {
+  @apply text-sm text-red-700;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+[data-theme="dark"] .feedback-success {
+  @apply border-emerald-500/40 bg-emerald-950/40;
+}
+
+[data-theme="dark"] .feedback-success-text {
+  @apply text-emerald-200;
+}
+
+[data-theme="dark"] .feedback-success-action {
+  @apply text-emerald-300 hover:text-emerald-200;
+}
+
+[data-theme="dark"] .feedback-error {
+  @apply border-red-500/40 bg-red-950/40;
+}
+
+[data-theme="dark"] .feedback-error-text {
+  @apply text-red-200;
+}
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(20px); }
@@ -194,42 +353,51 @@ body {
 
 .panel-input {
   width: 100%;
-  background: rgba(255,255,255,.03);
-  border: 1px solid rgba(255,255,255,.08);
+  background: hsl(var(--input));
+  border: 1px solid hsl(var(--border));
   border-radius: 12px;
   padding: 10px 14px;
-  color: rgba(255,255,255,.8);
+  color: hsl(var(--foreground));
   font-family: 'Share Tech Mono', monospace;
   font-size: 12px;
   outline: none;
-  transition: border-color .2s, background .2s;
+  transition: border-color .2s, background .2s, box-shadow .2s;
 }
 .panel-input:focus {
-  border-color: rgba(125,113,251,.5);
-  background: rgba(125,113,251,.05);
+  border-color: hsl(var(--ring));
+  background: hsl(var(--input) / 0.8);
+  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.15);
 }
-.panel-input::placeholder { color: rgba(255,255,255,.2); }
+.panel-input::placeholder { 
+  color: hsl(var(--muted-foreground)); 
+}
 
 .submit-input {
   width: 100%;
-  background: rgba(255,255,255,.03);
-  border: 1px solid rgba(255,255,255,.08);
+  background: hsl(var(--input));
+  border: 1px solid hsl(var(--border));
   border-radius: 12px;
   padding: 11px 14px;
-  color: rgba(255,255,255,.85);
+  color: hsl(var(--foreground));
   font-family: 'Share Tech Mono', monospace;
   font-size: 12px;
   outline: none;
   transition: border-color .2s, background .2s, box-shadow .2s;
 }
 .submit-input:focus {
-  border-color: rgba(125,113,251,.5);
-  background: rgba(125,113,251,.04);
-  box-shadow: 0 0 0 3px rgba(125,113,251,.08);
+  border-color: hsl(var(--ring));
+  background: hsl(var(--input) / 0.8);
+  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.15);
 }
-.submit-input::placeholder { color: rgba(255,255,255,.18); }
+.submit-input::placeholder { 
+  color: hsl(var(--muted-foreground)); 
+}
 .submit-input.error {
-  border-color: rgba(255,92,53,.5);
-  background: rgba(255,92,53,.04);
+  border-color: hsl(var(--destructive));
+  background: hsl(var(--destructive) / 0.08);
+  box-shadow: 0 0 0 3px hsl(var(--destructive) / 0.1);
 }
-select.submit-input option { background: #0d0a1f; color: #fff; }
+select.submit-input option { 
+  background: hsl(var(--popover)); 
+  color: hsl(var(--popover-foreground)); 
+}

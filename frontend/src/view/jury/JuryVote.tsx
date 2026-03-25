@@ -54,19 +54,19 @@ export function JuryVote({
       value: "validate",
       label: t("jury.actions.validate"),
       icon: Check,
-      activeClassName: "border-emerald-400 bg-emerald-950 text-emerald-300",
+      activeClassName: "btn-validate",
     },
     {
       value: "review",
       label: t("jury.actions.review"),
       icon: RotateCcw,
-      activeClassName: "border-amber-400 bg-amber-950 text-amber-300",
+      activeClassName: "btn-review",
     },
     {
       value: "refuse",
       label: t("jury.actions.refuse"),
       icon: X,
-      activeClassName: "border-rose-400 bg-rose-950 text-rose-300",
+      activeClassName: "btn-refuse",
     },
   ];
 
@@ -76,20 +76,22 @@ export function JuryVote({
 
   return (
     <div
-      className={`f-mono rounded-lg border border-slate-800 bg-slate-900/45 p-8 text-white shadow-lg ${
-        isVoteLocked ? "opacity-65" : ""
+      className={`f-mono panel p-8 transition-opacity ${
+        isVoteLocked ? "opacity-60" : ""
       }`}
     >
-      <h2 className="f-orb text-2xl font-bold mb-4">{t("jury.voteTitle")}</h2>
+      <h2 className="f-orb text-2xl font-bold mb-4 text-foreground">
+        {t("jury.voteTitle")}
+      </h2>
 
       {!film ? (
-        <p className="text-gray-400">{t("jury.pendingStatus")}</p>
+        <p className="text-muted-foreground">{t("jury.pendingStatus")}</p>
       ) : (
         <>
-          <p className="text-sm text-gray-300">
+          <p className="text-sm text-foreground/80">
             {t("jury.selectFilm")} :{" "}
             {filmPrefix && (
-              <span className="text-xs font-normal text-gray-400">
+              <span className="text-xs font-normal text-muted-foreground">
                 {filmPrefix}{" "}
               </span>
             )}
@@ -106,16 +108,16 @@ export function JuryVote({
                     key={item.value}
                     type="button"
                     onClick={() => setDecision(item.value)}
-                    className={`h-11 rounded-md border px-4 text-base font-semibold transition disabled:opacity-50 ${
+                    className={`h-11 rounded-md border px-4 text-base font-semibold transition-all duration-200 disabled:opacity-50 ${
                       active
                         ? item.activeClassName
-                        : "border-slate-800 bg-slate-900 text-white hover:border-slate-600 hover:bg-slate-800"
+                        : "border-border bg-secondary/40 text-foreground hover:border-ring hover:bg-secondary/60 active:bg-secondary/80"
                     }`}
                     disabled={controlsDisabled}
                   >
                     <span className="inline-flex items-center justify-center gap-2">
                       <Icon
-                        className={`h-4 w-4 ${active ? "" : "text-slate-400"}`}
+                        className={`h-4 w-4 ${active ? "" : "text-muted-foreground"}`}
                         aria-hidden="true"
                       />
                       <span>{item.label}</span>
@@ -126,14 +128,16 @@ export function JuryVote({
             </div>
 
             <div>
-              <label className="text-sm text-gray-400">
+              <label className="text-sm text-muted-foreground">
                 {t("jury.commentLabel")}
-                <span className="ml-1 text-slate-500">(optionnel)</span>
+                <span className="ml-1 text-muted-foreground/70">
+                  (optionnel)
+                </span>
               </label>
               <textarea
                 value={commentValue}
                 onChange={(e) => onCommentChange(e.target.value)}
-                className="mt-1 h-20 w-full resize-none rounded border border-slate-800 bg-slate-900 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                className="f-mono mt-1 h-20 w-full resize-none rounded border border-border bg-input px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
                 placeholder={t("jury.commentPlaceholder")}
                 disabled={controlsDisabled}
               />
@@ -141,40 +145,52 @@ export function JuryVote({
 
             <div className="flex justify-end">
               <Button
-                variant="outline"
+                variant="default"
                 size="lg"
-                className={`f-mono w-fit rounded-2xl border-0 text-base font-semibold ${
+                className={`f-mono w-fit rounded-2xl text-base font-semibold transition-all duration-200 ${
                   isVoteLocked
-                    ? "bg-slate-700 text-slate-300 shadow-none"
+                    ? "bg-muted text-muted-foreground shadow-none cursor-not-allowed"
                     : "bg-gradient-to-r from-violet-400/95 to-rose-500/95 text-white shadow-lg shadow-violet-400/35 hover:from-violet-400 hover:to-rose-500 hover:shadow-violet-400/50"
                 }`}
+                disabled={controlsDisabled || !decision}
                 onClick={handleSubmit}
-                disabled={controlsDisabled || !film || !decision}
               >
-                {isSubmitting
-                  ? t("jury.sending")
-                  : t("jury.sendVote", { defaultValue: "Voter" })}
+                {isSubmitting ? (
+                  <>
+                    <span className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                    {t("jury.submitting")}
+                  </>
+                ) : (
+                  t("jury.sendVote", { defaultValue: "Voter" })
+                )}
               </Button>
             </div>
 
-            {isVoteLocked && (
-              <button
-                type="button"
-                className="w-fit rounded-md px-2 py-1 text-sm text-white transition-colors hover:bg-slate-800/70"
-                onClick={onNextFilm}
-                disabled={isDisabled || !film}
-              >
-                {t("jury.nextFilm")}
-              </button>
+            {status === "success" && (
+              <>
+                <div className="feedback-success">
+                  <p className="feedback-success-text">
+                    ✓ {t("jury.voteSuccess")}
+                  </p>
+                </div>
+
+                <div className="flex justify-end">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={onNextFilm}
+                    className="f-mono"
+                  >
+                    {t("jury.nextFilm")}
+                  </Button>
+                </div>
+              </>
             )}
 
             {status === "error" && (
-              <p className="text-sm text-rose-300">
-                {t("jury.errorSending", {
-                  defaultValue:
-                    "Erreur lors de l'envoi du vote. Essaie à nouveau.",
-                })}
-              </p>
+              <div className="feedback-error">
+                <p className="feedback-error-text">✗ {t("jury.voteError")}</p>
+              </div>
             )}
           </div>
         </>

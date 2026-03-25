@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type StarfieldNeuralProps = {
   className?: string;
@@ -24,8 +24,34 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
+function getTheme(): "dark" | "light" {
+  const attr = document.documentElement.getAttribute("data-theme");
+  if (attr === "light") return "light";
+  if (attr === "dark") return "dark";
+  // Fallback
+  return window.matchMedia("(prefers-color-scheme: light)").matches
+    ? "light"
+    : "dark";
+}
+
 export function StarfieldNeural({ className }: StarfieldNeuralProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [theme, setTheme] = useState<"dark" | "light">(getTheme());
+
+  // Detect theme changes
+  useEffect(() => {
+    const handleThemeChange = () => {
+      setTheme(getTheme());
+    };
+
+    const observer = new MutationObserver(handleThemeChange);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -85,6 +111,13 @@ export function StarfieldNeural({ className }: StarfieldNeuralProps) {
     const draw = (time: number) => {
       ctx.clearRect(0, 0, width, height);
 
+      // Adapt colors and opacity based on theme
+      const isDark = theme === "dark";
+      const starAlphaMax = isDark ? 0.6 : 0.15; // Subtle in light mode
+      const linkAlphaMultiplier = isDark ? 0.26 : 0.08; // Much more subtle links in light mode
+      const lightMin = isDark ? 76 : 45; // Darker in light mode
+      const lightMax = isDark ? 72 : 50; // Darker in light mode
+
       for (let i = 0; i < stars.length; i += 1) {
         const star = stars[i];
 
@@ -98,6 +131,7 @@ export function StarfieldNeural({ className }: StarfieldNeuralProps) {
           if (star.y > height) star.y = 0;
         }
 
+        // Draw links between nearby stars
         for (let j = i + 1; j < stars.length; j += 1) {
           const other = stars[j];
           const dx = other.x - star.x;
@@ -107,12 +141,14 @@ export function StarfieldNeural({ className }: StarfieldNeuralProps) {
           if (dist > LINK_DISTANCE) continue;
 
           const intensity = 1 - dist / LINK_DISTANCE;
-          const alpha = intensity * intensity * 0.26;
+          const alpha = intensity * intensity * linkAlphaMultiplier;
 
-          // Slightly mix cool/warm links to mimic a neural constellation look.
-          const hue = 245 - (star.warmth + other.warmth) * 20;
+          // Slightly mix cool/warm links
+          const hue = isDark ? 245 - (star.warmth + other.warmth) * 20 : 250;
+          const sat = isDark ? 85 : 60;
+          const light = isDark ? 68 : 55;
 
-          ctx.strokeStyle = `hsla(${hue}, 85%, 68%, ${alpha})`;
+          ctx.strokeStyle = `hsla(${hue}, ${sat}%, ${light}%, ${alpha})`;
           ctx.lineWidth = 0.7 + intensity * 0.7;
           ctx.beginPath();
           ctx.moveTo(star.x, star.y);
@@ -120,13 +156,25 @@ export function StarfieldNeural({ className }: StarfieldNeuralProps) {
           ctx.stroke();
         }
 
+        // Draw stars with pulsing effect
         const pulse =
           0.58 + 0.42 * Math.sin(time * 0.0015 * star.pulseSpeed + star.phase);
-        const starAlpha = 0.35 + pulse * 0.6;
+        const starAlpha = (0.35 + pulse * 0.6) * (starAlphaMax / 0.95);
 
-        const hue = star.warmth > 0.82 ? 28 : 255;
-        const sat = star.warmth > 0.82 ? 90 : 88;
-        const light = star.warmth > 0.82 ? 72 : 76;
+        let hue: number;
+        let sat: number;
+        let light: number;
+
+        if (isDark) {
+          hue = star.warmth > 0.82 ? 28 : 255;
+          sat = star.warmth > 0.82 ? 90 : 88;
+          light = star.warmth > 0.82 ? 72 : 76;
+        } else {
+          // Light mode: darker, more muted colors
+          hue = star.warmth > 0.82 ? 20 : 240;
+          sat = star.warmth > 0.82 ? 70 : 65;
+          light = lightMin + pulse * (lightMax - lightMin);
+        }
 
         ctx.beginPath();
         ctx.fillStyle = `hsla(${hue}, ${sat}%, ${light}%, ${starAlpha})`;
@@ -158,7 +206,7 @@ export function StarfieldNeural({ className }: StarfieldNeuralProps) {
       window.removeEventListener("resize", resize);
       window.cancelAnimationFrame(frameId);
     };
-  }, []);
+  }, [theme]);
 
   return (
     <canvas

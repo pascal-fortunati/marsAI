@@ -258,7 +258,7 @@ export function JuryView() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-slate-950 text-white">
+    <div className="relative min-h-screen overflow-x-hidden bg-background text-foreground transition-colors">
       <div className="absolute inset-0 z-0">
         <StarfieldNeural />
       </div>
@@ -275,7 +275,7 @@ export function JuryView() {
           onLangChange={handleLangChange}
         />
         <div className="mx-auto w-full max-w-screen-2xl p-4 lg:p-5">
-          <div className="sticky top-24 z-40 -mx-2 px-2 py-2 bg-slate-950/85 backdrop-blur-md mb-4 lg:mb-5">
+          <div className="sticky top-24 z-40 -mx-2 mb-4 bg-background/85 px-2 py-2 backdrop-blur-md lg:mb-5">
             <FilmSearch
               query={searchQuery}
               onSearch={handleSearch}
@@ -305,13 +305,13 @@ export function JuryView() {
 
             <main className="space-y-4 lg:space-y-5">
               {isFetchingFilms && (
-                <div className="rounded-xl border border-slate-700/60 bg-slate-900/60 px-4 py-3 text-sm text-slate-300">
+                <div className="rounded-xl border border-border bg-card/80 px-4 py-3 text-sm text-muted-foreground">
                   Chargement des films assignes...
                 </div>
               )}
 
               {filmsError && (
-                <div className="rounded-xl border border-red-700/40 bg-red-950/30 px-4 py-3 text-sm text-red-200">
+                <div className="feedback-error px-4 py-3 text-sm">
                   {filmsError}
                 </div>
               )}

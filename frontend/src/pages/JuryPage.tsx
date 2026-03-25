@@ -71,7 +71,7 @@ export function JuryPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-white">
+      <div className="flex items-center justify-center min-h-screen text-foreground">
         Chargement...
       </div>
     );
