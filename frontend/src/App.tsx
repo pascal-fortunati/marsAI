@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
 import SubmitPage from "./pages/SubmitPage";
 import CataloguePage from "./pages/CataloguePage";
 import JuryPage from "./pages/JuryPage";
-import AdminPage from "./pages/AdminPage";;
+import AdminPage from "./pages/AdminPage";
 
 export default function App() {
   // État de langue global — à connecter à i18n.ts si besoin
@@ -26,7 +26,8 @@ export default function App() {
           <Route path="/catalogue" element={<CataloguePage />} />
           <Route path="/submit" element={<SubmitPage />} />
           <Route path="/jury" element={<JuryPage />} />
-          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/panel" element={<AdminPage />} />
+          <Route path="/admin" element={<Navigate to="/panel" replace />} />
         </Routes>
       </div>
     </>
