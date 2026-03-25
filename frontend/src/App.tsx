@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
 import SubmitPage from "./pages/SubmitPage";
 import CataloguePage from "./pages/CataloguePage";
+import JuryPage from "./pages/JuryPage";
 
 export default function App() {
   // État de langue global — à connecter à i18n.ts si besoin
@@ -20,6 +21,7 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/catalogue" element={<CataloguePage />} />
           <Route path="/submit" element={<SubmitPage />} />
+          <Route path="/jury" element={<JuryPage />} />
         </Routes>
       </div>
     </>
