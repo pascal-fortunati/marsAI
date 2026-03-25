@@ -63,15 +63,15 @@ body {
   
   /* Couleurs claires avec meilleurs contrastes */
   --background:    210 40% 98%;
-  --foreground:    222 47% 11%;
+  --foreground:    263 70% 23%;
   --card:          0   0% 100%;
-  --card-foreground: 222 47% 11%;
+  --card-foreground: 263 70% 23%;
   --popover:       0   0% 100%;
-  --popover-foreground: 222 47% 11%;
+  --popover-foreground: 263 70% 23%;
   --primary:       262 83% 58%;
   --primary-foreground: 0  0%  100%;
   --secondary:     214 32% 91%;
-  --secondary-foreground: 222 47% 11%;
+  --secondary-foreground: 263 70% 23%;
   --muted:         214 32% 91%;
   --muted-foreground: 215 16% 47%;
   --accent:        24 95% 53%;
