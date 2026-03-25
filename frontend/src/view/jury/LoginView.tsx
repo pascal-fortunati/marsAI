@@ -154,7 +154,7 @@ export function LoginView({ isLoggedIn, onLogin, onLogout }: LoginViewProps) {
       {/* Fond animé */}
       <StarfieldNeural className="absolute inset-0 z-0" />
 
-      {/* Overlay léger pour lisibilité, compatible light/dark */}
+      {/* Voile leger pour la lisibilite, compatible clair/sombre */}
       <div className="absolute inset-0 z-10 bg-background/35" />
 
       {/* Contenu */}
@@ -198,7 +198,7 @@ export function LoginView({ isLoggedIn, onLogin, onLogout }: LoginViewProps) {
                 </div>
               )}
 
-              {/* Google Sign-In Button */}
+              {/* Bouton de connexion Google */}
               <button
                 onClick={handleGoogleSignIn}
                 disabled={isLoading}

@@ -124,7 +124,7 @@ body {
     @apply bg-background text-foreground;
   }
 
-  /* Input et textarea avec meilleur contraste */
+  /* Champs input et textarea avec meilleur contraste */
   input[data-slot="input"],
   textarea[data-slot="input"],
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
@@ -133,37 +133,37 @@ body {
     font-size: 0.875rem;
   }
 
-  /* Select option suit le theme actif */
+  /* Les options des select suivent le theme actif */
   option {
     @apply bg-popover text-popover-foreground;
   }
 }
 
 @layer components {
-  /* Base input styling amélioré */
+  /* Style de base ameliore pour input */
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
   textarea {
     @apply bg-input border border-border text-foreground placeholder:text-muted-foreground rounded transition-colors;
     @apply focus:border-ring focus:ring-1 focus:ring-ring outline-none;
   }
 
-  /* Focus styles with proper contrast */
+  /* Styles de focus avec un contraste adapte */
   button:focus-visible {
     @apply ring-2 ring-offset-2 ring-offset-background ring-ring;
   }
 
-  /* Disabled state clarity */
+  /* Etat desactive plus lisible */
   button:disabled {
     @apply opacity-50 cursor-not-allowed;
   }
 }
 
-/* Card — s'assure qu'elle prend bien le bon bg sans sur-teinte */
+/* Carte — s'assure qu'elle prend bien le bon fond sans sur-teinte */
 .card-marsai {
   @apply bg-card border border-border rounded-lg shadow-lg;
 }
 
-/* Panel — styling adapté pour les deux thèmes */
+/* Panneau — style adapte pour les deux themes */
 .panel {
   @apply rounded-lg border border-border text-foreground shadow-lg transition-all;
 }
@@ -177,7 +177,7 @@ body {
   @apply bg-white shadow-md;
 }
 
-/* Tabs — override l'indicateur actif en violet */
+/* Onglets — surcharge l'indicateur actif en violet */
 [data-slot="tabs-indicator"] {
   @apply bg-primary;
 }
@@ -186,12 +186,12 @@ body {
   @apply text-primary bg-primary/15;
 }
 
-/* Badge / Tag inline */
+/* Etiquette en ligne */
 [data-slot="alert"] {
   @apply border-border bg-secondary;
 }
 
-/* AlertDialog — fond dark */
+/* Boite de dialogue d'alerte — fond sombre */
 [data-slot="alert-dialog-content"] {
   @apply bg-card border border-border text-foreground rounded-lg;
 }
@@ -199,7 +199,7 @@ body {
 .f-orb  { font-family: 'Orbitron', monospace; }
 .f-mono { font-family: 'Share Tech Mono', monospace; }
 
-/* Utility classes pour états visuels */
+/* Classes utilitaires pour les etats visuels */
 .btn-validate {
   @apply border-emerald-500/70 bg-emerald-950/50 text-emerald-100 hover:bg-emerald-900 hover:border-emerald-400;
 }

@@ -1,6 +1,6 @@
 /**
- * Theme management utilities
- * Supports dark and light modes with persistence.
+ * Utilitaires de gestion du theme.
+ * Prend en charge les modes sombre et clair avec persistance.
  */
 
 export type Theme = "dark" | "light";
@@ -9,8 +9,8 @@ const THEME_STORAGE_KEY = "marsai-theme";
 const ROOT_ATTR = "data-theme";
 
 /**
- * Get the current theme from localStorage or system preference.
- * Default is light when no preference is detected.
+ * Recupere le theme courant depuis localStorage ou la preference systeme.
+ * Le mode clair est utilise par defaut si aucune preference n'est detectee.
  */
 export function getStoredTheme(): Theme {
   const stored = localStorage.getItem(THEME_STORAGE_KEY);
@@ -18,7 +18,7 @@ export function getStoredTheme(): Theme {
     return stored;
   }
 
-  // Try to detect system preference
+  // Tente de detecter la preference systeme
   if (window.matchMedia?.("(prefers-color-scheme: dark)").matches) {
     return "dark";
   }
@@ -27,13 +27,13 @@ export function getStoredTheme(): Theme {
 }
 
 /**
- * Set the active theme in DOM and localStorage
+ * Definit le theme actif dans le DOM et localStorage.
  */
 export function setTheme(theme: Theme): void {
   localStorage.setItem(THEME_STORAGE_KEY, theme);
   document.documentElement.setAttribute(ROOT_ATTR, theme);
   
-  // Update meta theme-color
+  // Met a jour la meta theme-color
   const metaThemeColor = document.querySelector('meta[name="theme-color"]');
   if (metaThemeColor) {
     metaThemeColor.setAttribute("content", theme === "dark" ? "#05030d" : "#f8f9fa");
@@ -41,7 +41,7 @@ export function setTheme(theme: Theme): void {
 }
 
 /**
- * Toggle between dark and light themes
+ * Bascule entre les themes sombre et clair.
  */
 export function toggleTheme(): Theme {
   const current = getStoredTheme();
@@ -51,7 +51,7 @@ export function toggleTheme(): Theme {
 }
 
 /**
- * Initialize theme on page load
+ * Initialise le theme au chargement de la page.
  */
 export function initializeTheme(): Theme {
   const theme = getStoredTheme();

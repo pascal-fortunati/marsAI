@@ -169,7 +169,7 @@ export function JuryView() {
   }, [films, searchQuery, activeFilter, votesByFilm]);
 
   useEffect(() => {
-    // Keep selection consistent with active filters/search.
+    // Conserve une selection coherente avec les filtres/recherche actifs.
     if (filteredFilms.length === 0) {
       setSelectedFilm(null);
       return;
@@ -332,7 +332,7 @@ export function JuryView() {
                 }
                 onCommentChange={(nextComment) => {
                   if (!selectedFilm) return;
-                  // Keep draft comments attached to the currently selected film.
+                  // Conserve les brouillons de commentaires lies au film actuellement selectionne.
                   setCommentsByFilm((previous) => ({
                     ...previous,
                     [selectedFilm.id]: nextComment,

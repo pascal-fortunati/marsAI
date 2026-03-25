@@ -55,11 +55,11 @@ function FlagButton({
         }`}
       />
 
-      {/* Flag SVG */}
+      {/* Drapeau SVG */}
       <div className="-translate-x-1/2 -translate-y-1/2 absolute left-1/2 overflow-clip rounded-full size-[28px] top-1/2">
         <svg className="size-full" viewBox="0 0 28 28" fill="none">
           {isFrench ? (
-            // French Flag
+            // Drapeau francais
             <>
               <circle cx="14" cy="14" r="14" fill="white" />
               <rect width="9.33" height="28" fill="#0055A4" />
@@ -75,7 +75,7 @@ function FlagButton({
               />
             </>
           ) : (
-            // UK Flag
+            // Drapeau britannique
             <>
               <circle cx="14" cy="14" r="14" fill="#012169" />
               <g>
@@ -112,7 +112,7 @@ function FlagButton({
         </svg>
       </div>
 
-      {/* Language Label */}
+      {/* Libelle langue */}
       <div className="absolute bottom-[-3px] h-[12px] left-[30%] right-[30%] rounded-full bg-card border border-border">
         <div className="-translate-x-1/2 -translate-y-1/2 absolute flex flex-col font-['Inter:Regular',sans-serif] font-normal h-[11px] justify-center leading-[0] left-1/2 not-italic text-[7.5px] text-foreground text-center top-[5.5px]">
           <p className="leading-[12px]">{isFrench ? "FR" : "EN"}</p>
@@ -156,7 +156,7 @@ export default function NavBar({
 
       <div className="flex flex-col items-center size-full">
         <div className="content-stretch flex flex-col gap-[16px] items-center pb-[21px] relative w-full">
-          {/* Gradient Divider */}
+          {/* Separateur degrade */}
           <div
             className="bg-gradient-to-r from-transparent h-px shrink-0 to-transparent via-1/2 via-primary/70 w-full"
             data-name="Horizontal Divider"
@@ -165,7 +165,7 @@ export default function NavBar({
           <div className="h-[59px] relative shrink-0 w-full">
             <div className="flex flex-row items-center size-full">
               <div className="mx-auto grid w-full max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-3 px-4 sm:px-6 lg:px-8">
-                {/* Left Section: Logo + text */}
+                {/* Section gauche : logo + texte */}
                 <div className="flex min-w-0 items-center gap-3 justify-self-start">
                   <a
                     href="/"
@@ -204,7 +204,7 @@ export default function NavBar({
                   </div>
                 </div>
 
-                {/* Center Section: Pill on small screens, full stats on large screens */}
+                {/* Section centrale : pastille sur petit ecran, statistiques completes sur grand ecran */}
                 <div className="flex min-w-0 justify-center justify-self-center">
                   <Popover.Root>
                     <Popover.Trigger asChild>
@@ -309,7 +309,7 @@ export default function NavBar({
                   </Popover.Root>
 
                   <div className="hidden lg:flex w-full max-w-[520px] items-center justify-center gap-4 xl:max-w-[580px] xl:gap-5">
-                    {/* Total Films */}
+                    {/* Total films */}
                     <div className="flex min-w-[62px] flex-col items-center justify-center gap-1 xl:min-w-[70px]">
                       <div className="f-orb text-[22px] font-black text-foreground xl:text-[24px]">
                         {totalFilms}
@@ -324,7 +324,7 @@ export default function NavBar({
                       className="h-[64px] w-px shrink-0 bg-border"
                     />
 
-                    {/* Voted Films */}
+                    {/* Films votes */}
                     <div className="flex min-w-[62px] flex-col items-center justify-center gap-1 xl:min-w-[70px]">
                       <div className="f-orb text-[22px] font-black text-emerald-400 xl:text-[24px]">
                         {votedFilms}
@@ -339,7 +339,7 @@ export default function NavBar({
                       className="h-[64px] w-px shrink-0 bg-border"
                     />
 
-                    {/* Remaining Films */}
+                    {/* Films a revoir */}
                     <div className="flex min-w-[62px] flex-col items-center justify-center gap-1 xl:min-w-[70px]">
                       <div className="f-orb text-[22px] font-black text-amber-400 xl:text-[24px]">
                         {reviewFilms}
@@ -354,7 +354,7 @@ export default function NavBar({
                       className="h-[64px] w-px shrink-0 bg-border"
                     />
 
-                    {/* Refused Films */}
+                    {/* Films refuses */}
                     <div className="flex min-w-[62px] flex-col items-center justify-center gap-1 xl:min-w-[70px]">
                       <div className="f-orb text-[22px] font-black text-rose-400 xl:text-[24px]">
                         {refusedFilms}
@@ -369,7 +369,7 @@ export default function NavBar({
                       className="h-[64px] w-px shrink-0 bg-border"
                     />
 
-                    {/* Remaining Films */}
+                    {/* Films restants */}
                     <div className="flex min-w-[62px] flex-col items-center justify-center gap-1 xl:min-w-[70px]">
                       <div className="f-orb text-[22px] font-black text-muted-foreground xl:text-[24px]">
                         {remainingFilms}
@@ -396,10 +396,10 @@ export default function NavBar({
                   </div>
                 </div>
 
-                {/* Right Section: Language + theme toggle + stats toggle */}
+                {/* Section droite : langue + bascule theme + bascule statistiques */}
                 <div className="content-stretch flex shrink-0 items-center gap-2 justify-self-end">
                   <div className="flex gap-2">
-                    {/* Theme toggle button */}
+                    {/* Bouton bascule theme */}
                     <Button
                       onClick={handleThemeToggle}
                       variant="ghost"
@@ -435,7 +435,7 @@ export default function NavBar({
                       )}
                     </Button>
 
-                    {/* Language buttons */}
+                    {/* Boutons de langue */}
                     <FlagButton
                       lang="fr"
                       isActive={currentLang === "fr"}

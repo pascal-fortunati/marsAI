@@ -52,7 +52,7 @@ export const COUNTRY_CODES: Record<string, string> = {
   Ukraine: "UA",
   "Île de l'Ascension": "AC",
 
-  // English
+  // Anglais
   "United States": "US",
   Japan: "JP",
   Brazil: "BR",

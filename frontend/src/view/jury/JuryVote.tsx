@@ -35,7 +35,7 @@ export function JuryVote({
   const isSubmitting = status === "submitting";
 
   useEffect(() => {
-    // Every time the selected film changes, require an explicit vote choice.
+    // A chaque changement de film selectionne, imposer un choix de vote explicite.
     setDecision(null);
   }, [film?.id]);
 

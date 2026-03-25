@@ -6,7 +6,7 @@ import "./lib/i18n"; // initialise i18next (traductions)
 import { initializeTheme } from "./lib/theme";
 import App from "./App.tsx";
 
-// Apply saved/system theme before first paint.
+// Applique le theme sauvegarde/systeme avant le premier rendu.
 initializeTheme();
 
 // Composant principal de l'application

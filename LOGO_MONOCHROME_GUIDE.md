@@ -1,141 +1,74 @@
-# Guide Logo MarsAI - Version Monochrome Noir
+# Guide Logo MarsAI
 
-## 📋 Spécifications du Logo
+Ce document est la reference logo pour le frontend actuel.
 
-### Version Flat Design Monochrome Noir
+## Etat actuel du projet
 
-Le logo MarsAI comporte une version monochrome noir à fond transparent (`mars_ai_logo_black.png` ou `.svg`) destinée à être utilisée dans les contextes suivants :
+Les fichiers presents sont:
 
-### Contextes d'utilisation
-
-- **Fonds clairs / Mode Light** : Logo noir monochrome sur fond transparent
-- **Icônes / Favicons** : Logo noir monochrome pour les favicons et petites tailles
-- **Impressions / PDF** : Logo noir monochrome pour les documents officiels
-- **Email signatures** : Logo noir monochrome sur fond blanc
-
-### Couleurs
-
-- **Couleur primaire** : `#000000` (noir pur)
-- **Fond** : Transparent (PNG) ou Aucun (SVG)
-- **Padding / Margin** : Minimum 8px autour du logo
-
-### Tailles recommandées
-
-| Contexte                | Taille                  | Format         |
-| ----------------------- | ----------------------- | -------------- |
-| Navigation (Light Mode) | 48x48 px                | PNG / SVG      |
-| Logo Header complet     | 56x56 px                | PNG / SVG      |
-| Favicon                 | 32x32 px                | ICO / PNG      |
-| Signature Email         | 128x128 px / 200x200 px | PNG            |
-| Documents               | 200x200 px+             | SVG (scalable) |
-
-### Fichiers attendus
-
-```
+```text
 frontend/src/assets/
-├── mars_ai_logo.png              (couleur, utilisé actuellement)
-├── mars_ai_logo_black.png        (monochrome noir, transparent)
-├── mars_ai_logo_black.svg        (monochrome noir, vectoriel)
-└── mars_ai_logo_favicon.ico      (favicon favori)
+├── marsai_logo.png
+├── marsai_logo-clair.png
+├── marsai_logo-clair_fondnoir.png
+└── react.svg
 ```
 
-## 🎨 Design Guidelines
+Usage actuel dans le code:
 
-### Proportions
+- Navbar:
+  - mode sombre: `marsai_logo.png`
+  - mode clair: `marsai_logo-clair.png`
+- Login jury: `marsai_logo.png`
+- Favicon: non configure actuellement dans `frontend/index.html`
 
-- **Hauteur** : Toujours scaler proportionnellement
-- **Aspect ratio** : Carré (1:1) recommandé
-- **Padding recommandé** : 8-12% de la taille du logo
+Conclusion: l'ancienne version de ce guide n'etait plus a jour.
 
-### Utilisation en mode clair
+## Regle retenue
 
-```tsx
-// Mode Light : Logo noir
-const logoSrc =
-  theme === "light"
-    ? "/assets/mars_ai_logo_black.png"
-    : "/assets/mars_ai_logo.png";
+Oui, on garde la logique suivante:
+
+- les logos couleur restent utilises dans l'interface (navbar/login)
+- la version monochrome (noir ou blanc) est reservee au favicon
+
+## Nommage recommande pour le favicon monochrome
+
+Placer les favicons dans `frontend/public/`:
+
+```text
+frontend/public/
+├── favicon-black.svg
+├── favicon-white.svg
+└── favicon.ico
 ```
 
-### Contraste
+Notes:
 
-- **Sur fond blanc** : Contraste WCAG AAA ✓ (21:1)
-- **Sur fond très clair** : Résultat excellent
-- **Sur fond transparent** : Convient à tout arrière-plan en-dessous
+- `favicon-black.svg`: a utiliser par defaut (fonds clairs)
+- `favicon-white.svg`: utile si tu veux une version alternative
+- `favicon.ico`: fallback navigateur
 
-## 🔧 Intégration Technique
+## Integration HTML recommandee
 
-### Mettre à jour NavBar pour logo dynamique
-
-```tsx
-// Dans frontend/src/components/ui/NavBar.tsx
-import { getStoredTheme } from "../../lib/theme";
-
-// Dans le composant
-const theme = getStoredTheme();
-const logoPath = theme === "light" ? "mars_ai_logo_black" : "mars_ai_logo";
-
-<img
-  src={`/assets/${logoPath}.png`}
-  alt="Mars AI logo"
-  className="h-full w-full object-contain"
-/>;
-```
-
-### HTML Meta Tags pour Favicon
+Dans `frontend/index.html`, ajouter dans `<head>`:
 
 ```html
-<link rel="icon" type="image/x-icon" href="/assets/mars_ai_logo_favicon.ico" />
-<link rel="apple-touch-icon" href="/assets/mars_ai_logo_black.png" />
+<link rel="icon" type="image/svg+xml" href="/favicon-black.svg" />
+<link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
 ```
 
-## 📐 Spécifiations technique SVG (optionnel)
+## Ce qu'on ne fait pas
 
-Si le logo est fourni en SVG :
+- pas de bascule automatique du logo principal de l'UI vers un monochrome noir/blanc
+- pas de dependance a des fichiers `mars_ai_logo_black.*` qui n'existent pas dans le projet
 
-```xml
-<svg
-  viewBox="0 0 256 256"
-  xmlns="http://www.w3.org/2000/svg"
-  version="1.1"
-  fill="#000000"
->
-  <!-- Contenu du logo -->
-</svg>
-```
+## Checklist
 
-- **ViewBox** : Maintenir les proportions 1:1
-- **Fill** : `#000000` pour la version monochrome
-- **Stroke** : Si applicable, `#000000`
-
-## ✅ Checklist Production
-
-- [ ] Logo noir PNG créé (transparent background)
-- [ ] Logo noir SVG créé (haute qualité)
-- [ ] Favicon ICO créé (32x32 min)
-- [ ] NavBar.tsx mis à jour avec logique dynamique
-- [ ] HTML `<head>` mis à jour avec meta tags
-- [ ] Tous les fichiers placés dans `/frontend/src/assets/`
-- [ ] Non-regression test en mode light et dark
-- [ ] Affichage correct sur tous les appareils
-
-## 🌐 Versions disponibles
-
-| Version         | Fichier                    | Arrière-plan | Utilisation             |
-| --------------- | -------------------------- | ------------ | ----------------------- |
-| Couleur         | `mars_ai_logo.png`         | N/A          | Mode dark, web standard |
-| Monochrome Noir | `mars_ai_logo_black.png`   | Transparent  | Mode light, impressions |
-| Vectoriel       | `mars_ai_logo_black.svg`   | Transparent  | Tous usages (scalable)  |
-| Favicon         | `mars_ai_logo_favicon.ico` | Aucun        | Onglet du navigateur    |
-
-## 📝 Notes Importantes
-
-1. **Transparence** : Le logo noir doit avoir un fond transparent (canal alpha)
-2. **Contraste minimum** : WCAG AA minimum sur tous les fonds
-3. **Taille minimum** : 32x32 px pour la lisibilité
-4. **Export** : Exporter en PNG et SVG pour flexibilité maximale
+- [x] Le guide correspond aux vrais noms de fichiers
+- [x] La politique "monochrome pour favicon uniquement" est documentee
+- [ ] Ajouter physiquement les fichiers `favicon-black.svg`, `favicon-white.svg`, `favicon.ico`
+- [ ] Ajouter les balises favicon dans `frontend/index.html`
 
 ---
 
-**Date de mise à jour** : 24 mars 2026  
-**Statut** : Documentation guidée
+Derniere mise a jour: 25 mars 2026

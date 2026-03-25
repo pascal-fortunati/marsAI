@@ -5,10 +5,10 @@ const router = express.Router();
  * @openapi
  * /api/health:
  *   get:
- *     summary: health check
+ *     summary: verification de sante
  *     responses:
  *       200:
- *         description: service status
+ *         description: etat du service
  *         content:
  *           application/json:
  *             schema:

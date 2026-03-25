@@ -2,11 +2,11 @@ import express from "express";
 import cors from "cors";
 import { env } from "./config/env.js";
 
-// swagger & documentation
+// Documentation Swagger
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 
-// routes
+// Routeurs
 import healthRouter from "./routes/health.js";
 import authRouter from "./routes/auth.js";
 import juryRouter from "./routes/jury.js";
@@ -21,7 +21,7 @@ app.use(
 );
 app.use(express.json());
 
-// swagger definition
+// Definition Swagger
 const swaggerSpec = swaggerJsdoc({
   definition: {
     openapi: "3.0.0",
@@ -35,7 +35,7 @@ const swaggerSpec = swaggerJsdoc({
 
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// register routers
+// enregistre les routeurs
 app.use(healthRouter);
 app.use(authRouter);
 app.use(juryRouter);

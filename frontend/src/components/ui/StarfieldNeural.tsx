@@ -28,7 +28,7 @@ function getTheme(): "dark" | "light" {
   const attr = document.documentElement.getAttribute("data-theme");
   if (attr === "light") return "light";
   if (attr === "dark") return "dark";
-  // Fallback
+  // Repli
   return window.matchMedia("(prefers-color-scheme: light)").matches
     ? "light"
     : "dark";
@@ -38,7 +38,7 @@ export function StarfieldNeural({ className }: StarfieldNeuralProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [theme, setTheme] = useState<"dark" | "light">(getTheme());
 
-  // Detect theme changes
+  // Detecte les changements de theme
   useEffect(() => {
     const handleThemeChange = () => {
       setTheme(getTheme());
@@ -111,12 +111,12 @@ export function StarfieldNeural({ className }: StarfieldNeuralProps) {
     const draw = (time: number) => {
       ctx.clearRect(0, 0, width, height);
 
-      // Adapt colors and opacity based on theme
+      // Adapte les couleurs et l'opacite selon le theme
       const isDark = theme === "dark";
-      const starAlphaMax = isDark ? 0.6 : 0.15; // Subtle in light mode
-      const linkAlphaMultiplier = isDark ? 0.26 : 0.08; // Much more subtle links in light mode
-      const lightMin = isDark ? 76 : 45; // Darker in light mode
-      const lightMax = isDark ? 72 : 50; // Darker in light mode
+      const starAlphaMax = isDark ? 0.6 : 0.15; // Plus discret en mode clair
+      const linkAlphaMultiplier = isDark ? 0.26 : 0.08; // Liens beaucoup plus discrets en mode clair
+      const lightMin = isDark ? 76 : 45; // Plus sombre en mode clair
+      const lightMax = isDark ? 72 : 50; // Plus sombre en mode clair
 
       for (let i = 0; i < stars.length; i += 1) {
         const star = stars[i];
@@ -131,7 +131,7 @@ export function StarfieldNeural({ className }: StarfieldNeuralProps) {
           if (star.y > height) star.y = 0;
         }
 
-        // Draw links between nearby stars
+        // Dessine des liens entre etoiles proches
         for (let j = i + 1; j < stars.length; j += 1) {
           const other = stars[j];
           const dx = other.x - star.x;
@@ -143,7 +143,7 @@ export function StarfieldNeural({ className }: StarfieldNeuralProps) {
           const intensity = 1 - dist / LINK_DISTANCE;
           const alpha = intensity * intensity * linkAlphaMultiplier;
 
-          // Slightly mix cool/warm links
+          // Melange leger de liens froids/chauds
           const hue = isDark ? 245 - (star.warmth + other.warmth) * 20 : 250;
           const sat = isDark ? 85 : 60;
           const light = isDark ? 68 : 55;
@@ -156,7 +156,7 @@ export function StarfieldNeural({ className }: StarfieldNeuralProps) {
           ctx.stroke();
         }
 
-        // Draw stars with pulsing effect
+        // Dessine les etoiles avec un effet de pulsation
         const pulse =
           0.58 + 0.42 * Math.sin(time * 0.0015 * star.pulseSpeed + star.phase);
         const starAlpha = (0.35 + pulse * 0.6) * (starAlphaMax / 0.95);
@@ -170,7 +170,7 @@ export function StarfieldNeural({ className }: StarfieldNeuralProps) {
           sat = star.warmth > 0.82 ? 90 : 88;
           light = star.warmth > 0.82 ? 72 : 76;
         } else {
-          // Light mode: darker, more muted colors
+          // Mode clair : couleurs plus sombres et plus discretes
           hue = star.warmth > 0.82 ? 20 : 240;
           sat = star.warmth > 0.82 ? 70 : 65;
           light = lightMin + pulse * (lightMax - lightMin);

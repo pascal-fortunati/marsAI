@@ -90,7 +90,7 @@ async function findOrCreateUserFromGoogle(payload) {
  * @openapi
  * /api/auth/google:
  *   post:
- *     summary: Login with Google ID token
+ *     summary: Connexion avec un token ID Google
  */
 router.post("/api/auth/google", async (req, res, next) => {
   try {
