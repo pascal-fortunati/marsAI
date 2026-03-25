@@ -48,6 +48,7 @@ app.use("/api/site/home", homeRouter);
 app.use("/api/catalogue", catalogueRouter);
 app.use("/api/submissions", submissionRouter);
 app.use("/api/upload", uploadRouter);
+app.use("/api/jury", juryRouter);
 app.use("/uploads", express.static(path.resolve(__dirname, "../upload")));
 
 app.get("/", (_req, res) => {
