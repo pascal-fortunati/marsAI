@@ -15,10 +15,10 @@ type Star = {
   warmth: number;
 };
 
-const MIN_STARS = 70;
-const MAX_STARS = 220;
-const AREA_PER_STAR = 9000;
-const LINK_DISTANCE = 140;
+const MIN_STARS = 45;
+const MAX_STARS = 150;
+const AREA_PER_STAR = 10500;
+const LINK_DISTANCE = 180;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -68,6 +68,8 @@ export function StarfieldNeural({ className }: StarfieldNeuralProps) {
     let height = 0;
     let stars: Star[] = [];
     let frameId = 0;
+    let lastFrameTime = 0;
+    let resizeObserver: ResizeObserver | null = null;
 
     const randomRange = (min: number, max: number) =>
       min + Math.random() * (max - min);
@@ -80,21 +82,26 @@ export function StarfieldNeural({ className }: StarfieldNeuralProps) {
         MAX_STARS,
       );
 
-      stars = Array.from({ length: count }, () => ({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: randomRange(-0.07, 0.07),
-        vy: randomRange(-0.07, 0.07),
-        radius: randomRange(0.8, 2.4),
-        phase: randomRange(0, Math.PI * 2),
-        pulseSpeed: randomRange(0.6, 1.8),
-        warmth: Math.random(),
-      }));
+      stars = Array.from({ length: count }, () => {
+        const angle = randomRange(0, Math.PI * 2);
+        const speed = randomRange(0.315, 0.504);
+        return {
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          radius: randomRange(1.1, 3.2),
+          phase: randomRange(0, Math.PI * 2),
+          pulseSpeed: randomRange(0.6, 1.8),
+          warmth: Math.random(),
+        };
+      });
     };
 
     const resize = () => {
-      width = window.innerWidth;
-      height = window.innerHeight;
+      const host = canvas.parentElement;
+      width = host?.clientWidth || window.innerWidth;
+      height = host?.clientHeight || window.innerHeight;
 
       const dpr = window.devicePixelRatio || 1;
       canvas.width = Math.floor(width * dpr);
@@ -109,21 +116,55 @@ export function StarfieldNeural({ className }: StarfieldNeuralProps) {
     };
 
     const draw = (time: number) => {
+      const deltaFactor =
+        lastFrameTime > 0
+          ? clamp((time - lastFrameTime) / 16.67, 0.75, 1.75)
+          : 1;
+      lastFrameTime = time;
+
       ctx.clearRect(0, 0, width, height);
 
       // Adapte les couleurs et l'opacite selon le theme
       const isDark = theme === "dark";
-      const starAlphaMax = isDark ? 0.6 : 0.15; // Plus discret en mode clair
-      const linkAlphaMultiplier = isDark ? 0.26 : 0.08; // Liens beaucoup plus discrets en mode clair
-      const lightMin = isDark ? 76 : 45; // Plus sombre en mode clair
-      const lightMax = isDark ? 72 : 50; // Plus sombre en mode clair
+      const starAlphaMax = isDark ? 0.9 : 0.52;
+      const linkAlphaMultiplier = isDark ? 0.38 : 0.32;
+      const lightMin = isDark ? 80 : 32;
+      const lightMax = isDark ? 78 : 56;
+
+      // Cadrillage subtil de fond, visible dans les deux themes.
+      const gridStep = isDark ? 92 : 86;
+      const gridAlpha = isDark ? 0.065 : 0.13;
+      const gridHue = isDark ? 225 : 250;
+      const gridSat = isDark ? 22 : 24;
+      const gridLight = isDark ? 62 : 44;
+      ctx.strokeStyle = `hsla(${gridHue}, ${gridSat}%, ${gridLight}%, ${gridAlpha})`;
+      ctx.lineWidth = 1;
+
+      for (let x = 0; x <= width; x += gridStep) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+
+      for (let y = 0; y <= height; y += gridStep) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
 
       for (let i = 0; i < stars.length; i += 1) {
         const star = stars[i];
 
         if (!reducedMotion) {
-          star.x += star.vx;
-          star.y += star.vy;
+          star.x += star.vx * deltaFactor;
+          star.y += star.vy * deltaFactor;
+
+          // Donne une petite courbure de trajectoire pour eviter l'effet trop lineaire.
+          const drift = 0.07 * deltaFactor;
+          star.x += Math.sin(time * 0.0012 + star.phase) * drift;
+          star.y += Math.cos(time * 0.0011 + star.phase * 1.17) * drift;
 
           if (star.x < 0) star.x = width;
           if (star.x > width) star.x = 0;
@@ -143,13 +184,16 @@ export function StarfieldNeural({ className }: StarfieldNeuralProps) {
           const intensity = 1 - dist / LINK_DISTANCE;
           const alpha = intensity * intensity * linkAlphaMultiplier;
 
-          // Melange leger de liens froids/chauds
-          const hue = isDark ? 245 - (star.warmth + other.warmth) * 20 : 250;
-          const sat = isDark ? 85 : 60;
-          const light = isDark ? 68 : 55;
+          // En mode clair, on suit la palette du logo (violet <-> or/jaune).
+          const avgWarmth = (star.warmth + other.warmth) * 0.5;
+          const hue = isDark
+            ? 245 - (star.warmth + other.warmth) * 20
+            : 266 - avgWarmth * 220;
+          const sat = isDark ? 85 : 74;
+          const light = isDark ? 68 : 44;
 
           ctx.strokeStyle = `hsla(${hue}, ${sat}%, ${light}%, ${alpha})`;
-          ctx.lineWidth = 0.7 + intensity * 0.7;
+          ctx.lineWidth = 0.9 + intensity * 0.9;
           ctx.beginPath();
           ctx.moveTo(star.x, star.y);
           ctx.lineTo(other.x, other.y);
@@ -158,8 +202,8 @@ export function StarfieldNeural({ className }: StarfieldNeuralProps) {
 
         // Dessine les etoiles avec un effet de pulsation
         const pulse =
-          0.58 + 0.42 * Math.sin(time * 0.0015 * star.pulseSpeed + star.phase);
-        const starAlpha = (0.35 + pulse * 0.6) * (starAlphaMax / 0.95);
+          0.52 + 0.48 * Math.sin(time * 0.0017 * star.pulseSpeed + star.phase);
+        const starAlpha = (0.45 + pulse * 0.7) * (starAlphaMax / 0.95);
 
         let hue: number;
         let sat: number;
@@ -170,9 +214,17 @@ export function StarfieldNeural({ className }: StarfieldNeuralProps) {
           sat = star.warmth > 0.82 ? 90 : 88;
           light = star.warmth > 0.82 ? 72 : 76;
         } else {
-          // Mode clair : couleurs plus sombres et plus discretes
-          hue = star.warmth > 0.82 ? 20 : 240;
-          sat = star.warmth > 0.82 ? 70 : 65;
+          // Mode clair : palette inspiree du logo clair (or/jaune, violet, cyan)
+          if (star.warmth > 0.82) {
+            hue = 46; // or/jaune
+            sat = 88;
+          } else if (star.warmth < 0.22) {
+            hue = 182; // cyan/turquoise
+            sat = 78;
+          } else {
+            hue = 266; // violet
+            sat = 72;
+          }
           light = lightMin + pulse * (lightMax - lightMin);
         }
 
@@ -201,9 +253,15 @@ export function StarfieldNeural({ className }: StarfieldNeuralProps) {
     }
 
     window.addEventListener("resize", resize);
+    if (typeof ResizeObserver !== "undefined") {
+      resizeObserver = new ResizeObserver(() => resize());
+      const host = canvas.parentElement;
+      if (host) resizeObserver.observe(host);
+    }
 
     return () => {
       window.removeEventListener("resize", resize);
+      resizeObserver?.disconnect();
       window.cancelAnimationFrame(frameId);
     };
   }, [theme]);

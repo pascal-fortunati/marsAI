@@ -56,6 +56,7 @@ function FlagButton({
       />
 
       {/* Drapeau SVG */}
+      {/* Couleurs officielles des drapeaux conservees volontairement en HEX (branding). */}
       <div className="-translate-x-1/2 -translate-y-1/2 absolute left-1/2 overflow-clip rounded-full size-[28px] top-1/2">
         <svg className="size-full" viewBox="0 0 28 28" fill="none">
           {isFrench ? (
@@ -136,8 +137,11 @@ export default function NavBar({
   const [theme, setTheme] = useState<Theme>(getStoredTheme());
   const logo = theme === "light" ? lightLogo : darkLogo;
   const logoClassName = "h-full w-full object-contain";
-  const navBackgroundClass =
-    theme === "light" ? "bg-[#f8f9fa]/95" : "bg-background/95";
+  const navBackgroundClass = "bg-background/95";
+  const navShadowClass =
+    theme === "light"
+      ? "shadow-2xl shadow-violet-950/10"
+      : "shadow-2xl shadow-black/15";
 
   const handleThemeToggle = () => {
     const newTheme = toggleTheme();
@@ -151,7 +155,7 @@ export default function NavBar({
     >
       <div
         aria-hidden="true"
-        className="absolute border-border border-b border-solid inset-0 pointer-events-none shadow-2xl shadow-black/15"
+        className={`absolute border-border border-b border-solid inset-0 pointer-events-none ${navShadowClass}`}
       />
 
       <div className="flex flex-col items-center size-full">

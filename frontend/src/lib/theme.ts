@@ -36,7 +36,7 @@ export function setTheme(theme: Theme): void {
   // Met a jour la meta theme-color
   const metaThemeColor = document.querySelector('meta[name="theme-color"]');
   if (metaThemeColor) {
-    metaThemeColor.setAttribute("content", theme === "dark" ? "#05030d" : "#f8f9fa");
+    metaThemeColor.setAttribute("content", theme === "dark" ? "#020617" : "#f8fafc");
   }
 }
 

@@ -155,7 +155,7 @@ export function LoginView({ isLoggedIn, onLogin, onLogout }: LoginViewProps) {
       <StarfieldNeural className="absolute inset-0 z-0" />
 
       {/* Voile leger pour la lisibilite, compatible clair/sombre */}
-      <div className="absolute inset-0 z-10 bg-background/35" />
+      <div className="absolute inset-0 z-10 bg-background/20 dark:bg-background/28" />
 
       {/* Contenu */}
       <div className="relative z-20 flex flex-col items-center gap-3">
@@ -205,6 +205,7 @@ export function LoginView({ isLoggedIn, onLogin, onLogout }: LoginViewProps) {
                 className="w-full flex items-center justify-center gap-2 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground px-4 py-2.5 text-xs font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed border border-border hover:border-border/80 f-mono"
               >
                 {/* Google G Logo en couleur */}
+                {/* Couleurs officielles Google conservees volontairement en HEX (branding). */}
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
                   {/* Bleu */}
                   <path

@@ -29,13 +29,13 @@ html, body, #root { height: 100%; }
 body {
   margin: 0;
   font-size: 16px;
-  background: var(--col-bg);
+  background: hsl(var(--background));
   color: hsl(var(--foreground));
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #7d71fb rgba(255, 255, 255, 0.1);
+  scrollbar-color: hsl(var(--primary)) hsl(var(--foreground) / 0.1);
 }
 
 *::-webkit-scrollbar {
@@ -44,75 +44,69 @@ body {
 }
 
 *::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
+  background: hsl(var(--foreground) / 0.05);
 }
 
 *::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(125, 113, 251, 0.9), rgba(255, 92, 53, 0.85));
+  background: linear-gradient(180deg, hsl(var(--primary) / 0.9), hsl(var(--accent) / 0.85));
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid hsl(var(--foreground) / 0.15);
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, rgba(125, 113, 251, 1), rgba(255, 92, 53, 1));
+  background: linear-gradient(180deg, hsl(var(--primary)), hsl(var(--accent)));
 }
 
 :root,
 [data-theme="light"] {
-  --col-vi: #6366f1;
-  --col-or: #f97316;
-  --col-bg: #f8f9fa;
   color-scheme: light;
   
   /* Couleurs claires avec meilleurs contrastes */
-  --background:    260 30% 95%;
-  --foreground:    260 20% 10%;
+  --background:    210 40% 98%;
+  --foreground:    222 47% 11%;
   --card:          0   0% 100%;
-  --card-foreground: 260 20% 10%;
+  --card-foreground: 222 47% 11%;
   --popover:       0   0% 100%;
-  --popover-foreground: 260 20% 10%;
-  --primary:       260 84% 55%;
+  --popover-foreground: 222 47% 11%;
+  --primary:       262 83% 58%;
   --primary-foreground: 0  0%  100%;
-  --secondary:     260 30% 85%;
-  --secondary-foreground: 260 20% 10%;
-  --muted:         260 15% 80%;
-  --muted-foreground: 260 20% 35%;
-  --accent:        14 100% 50%;
+  --secondary:     214 32% 91%;
+  --secondary-foreground: 222 47% 11%;
+  --muted:         214 32% 91%;
+  --muted-foreground: 215 16% 47%;
+  --accent:        24 95% 53%;
   --accent-foreground: 0  0%  100%;
-  --destructive:   0  84% 50%;
+  --destructive:   0  84% 60%;
   --destructive-foreground: 0  0%  100%;
-  --border:        260 15% 85%;
+  --border:        214 32% 91%;
   --input:         0   0% 100%;
-  --ring:          260 84% 55%;
+  --ring:          262 83% 58%;
   --radius:        0.75rem;
 }
 
 [data-theme="dark"] {
-  --col-vi: #7d71fb;
-  --col-or: #ff5c35;
-  --col-bg: #05030d;
   color-scheme: dark;
 
   /* Couleurs système améliorées pour meilleurs contrastes */
-  --background:    260 30% 6%;
-  --foreground:    0   0%  100%;
-  --card:          260 20% 10%;
-  --card-foreground: 0  0%  100%;
-  --popover:       260 20% 10%;
-  --popover-foreground: 0 0%  100%;
-  --primary:       260 84% 65%;
+  --background:    222 47% 5%;
+  --foreground:    210 40% 98%;
+  --card:          222 47% 11%;
+  --card-foreground: 210 40% 98%;
+  --popover:       222 47% 11%;
+  --popover-foreground: 210 40% 98%;
+  --primary:       262 83% 58%;
   --primary-foreground: 0  0%  100%;
-  --secondary:     260 30% 15%;
-  --secondary-foreground: 0  0%  100%;
-  --muted:         260 15% 20%;
-  --muted-foreground: 0  0%  65%;
-  --accent:        14 100% 60%;
+  --secondary:     217 33% 17%;
+  --secondary-foreground: 210 40% 98%;
+  --muted:         217 33% 17%;
+  --muted-foreground: 215 20% 65%;
+  --accent:        24 95% 53%;
   --accent-foreground: 0  0%  100%;
   --destructive:   0  84% 60%;
   --destructive-foreground: 0  0%  100%;
-  --border:        260 15% 18%;
-  --input:         260 25% 12%;
-  --ring:          260 84% 65%;
+  --border:        217 33% 17%;
+  --input:         217 33% 17%;
+  --ring:          262 83% 58%;
   --radius:        0.75rem;
 }
 
@@ -320,10 +314,10 @@ body {
 }
 @keyframes pulseGlow {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(125,113,251,.4), 0 0 60px rgba(125,113,251,.1);
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.4), 0 0 60px hsl(var(--primary) / 0.1);
   }
   50% {
-    box-shadow: 0 0 40px rgba(125,113,251,.7), 0 0 80px rgba(255,92,53,.2);
+    box-shadow: 0 0 40px hsl(var(--primary) / 0.7), 0 0 80px hsl(var(--accent) / 0.2);
   }
 }
 @keyframes rotateSlow {
