@@ -1,5 +1,5 @@
 export type FilmStatus = "pending" | "validated" | "refused" | "review" | "selected";
-export type DecisionAction = "validated" | "refused" | "review";
+export type DecisionAction = "pending" | "validated" | "refused" | "review" | "selected";
 export type BadgeType = "grand_prix" | "prix_jury" | null;
 export type AdminTab = "films" | "site" | "partners" | "youtube" | "emails";
 
@@ -13,6 +13,8 @@ export interface AdminFilm {
     category: string;
     director_name: string;
     director_email: string;
+    assigned_jury_name: string | null;
+    assigned_jury_email: string | null;
     ai_tools: string[];
     status: FilmStatus;
     badge: BadgeType;

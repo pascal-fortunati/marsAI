@@ -91,7 +91,7 @@ export default function AdminLayout({
                         <button
                             key={tab.id}
                             onClick={() => onTabChange(tab.id)}
-                            className={`relative w-full py-4 f-mono text-[13px] tracking-widest uppercase transition-colors flex items-center justify-center gap-2 ${isActive ? "text-[#7d71fb] font-bold" : "text-white/35"}`}
+                            className={`relative w-full py-4 f-mono text-[13px] tracking-widest uppercase transition-colors flex items-center justify-center gap-2 ${isActive ? "text-[#7d71fb] font-bold" : "text-white"}`}
                             style={{ outline: "none", background: "none" }}
                         >
                             {tab.label}

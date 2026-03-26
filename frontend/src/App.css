@@ -370,6 +370,11 @@ body {
     color: rgba(255, 255, 255, .18);
 }
 
+.admin-search-input::placeholder {
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: .06em;
+}
+
 .submit-input.submit-input--select-placeholder::placeholder {
     color: rgba(255, 255, 255, .85);
 }

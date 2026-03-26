@@ -1,8 +1,7 @@
-import { useMemo, useState } from "react";
-import { Mail, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Check, X } from "lucide-react";
 import type { AdminFilm, DecisionAction, BadgeType, FilmStatus } from "../AdminTypes";
-
-const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
+import { Combobox } from "../../../components/ui/combobox";
 
 function formatDuration(sec: number) {
     return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`;
@@ -10,7 +9,8 @@ function formatDuration(sec: number) {
 
 interface FilmRowProps {
     film: AdminFilm;
-    index: number;
+    selected: boolean;
+    onToggleSelect: (filmId: string, selected: boolean) => void;
     onDecision: (filmId: string, action: DecisionAction, badge?: BadgeType) => Promise<void>;
     onEmail: (filmId: string) => void;
     onCommentClick: () => void;
@@ -58,26 +58,77 @@ const BADGE_OPTIONS: { value: BadgeType; label: string }[] = [
     { value: "prix_jury", label: "⭐ Prix du Jury" },
 ];
 
-export default function FilmRow({ film, index, onDecision, onEmail, onCommentClick }: FilmRowProps) {
-    const statusStyle = useMemo(() => STATUS_STYLE[film.status], [film.status]);
+const BADGE_STYLE: Record<Exclude<BadgeType, null>, React.CSSProperties> = {
+    grand_prix: {
+        color: "#f5d147",
+        border: "1px solid rgba(245,209,71,.45)",
+        background: "rgba(245,209,71,.1)",
+    },
+    prix_jury: {
+        color: "rgba(255,255,255,.75)",
+        border: "1px solid rgba(125,113,251,.35)",
+        background: "rgba(8,7,24,.8)",
+    },
+};
+
+const STATUS_COMBO_OPTIONS = STATUS_OPTIONS.map((option) => ({
+    value: option.value,
+    label: option.label,
+}));
+
+const BADGE_COMBO_OPTIONS = BADGE_OPTIONS.map((option) => ({
+    value: option.value ?? "",
+    label: option.label,
+}));
+
+export default function FilmRow({ film, selected, onToggleSelect, onDecision, onEmail, onCommentClick }: FilmRowProps) {
+    const isAlreadyAssigned = Boolean(film.assigned_jury_name);
+    const [localStatus, setLocalStatus] = useState<FilmStatus>(film.status);
+    const [localBadge, setLocalBadge] = useState<BadgeType>(film.badge);
+
+    useEffect(() => {
+        setLocalStatus(film.status);
+        setLocalBadge(film.badge);
+    }, [film.status, film.badge]);
+
+    const statusStyle = useMemo(() => STATUS_STYLE[localStatus], [localStatus]);
+    const badgeStyle = useMemo<React.CSSProperties>(() => {
+        if (!localBadge) {
+            return {
+                color: "rgba(255,255,255,.75)",
+                border: "1px solid rgba(125,113,251,.35)",
+                background: "rgba(8,7,24,.8)",
+            };
+        }
+        return BADGE_STYLE[localBadge];
+    }, [localBadge]);
 
     const handleStatusChange = async (nextStatus: FilmStatus) => {
-        if (nextStatus === film.status) return;
-        if (nextStatus === "selected") return;
+        if (nextStatus === localStatus) return;
 
-        const decisionMap: Record<Exclude<FilmStatus, "selected">, DecisionAction> = {
-            pending: "review",
-            validated: "validated",
-            refused: "refused",
-            review: "review",
-        };
+        const previousStatus = localStatus;
+        setLocalStatus(nextStatus);
 
-        await onDecision(film.id, decisionMap[nextStatus], film.badge);
+        try {
+            await onDecision(film.id, nextStatus, localBadge);
+        } catch (err) {
+            console.error("[FilmRow] status update failed", err);
+            setLocalStatus(previousStatus);
+        }
     };
 
     const handleBadgeChange = async (nextBadgeValue: string) => {
         const nextBadge = nextBadgeValue === "grand_prix" || nextBadgeValue === "prix_jury" ? nextBadgeValue : null;
-        await onDecision(film.id, "validated", nextBadge);
+
+        const previousBadge = localBadge;
+        setLocalBadge(nextBadge);
+
+        try {
+            await onDecision(film.id, localStatus, nextBadge);
+        } catch (err) {
+            console.error("[FilmRow] badge update failed", err);
+            setLocalBadge(previousBadge);
+        }
     };
 
     return (
@@ -86,57 +137,69 @@ export default function FilmRow({ film, index, onDecision, onEmail, onCommentCli
                 className="border-b"
                 style={{
                     borderColor: "rgba(255,255,255,.06)",
-                    background: "rgba(5,3,13,.45)",
+                    background: "#070518",
                 }}
             >
-                <td className="px-3 py-3 align-top">
-                    <input
-                        type="checkbox"
-                        className="w-5 h-5 rounded border"
-                        style={{ accentColor: "#7d71fb", borderColor: "rgba(255,255,255,.25)", background: "transparent" }}
-                    />
+                <td className="px-3 py-3 align-middle">
+                    <label className={`relative inline-flex items-center justify-center ${isAlreadyAssigned ? "cursor-not-allowed opacity-45" : "cursor-pointer"}`}>
+                        <input
+                            type="checkbox"
+                            aria-label={`Sélectionner ${film.title}`}
+                            className="peer sr-only"
+                            checked={selected}
+                            disabled={isAlreadyAssigned}
+                            onChange={(event) => onToggleSelect(film.id, event.target.checked)}
+                        />
+                        <span
+                            className="h-5 w-5 rounded-md border bg-white/[0.04] transition-all duration-200 peer-checked:border-[#988dff] peer-checked:bg-[#7d71fb]"
+                            style={{
+                                borderColor: "rgba(255,255,255,.28)",
+                                boxShadow: "inset 0 0 0 1px rgba(255,255,255,.04)",
+                            }}
+                        />
+                        <Check
+                            size={13}
+                            strokeWidth={3}
+                            className="pointer-events-none absolute text-white opacity-0 transition-opacity duration-150 peer-checked:opacity-100"
+                        />
+                    </label>
                 </td>
 
-                <td className="px-3 py-3 align-top">
-                    <div className="flex items-start gap-3">
-                        {film.poster_url && (
-                            <img
-                                src={`${BASE}${film.poster_url}`}
-                                alt={film.title}
-                                className="w-6 h-8 object-cover rounded-md shrink-0"
-                                style={{ border: "1px solid rgba(255,255,255,.12)" }}
-                            />
-                        )}
+                <td className="px-3 py-3 align-middle">
+                    <div className="flex items-start">
                         <div className="min-w-0">
-                            <p className="f-orb text-[12px] leading-none text-white/10 -mb-1">{String(index).padStart(2, "0")}</p>
                             <p className="f-orb text-[14px] leading-tight text-white font-bold truncate max-w-[240px]">
                                 {film.title}
                             </p>
                             <p className="f-mono text-[11px] text-white/60 mt-0.5 truncate max-w-[240px]">
                                 {film.director_name}
                             </p>
-                            <p className="f-mono text-[8px] text-white/30 mt-0.5 break-all max-w-[280px]">
+                            <p className="f-mono text-[8px] text-white/30 mt-0.5 truncate max-w-[280px]">
                                 {film.id}
                             </p>
                         </div>
                     </div>
                 </td>
 
-                <td className="px-3 py-3 align-top">
+                <td className="px-3 py-3 align-middle">
                     <p className="f-orb text-[12px] leading-none text-white">{film.country}</p>
                     <p className="f-mono text-[11px] mt-1 text-white/70">{formatDuration(film.duration_seconds)}</p>
                 </td>
 
-                <td className="px-3 py-3 align-top">
-                    <p className="f-orb text-[12px] leading-none text-white truncate max-w-[230px]">
-                        {film.director_name}
-                    </p>
-                    <p className="f-mono text-[9px] mt-1 text-white/35 truncate max-w-[230px]">
-                        {film.director_email}
-                    </p>
+                <td className="px-3 py-3 align-middle">
+                    {film.assigned_jury_name ? (
+                        <>
+                            <p className="f-orb text-[12px] leading-none text-white truncate max-w-[230px]">
+                                {film.assigned_jury_name}
+                            </p>
+                            <p className="f-mono text-[9px] mt-1 text-white/35 truncate max-w-[230px]">
+                                {film.assigned_jury_email}
+                            </p>
+                        </>
+                    ) : null}
                 </td>
 
-                <td className="px-3 py-3 align-top">
+                <td className="px-3 py-3 align-middle">
                     {film.jury_votes > 0 ? (
                         <button
                             onClick={onCommentClick}
@@ -150,37 +213,37 @@ export default function FilmRow({ film, index, onDecision, onEmail, onCommentCli
                     )}
                 </td>
 
-                <td className="px-3 py-3 align-top">
-                    <select
-                        value={film.status}
-                        onChange={(e) => void handleStatusChange(e.target.value as FilmStatus)}
-                        className="h-8 min-w-[110px] rounded-lg px-2 f-mono text-[10px] appearance-none"
-                        style={statusStyle}
-                    >
-                        {STATUS_OPTIONS.map((option) => (
-                            <option key={option.value} value={option.value}>{option.label}</option>
-                        ))}
-                    </select>
-                </td>
-
-                <td className="px-3 py-3 align-top">
-                    <select
-                        value={film.badge ?? ""}
-                        onChange={(e) => void handleBadgeChange(e.target.value)}
-                        className="h-8 min-w-[120px] rounded-lg px-2 f-mono text-[10px] appearance-none"
-                        style={{
-                            color: film.badge ? "#f5d147" : "rgba(255,255,255,.55)",
-                            border: film.badge ? "1px solid rgba(245,209,71,.45)" : "1px solid rgba(255,255,255,.18)",
-                            background: film.badge ? "rgba(245,209,71,.09)" : "rgba(255,255,255,.03)",
+                <td className="px-3 py-3 align-middle">
+                    <Combobox
+                        value={localStatus}
+                        onChange={(value) => void handleStatusChange(value as FilmStatus)}
+                        options={STATUS_COMBO_OPTIONS}
+                        placeholder="Statut"
+                        searchable={false}
+                        className="h-9 w-[170px] max-w-full rounded-xl px-3 f-mono text-[11px]"
+                        contentClassName="rounded-xl border border-white/15 bg-[#07051a]"
+                        triggerStyle={{
+                            color: statusStyle.color,
+                            border: statusStyle.border,
+                            background: statusStyle.background,
                         }}
-                    >
-                        {BADGE_OPTIONS.map((option) => (
-                            <option key={option.label} value={option.value ?? ""}>{option.label}</option>
-                        ))}
-                    </select>
+                    />
                 </td>
 
-                <td className="px-3 py-3 align-top">
+                <td className="px-3 py-3 align-middle">
+                    <Combobox
+                        value={localBadge ?? ""}
+                        onChange={(value) => void handleBadgeChange(value)}
+                        options={BADGE_COMBO_OPTIONS}
+                        placeholder="Badge"
+                        searchable={false}
+                        className="h-9 w-[170px] max-w-full rounded-xl px-3 f-mono text-[11px]"
+                        contentClassName="rounded-xl border border-white/15 bg-[#07051a]"
+                        triggerStyle={badgeStyle}
+                    />
+                </td>
+
+                <td className="px-3 py-3 align-middle">
                     {film.youtube_private_id ? (
                         <a
                             href={`https://youtube.com/watch?v=${film.youtube_private_id}`}
@@ -196,7 +259,7 @@ export default function FilmRow({ film, index, onDecision, onEmail, onCommentCli
                     <p className="f-mono text-[10px] text-emerald-400 mt-1">● En ligne</p>
                 </td>
 
-                <td className="px-3 py-3 align-top">
+                <td className="px-3 py-3 align-middle">
                     <button
                         title="Envoyer email"
                         onClick={() => onEmail(film.id)}
@@ -206,7 +269,7 @@ export default function FilmRow({ film, index, onDecision, onEmail, onCommentCli
                             border: "1px solid rgba(125,113,251,.35)",
                         }}
                     >
-                        <Mail size={12} /> Email
+                        Envoyer email
                     </button>
                 </td>
             </tr>
