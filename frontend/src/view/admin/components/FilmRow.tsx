@@ -1,9 +1,7 @@
-// src/view/admin/components/FilmRow.tsx
-// Ligne d'un film dans le tableau admin
 import { useState } from "react";
 import { ChevronDown, ChevronUp, Mail, Youtube } from "lucide-react";
-import StatusBadge from "./StatusBadge";
-import DecisionButtons from "./DecisionButtons";
+import StatusBadge from "./StatusBadge.tsx";
+import DecisionButtons from "./DecisionButtons.tsx";
 import type { AdminFilm, DecisionAction, BadgeType } from "../AdminTypes";
 
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:4000";

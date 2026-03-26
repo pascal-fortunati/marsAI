@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { Search, RefreshCw } from "lucide-react";
-import FilmRow from "../components/FilmRow";
+import FilmRow from "../components/FilmRow.tsx";
 import type { AdminFilm, FilmStatus, DecisionAction, BadgeType } from "../AdminTypes";
 
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
