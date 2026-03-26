@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 
 type StarfieldNeuralProps = {
   className?: string;
+  theme?: "dark" | "light";
+  intensity?: "normal" | "high";
 };
 
 type Star = {
@@ -34,12 +36,21 @@ function getTheme(): "dark" | "light" {
     : "dark";
 }
 
-export function StarfieldNeural({ className }: StarfieldNeuralProps) {
+export function StarfieldNeural({
+  className,
+  theme: themeProp,
+  intensity = "normal",
+}: StarfieldNeuralProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [theme, setTheme] = useState<"dark" | "light">(getTheme());
+  const [theme, setTheme] = useState<"dark" | "light">(themeProp ?? getTheme());
 
   // Detecte les changements de theme
   useEffect(() => {
+    if (themeProp) {
+      setTheme(themeProp);
+      return;
+    }
+
     const handleThemeChange = () => {
       setTheme(getTheme());
     };
@@ -126,10 +137,17 @@ export function StarfieldNeural({ className }: StarfieldNeuralProps) {
 
       // Adapte les couleurs et l'opacite selon le theme
       const isDark = theme === "dark";
-      const starAlphaMax = isDark ? 0.9 : 0.52;
-      const linkAlphaMultiplier = isDark ? 0.38 : 0.32;
-      const lightMin = isDark ? 80 : 32;
-      const lightMax = isDark ? 78 : 56;
+      const isHigh = intensity === "high";
+      const starAlphaMax = isDark ? 0.9 : isHigh ? 0.82 : 0.62;
+      const linkAlphaMultiplier = isDark
+        ? isHigh
+          ? 0.58
+          : 0.38
+        : isHigh
+          ? 0.52
+          : 0.42;
+      const lightMin = isDark ? 80 : 54;
+      const lightMax = isDark ? 78 : 84;
 
       // Cadrillage subtil de fond, visible dans les deux themes.
       const gridStep = isDark ? 92 : 86;
