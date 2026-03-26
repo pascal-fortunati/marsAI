@@ -10,7 +10,7 @@ import { FilmDetail } from "./FilmDetail";
 import { VideoPlayer } from "./VideoPlayer";
 import { JuryVote } from "./JuryVote";
 import { AssignedFilms } from "./AssignedFilms";
-import JurySkeleton from "../../components/ui/JurySkeleton";
+import JurySkeleton from "./JurySkeleton";
 import type { Film, VoteDecision } from "./types";
 
 type ApiFilm = Film & {

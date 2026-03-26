@@ -1,4 +1,4 @@
-import { JurySkeletonLight } from "../components/ui/JurySkeleton";
+import { JurySkeletonLight } from "../view/jury/JurySkeleton";
 
 export default function SkeletonLightPage() {
   return (

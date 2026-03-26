@@ -1,6 +1,6 @@
 // Wireframe JurySkeleton : composant squelette (dark / light)
 import { useEffect, useState } from "react";
-import { StarfieldNeural } from "./StarfieldNeural";
+import { StarfieldNeural } from "../../components/ui/StarfieldNeural";
 
 type JurySkeletonProps = {
   theme?: "dark" | "light";

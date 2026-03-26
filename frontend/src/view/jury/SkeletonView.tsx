@@ -1,4 +1,4 @@
-import JurySkeleton from "../../components/ui/JurySkeleton";
+import JurySkeleton from "./JurySkeleton";
 
 export default function SkeletonView() {
   return (
