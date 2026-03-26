@@ -16,10 +16,10 @@ export async function postDecision(req, res) {
     try {
         const { submission_id, decision, badge } = req.body;
 
-        if (!submission || !decision) {
+        if (!submission_id || !decision) {
             return res.status(400).json({ error: "submission_id et decision requis" });
         }
-        if (!["validate", "refused", "review"].includes(decision)) {
+        if (!["validated", "refused", "review"].includes(decision)) {
             return res.status(400).json({ error: "Décision invalide" });
         }
 

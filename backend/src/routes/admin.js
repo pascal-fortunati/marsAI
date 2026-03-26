@@ -1,12 +1,9 @@
 import { Router } from "express";
-import { requireAuth } from "../middleware/requireAuth.js";
-import { getAdminFilms, postDecision } from "../controllers/adminController.js";
+import { requireAuth } from "../middlewares/requireAuth.js";
+import { getAdminFilms, postDecision } from "../controllers/adminControllerl.js";
 
 const router = Router();
-
-router.use(requireAuth);
-
 router.get("/films", getAdminFilms);
-router.post("/decisions", postDecision);
+router.post("/decisions", requireAuth, postDecision);
 
 export default router;

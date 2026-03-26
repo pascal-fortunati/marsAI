@@ -13,14 +13,16 @@ export default function App() {
   const [lang, setLang] = useState<"fr" | "en">("fr");
   const location = useLocation();
   const isJuryRoute = location.pathname.startsWith("/jury");
+  const isAdminRoute = location.pathname.startsWith("/panel") || location.pathname.startsWith("/admin");
+  const showPublicNavbar = !isJuryRoute && !isAdminRoute;
 
   return (
     <>
       {/* Navbar fixe — présente sur toutes les routes sauf jury */}
-      {!isJuryRoute && <Navbar lang={lang} onLangChange={setLang} />}
+      {showPublicNavbar && <Navbar lang={lang} onLangChange={setLang} />}
 
       {/* Contenu décalé de h-20 quand la navbar est affichée */}
-      <div className={isJuryRoute ? "" : "pt-20"}>
+      <div className={showPublicNavbar ? "pt-20" : ""}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/catalogue" element={<CataloguePage />} />

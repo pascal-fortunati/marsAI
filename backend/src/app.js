@@ -7,6 +7,8 @@ import submissionRouter from "./routes/submission.js";
 import homeRouter from "./routes/home.js";
 import catalogueRouter from "./routes/catalogue.js";
 import uploadRouter from "./routes/upload.js";
+import juryRouter from "./routes/jury.js";
+import adminRouter from "./routes/admin.js";
 
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -49,6 +51,7 @@ app.use("/api/catalogue", catalogueRouter);
 app.use("/api/submissions", submissionRouter);
 app.use("/api/upload", uploadRouter);
 app.use("/api/jury", juryRouter);
+app.use("/api/admin", adminRouter);
 app.use("/uploads", express.static(path.resolve(__dirname, "../upload")));
 
 app.get("/", (_req, res) => {

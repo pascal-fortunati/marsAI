@@ -4,7 +4,7 @@ import { db } from "../config/db.js"
 export async function getAllFilms() {
     const [rows] = await db.execute(`
         SELECT
-            s.id, s.title, s.country, s.year,
+            s.id, s.title, s.synopsis, s.country, s.year,
             s.duration_seconds, s.category,
             s.director_name, s.director_email,
             s.ai_tools, s.status,
@@ -57,7 +57,7 @@ export async function insertDecision(adminUserId, submissionId, decision, badge)
     await db.execute(`
         INSERT INTO admin_decisions (submission_id, admin_user_id, decision, badge)
         VALUES (?, ?, ?, ?)
-        `, [submission_id, adminUserId, decision, badge ?? null]);
+        `, [submissionId, adminUserId, decision, badge ?? null]);
 
     const statusMap = { validated: "validated", refused: "refused", review: "review" };
     await db.execute(
