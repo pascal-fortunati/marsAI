@@ -1,4 +1,6 @@
 // Wireframe JurySkeleton : composant squelette gris
+import { StarfieldNeural } from "./StarfieldNeural";
+
 export default function JurySkeleton() {
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-gray-900 text-gray-400 transition-colors">
@@ -53,8 +55,12 @@ export default function JurySkeleton() {
           </section>
         </div>
       </div>
+      {/* Effet de fond d'étoiles minimaliste (via composant existant) */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-70 mix-blend-screen">
+        <StarfieldNeural />
+      </div>
       {/* Effet de fond wireframe */}
-      <div className="absolute inset-0 z-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 opacity-60 pointer-events-none" />
+      <div className="absolute inset-0 z-10 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 opacity-35 pointer-events-none" />
     </div>
   );
 }
