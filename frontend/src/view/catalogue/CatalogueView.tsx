@@ -90,9 +90,9 @@ export function CatalogueView() {
                     <button
                         disabled={currentPage === 1}
                         onClick={() => { setCurrentPage(p => p - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                        className="text-muted-foreground hover:text-primary disabled:opacity-20 uppercase text-xs tracking-widest"
+                        className="cursor-pointer text-muted-foreground hover:text-primary disabled:opacity-20 uppercase text-xs tracking-widest"
                     >
-                        {"//"} PREV
+                        ← 
                     </button>
 
                     <div className="flex space-x-2">
@@ -100,7 +100,7 @@ export function CatalogueView() {
                             <button
                                 key={i + 1}
                                 onClick={() => { setCurrentPage(i + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                                className={`w-8 h-8 rounded-full border text-xs transition-all ${currentPage === i + 1 ? 'bg-primary border-primary text-primary-foreground font-bold' : 'border-border text-muted-foreground hover:border-primary'}`}
+                                className={`cursor-pointer w-8 h-8 rounded-full border text-xs transition-all ${currentPage === i + 1 ? 'bg-primary border-primary text-primary-foreground font-bold' : 'border-border text-muted-foreground hover:border-primary'}`}
                             >
                                 {i + 1}
                             </button>
@@ -110,9 +110,9 @@ export function CatalogueView() {
                     <button
                         disabled={currentPage === totalPages}
                         onClick={() => { setCurrentPage(p => p + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                        className="text-muted-foreground hover:text-primary disabled:opacity-20 uppercase text-xs tracking-widest"
+                        className="cursor-pointer text-muted-foreground hover:text-primary disabled:opacity-20 uppercase text-xs tracking-widest"
                     >
-                        NEXT {"//"}
+                         →
                     </button>
                 </div>
             </div>
