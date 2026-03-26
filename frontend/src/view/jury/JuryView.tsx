@@ -10,6 +10,7 @@ import { FilmDetail } from "./FilmDetail";
 import { VideoPlayer } from "./VideoPlayer";
 import { JuryVote } from "./JuryVote";
 import { AssignedFilms } from "./AssignedFilms";
+import JurySkeleton from "../../components/ui/JurySkeleton";
 import type { Film, VoteDecision } from "./types";
 
 type ApiFilm = Film & {
@@ -91,10 +92,12 @@ export function JuryView() {
       setFilmsError("");
 
       if (isDemoMode) {
-        setFilms(DEMO_FILMS);
-        setVotesByFilm({});
-        setCommentsByFilm({});
-        setIsFetchingFilms(false);
+        setTimeout(() => {
+          setFilms(DEMO_FILMS);
+          setVotesByFilm({});
+          setCommentsByFilm({});
+          setIsFetchingFilms(false);
+        }, 2500); // Délai artificiel pour voir le skeleton
         return;
       }
 
@@ -257,6 +260,10 @@ export function JuryView() {
     setLanguage(lang);
   };
 
+  if (isFetchingFilms) {
+    return <JurySkeleton />;
+  }
+
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-background text-foreground transition-colors">
       <a
@@ -311,18 +318,11 @@ export function JuryView() {
             </aside>
 
             <main id="jury-main-content" className="space-y-4 lg:space-y-5">
-              {isFetchingFilms && (
-                <div className="rounded-xl border border-border bg-card/80 px-4 py-3 text-sm text-muted-foreground">
-                  Chargement des films assignes...
-                </div>
-              )}
-
               {filmsError && (
                 <div className="feedback-error px-4 py-3 text-sm">
                   {filmsError}
                 </div>
               )}
-
               <VideoPlayer film={selectedFilm} />
               <FilmDetail
                 film={selectedFilm}
@@ -339,7 +339,7 @@ export function JuryView() {
                 }
                 onCommentChange={(nextComment) => {
                   if (!selectedFilm) return;
-                  // Conserve les brouillons de commentaires lies au film actuellement selectionne.
+                  // Conserve les brouillons de commentaires liés au film actuellement sélectionné.
                   setCommentsByFilm((previous) => ({
                     ...previous,
                     [selectedFilm.id]: nextComment,
