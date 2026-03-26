@@ -37,7 +37,7 @@ export default function JurySkeleton({ theme }: JurySkeletonProps) {
     : "bg-slate-50 text-slate-700";
   const panelBg = isDark ? "bg-gray-800" : "bg-white";
   const panelBorder = isDark ? "border-gray-700" : "border-slate-300";
-  const skeletonGray = isDark ? "bg-gray-700" : "bg-slate-300";
+  const skeletonGray = isDark ? "bg-gray-700" : "bg-slate-300/75";
   const searchBarBg = isDark ? "bg-gray-800/85" : "bg-slate-100/95";
   const gradientBg = isDark
     ? "from-gray-900 via-gray-800 to-gray-700"
