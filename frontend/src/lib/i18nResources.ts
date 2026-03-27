@@ -190,7 +190,10 @@ export const resources = {
         loading: "Chargement des films…",
         noAssignedTitle: "Aucun film assigné",
         noAssignedDesc:
-          "Le panel admin doit vous assigner des films avant que vous puissiez voter.",
+          "L'administrateur doit vous assigner des films avant que vous puissiez voter.",
+        noResultsTitle: "Aucun film trouvé",
+        noResultsDesc:
+          "Ajustez la recherche ou les filtres pour afficher des films.",
         selectFilm: "Sélectionner un film",
         filmDetailsTitle: "Détails du film",
         filmSelectPrompt: "Sélectionne un film pour voir les détails.",
@@ -993,6 +996,9 @@ export const resources = {
         noAssignedTitle: "No assigned film",
         noAssignedDesc:
           "The admin panel must assign films before you can vote.",
+        noResultsTitle: "No films found",
+        noResultsDesc:
+          "Adjust search or filters to display films.",
         selectFilm: "Select a film",
         filmDetailsTitle: "Film details",
         filmSelectPrompt: "Select a film to see details.",

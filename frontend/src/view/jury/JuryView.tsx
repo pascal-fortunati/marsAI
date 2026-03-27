@@ -323,7 +323,7 @@ export function JuryView() {
                   {filmsError}
                 </div>
               )}
-              <VideoPlayer film={selectedFilm} />
+              <VideoPlayer film={selectedFilm} hasFilms={films.length > 0} />
               <FilmDetail
                 film={selectedFilm}
                 voteDecision={
