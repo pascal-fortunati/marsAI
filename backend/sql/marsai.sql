@@ -3,7 +3,11 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
+<<<<<<< HEAD
 -- Generation Time: Mar 17, 2026 at 08:09 AM
+=======
+-- Generation Time: Mar 23, 2026 at 08:23 AM
+>>>>>>> dev
 -- Server version: 8.0.30
 -- PHP Version: 8.1.10
 
@@ -39,6 +43,7 @@ CREATE TABLE `admin_decisions` (
   `decided_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+<<<<<<< HEAD
 --
 -- Dumping data for table `admin_decisions`
 --
@@ -164,6 +169,8 @@ INSERT INTO `admin_decisions` (`id`, `submission_id`, `admin_user_id`, `decision
 (138, '91fc2bd1-2169-45ca-b5b7-351c39468f18', 2, 'validated', NULL, 1, NULL, NULL, '2026-03-13 15:42:36'),
 (139, '91fc2bd1-2169-45ca-b5b7-351c39468f18', 2, 'refused', NULL, 1, NULL, NULL, '2026-03-13 15:44:12');
 
+=======
+>>>>>>> dev
 -- --------------------------------------------------------
 
 --
@@ -177,6 +184,7 @@ CREATE TABLE `jury_assignments` (
   `assigned_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+<<<<<<< HEAD
 --
 -- Dumping data for table `jury_assignments`
 --
@@ -203,6 +211,8 @@ INSERT INTO `jury_assignments` (`id`, `jury_user_id`, `submission_id`, `assigned
 (73, 1, '99999999-9999-9999-9999-999999999999', '2026-03-12 11:51:52'),
 (74, 1, '88888888-8888-8888-8888-888888888888', '2026-03-12 11:51:52');
 
+=======
+>>>>>>> dev
 -- --------------------------------------------------------
 
 --
@@ -218,6 +228,7 @@ CREATE TABLE `jury_votes` (
   `voted_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+<<<<<<< HEAD
 --
 -- Dumping data for table `jury_votes`
 --
@@ -228,6 +239,8 @@ INSERT INTO `jury_votes` (`id`, `submission_id`, `jury_user_id`, `action`, `comm
 (27, '90df02a3-59d3-4eb1-9324-7519e4777152', 1, 'refuse', 'Ton film n\'est pas du tout dans nos mœurs !', '2026-03-13 11:05:24'),
 (28, '91fc2bd1-2169-45ca-b5b7-351c39468f18', 1, 'validate', 'super cool comme vidéo !', '2026-03-13 15:37:23');
 
+=======
+>>>>>>> dev
 -- --------------------------------------------------------
 
 --
@@ -235,6 +248,7 @@ INSERT INTO `jury_votes` (`id`, `submission_id`, `jury_user_id`, `action`, `comm
 --
 
 CREATE TABLE `site_settings` (
+<<<<<<< HEAD
   `key` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `value` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -274,6 +288,13 @@ INSERT INTO `site_settings` (`key`, `value`, `updated_at`) VALUES
 ('youtube_oauth_connected_at', NULL, '2026-03-12 14:05:27'),
 ('youtube_oauth_refresh_token_enc', NULL, '2026-03-12 14:05:27');
 
+=======
+  `key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `value` text COLLATE utf8mb4_unicode_ci,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+>>>>>>> dev
 -- --------------------------------------------------------
 
 --
@@ -319,6 +340,7 @@ CREATE TABLE `submissions` (
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+<<<<<<< HEAD
 --
 -- Dumping data for table `submissions`
 --
@@ -353,6 +375,8 @@ INSERT INTO `submissions` (`id`, `title`, `synopsis`, `country`, `language`, `ca
 ('fa8a2f29-da34-461a-902b-0f19446d3550', 'notre allié l\'IA', 'comment l\'Ia peut nous faciliter la vie', 'Italie', 'Coréen', 'Animation', 2026, 90, '[\"RunwayML\", \"Stable Diffusion\"]', '[\"Futur souhaitable\"]', 'test', 1, 'alan bic', 'alanbic@gmail.com', '06 78 52 13 45', '45 rue de l\'ivresse', '83000', 'Toulon', 'Argentine', '1986-08-21', 'Designer', '{}', 'Bouche à oreille', 'alan bic', 'alanbic@gmail.com', 'https://s3.fr-par.scw.cloud/tln/grp3/fa8a2f29-da34-461a-902b-0f19446d3550/poster.jpg', 'https://s3.fr-par.scw.cloud/tln/grp3/fa8a2f29-da34-461a-902b-0f19446d3550/video.mp4', 'https://s3.fr-par.scw.cloud/tln/grp3/fa8a2f29-da34-461a-902b-0f19446d3550/subtitles.txt', 'V6-oYJXrBPM', NULL, 1, 1, 0, 1, 'selected', '2026-03-05 14:22:24'),
 ('fd922ed3-d900-43eb-a1f0-8adafcb682a4', 'évolution', 'Une immersion visuelle où la nostalgie du cinéma classique rencontre la puissance de l\'intelligence artificielle', 'Maroc', 'Mandarin', 'Autre', 2026, 60, '[\"MidJourney\", \"Kling\"]', '[\"Humanité & IA\"]', 'test', 1, 'jean bon', 'jeanbon@gmail.com', '06 78 90 65 34', '\'( rue de la ferme', '89765', 'trouville', 'Espagne', '2005-12-16', 'Artiste numérique', '{\"youtube\": \"jeanbon\", \"instagram\": \"jeanbon\"}', 'Moteur de recherche', 'jean bon', 'jeanbon@gmail.com', 'https://s3.fr-par.scw.cloud/tln/grp3/fd922ed3-d900-43eb-a1f0-8adafcb682a4/poster.jpg', 'https://s3.fr-par.scw.cloud/tln/grp3/fd922ed3-d900-43eb-a1f0-8adafcb682a4/video.mp4', 'https://s3.fr-par.scw.cloud/tln/grp3/fd922ed3-d900-43eb-a1f0-8adafcb682a4/subtitles.txt', '1Drr4bqct_E', NULL, 1, 1, 0, 1, 'selected', '2026-03-05 14:00:07');
 
+=======
+>>>>>>> dev
 -- --------------------------------------------------------
 
 --
@@ -369,6 +393,7 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
+<<<<<<< HEAD
 -- Dumping data for table `users`
 --
 
@@ -382,6 +407,8 @@ INSERT INTO `users` (`id`, `google_sub_id`, `email`, `name`, `role`, `created_at
 (37, '114534791983987304481', 'franck.fortunati@laplateforme.io', 'Franck Fortunati', 'moderator', '2026-03-09 12:32:12');
 
 --
+=======
+>>>>>>> dev
 -- Indexes for dumped tables
 --
 
@@ -437,25 +464,41 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `admin_decisions`
 --
 ALTER TABLE `admin_decisions`
+<<<<<<< HEAD
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=140;
+=======
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+>>>>>>> dev
 
 --
 -- AUTO_INCREMENT for table `jury_assignments`
 --
 ALTER TABLE `jury_assignments`
+<<<<<<< HEAD
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
+=======
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+>>>>>>> dev
 
 --
 -- AUTO_INCREMENT for table `jury_votes`
 --
 ALTER TABLE `jury_votes`
+<<<<<<< HEAD
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+=======
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+>>>>>>> dev
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
+<<<<<<< HEAD
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+=======
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+>>>>>>> dev
 
 --
 -- Constraints for dumped tables
