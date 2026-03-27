@@ -14,8 +14,10 @@ export interface HomeData {
     films: number;
     visitors: number;
   };
-  translations: Record<string, unknown>;
-  site_logo: string | null;
+  translation?: Record<string, unknown>;
+  translations?: Record<string, unknown>;
+  home_logo?: string | null;
+  site_logo?: string | null;
   partners_logos: unknown[];
   form_options: Record<string, unknown[]>;
 }
@@ -25,7 +27,10 @@ export interface HomeData {
  * Récupère toutes les données de la page d'accueil (phase, stats, traductions…)
  */
 export async function getHomeData(): Promise<HomeData> {
-  const res = await fetch(`${BASE}/api/site/home`);
+  const separator = `${BASE}/api/site/home`.includes("?") ? "&" : "?";
+  const res = await fetch(`${BASE}/api/site/home${separator}t=${Date.now()}`, {
+    cache: "no-store",
+  });
   if (!res.ok) throw new Error("Impossible de charger les données du site");
   return res.json();
 }

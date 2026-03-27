@@ -13,7 +13,6 @@ const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
 const getToken = () => localStorage.getItem("jwt_token") ?? localStorage.getItem("marsai_token") ?? "";
 
 
-// ONGLET FILMS
 export default function AdminView() {
     const [activeTab, setActiveTab] = useState<AdminTab>("films");
     const [films, setFilms] = useState<AdminFilm[]>([]);
@@ -97,5 +96,3 @@ function ComingSoon({ label }: { label: string }) {
         </div>
     );
 }
-
-// ONGLET SITE

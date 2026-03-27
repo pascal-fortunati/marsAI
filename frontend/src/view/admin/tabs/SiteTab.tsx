@@ -1,18 +1,37 @@
-import { useCallback, useEffect, useMemo, useState, type ComponentType } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ComponentType } from "react";
 import { BookOpenText, BriefcaseBusiness, Bot, CalendarDays, Clock3, Eye, Flag, Home, Languages, Lock, RefreshCw, Save, Shapes, SlidersHorizontal, Tag, Telescope, Trophy } from "lucide-react";
 import * as Flags from "country-flag-icons/react/3x2";
+import { Combobox } from "../../../components/ui/combobox";
 import { invalidateSiteCache } from "../adminHelpers";
 import { resources } from "../../../lib/i18nResources";
 import { FR_COUNTRY_NAMES, getCountryCode, getLanguageFlagCode } from "../../../lib/countryMapping";
 import { PHASE_DATES } from "../../home/homeHelpers";
 
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
+const DEFAULT_PREVIEW_HEIGHT_PX = 900;
 const getToken = () =>
     localStorage.getItem("jwt_token") ?? localStorage.getItem("marsai_token") ?? "";
 
 type SiteSettings = Record<string, string>;
 type Lang = "fr" | "en";
 type SiteSection = "home" | "submission" | "festival";
+type HomePreviewField =
+    | "home_logo"
+    | "home_hero_image_url"
+    | "home_eyebrow"
+    | "home_terminal"
+    | "hero_title1"
+    | "hero_title2"
+    | "hero_title3"
+    | "hero_text"
+    | "cta_submit"
+    | "cta_catalogue"
+    | "cta_palmares"
+    | "feature_text"
+    | "feature_cta"
+    | "theme_title"
+    | "theme_quote"
+    | "feature_tags";
 
 const DEFAULT_HOME_BY_LANG = {
     fr: resources.fr.translation.home,
@@ -127,6 +146,7 @@ const MONTHS_FR = [
 const DEFAULT_PHASE1_ISO = PHASE_DATES.phase1Close.toISOString();
 const DEFAULT_PHASE2_ISO = PHASE_DATES.phase2Close.toISOString();
 const DEFAULT_PHASE3_ISO = PHASE_DATES.phase3Close.toISOString();
+const DEFAULT_CTA_PALMARES = "Palmarès →";
 
 type FormState = {
     phase1_close_iso: string;
@@ -144,6 +164,7 @@ type FormState = {
     hero_text: string;
     cta_submit: string;
     cta_catalogue: string;
+    cta_palmares: string;
     theme_title: string;
     theme_quote: string;
     feature_text: string;
@@ -179,6 +200,7 @@ const EMPTY_FORM: FormState = {
     hero_text: "",
     cta_submit: "",
     cta_catalogue: "",
+    cta_palmares: "",
     theme_title: "",
     theme_quote: "",
     feature_text: "",
@@ -250,11 +272,67 @@ export default function SiteTab() {
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
     const [previewUrl, setPreviewUrl] = useState("");
+    const [saveError, setSaveError] = useState("");
+    const [selectedPreviewField, setSelectedPreviewField] = useState<HomePreviewField | null>(null);
+    const [editorPanelHeight, setEditorPanelHeight] = useState<number>(DEFAULT_PREVIEW_HEIGHT_PX);
+    const editorPanelRef = useRef<HTMLDivElement | null>(null);
+    const previewHeaderRef = useRef<HTMLDivElement | null>(null);
+    const [previewHeaderHeight, setPreviewHeaderHeight] = useState<number>(0);
+    const previewIframeRef = useRef<HTMLIFrameElement | null>(null);
+
+    useEffect(() => {
+        const el = editorPanelRef.current;
+        if (!el) return;
+
+        const updateHeight = () => {
+            const nextHeight = Math.max(Math.ceil(el.getBoundingClientRect().height), 420);
+            setEditorPanelHeight(nextHeight);
+        };
+
+        updateHeight();
+
+        const observer = new ResizeObserver(() => updateHeight());
+        observer.observe(el);
+        window.addEventListener("resize", updateHeight);
+
+        return () => {
+            observer.disconnect();
+            window.removeEventListener("resize", updateHeight);
+        };
+    }, [activeSection]);
+
+    useEffect(() => {
+        const el = previewHeaderRef.current;
+        if (!el) return;
+
+        const updateHeight = () => {
+            setPreviewHeaderHeight(Math.ceil(el.getBoundingClientRect().height));
+        };
+
+        updateHeight();
+
+        const observer = new ResizeObserver(() => updateHeight());
+        observer.observe(el);
+        window.addEventListener("resize", updateHeight);
+
+        return () => {
+            observer.disconnect();
+            window.removeEventListener("resize", updateHeight);
+        };
+    }, []);
+
+    const previewFrameHeight = Math.max(320, editorPanelHeight - previewHeaderHeight - 12);
 
     const load = useCallback(async () => {
         const res = await fetch(`${BASE}/api/admin/settings`, {
             headers: { Authorization: `Bearer ${getToken()}` },
         });
+
+        if (!res.ok) {
+            const payload = await res.text();
+            throw new Error(`Impossible de charger les paramètres (${res.status}) ${payload}`);
+        }
+
         const data = (await res.json()) as SiteSettings;
         const translationRaw = data.home_translation || data.home_translations || "{}";
         const translationObj = parseJsonValue<Record<string, unknown>>(translationRaw, {});
@@ -279,6 +357,7 @@ export default function SiteTab() {
             hero_text: pickString(homeTr.heroText, homeDefaults.heroText),
             cta_submit: pickString(homeTr.ctaSubmit, homeDefaults.ctaSubmit),
             cta_catalogue: pickString(homeTr.ctaCatalogue, homeDefaults.ctaCatalogue),
+            cta_palmares: pickString((homeTr as Record<string, unknown>).ctaPalmares, DEFAULT_CTA_PALMARES),
             theme_title: pickString(homeTr.themeTitle, homeDefaults.themeTitle),
             theme_quote: pickString(homeTr.themeQuote, homeDefaults.themeQuote),
             feature_text: pickString(homeTr.featureText, homeDefaults.featureText),
@@ -344,11 +423,14 @@ export default function SiteTab() {
             festival_keywords: parseStringArray(data.festival_keywords),
             festival_description: data.festival_description ?? "",
         });
-        setPreviewUrl(`${BASE.replace("4000", "4001")}/`);
+        setPreviewUrl(`${BASE.replace("4000", "4001")}/?adminPreview=1`);
     }, []);
 
     useEffect(() => {
-        load();
+        void load().catch((err) => {
+            console.error("[SiteTab] load settings", err);
+            setSaveError("Chargement impossible. Vérifiez votre session admin.");
+        });
     }, [load]);
 
     const langTranslation = useMemo(() => {
@@ -368,6 +450,7 @@ export default function SiteTab() {
             hero_text: pickString(langTranslation.heroText, langDefaults.heroText),
             cta_submit: pickString(langTranslation.ctaSubmit, langDefaults.ctaSubmit),
             cta_catalogue: pickString(langTranslation.ctaCatalogue, langDefaults.ctaCatalogue),
+            cta_palmares: pickString((langTranslation as Record<string, unknown>).ctaPalmares, DEFAULT_CTA_PALMARES),
             theme_title: pickString(langTranslation.themeTitle, langDefaults.themeTitle),
             theme_quote: pickString(langTranslation.themeQuote, langDefaults.themeQuote),
             feature_text: pickString(langTranslation.featureText, langDefaults.featureText),
@@ -378,12 +461,128 @@ export default function SiteTab() {
         }));
     }, [langTranslation]);
 
+    useEffect(() => {
+        if (activeSection !== "home") {
+            setSelectedPreviewField(null);
+        }
+    }, [activeSection]);
+
+    useEffect(() => {
+        const handlePreviewMessage = (event: MessageEvent) => {
+            const raw = event.data as unknown;
+            if (!raw || typeof raw !== "object") return;
+            const data = raw as { type?: string; payload?: { field?: string; value?: string } };
+            if (data.type !== "marsai-admin-preview-input") return;
+
+            const field = data.payload?.field;
+            const value = data.payload?.value;
+            if (typeof field !== "string" || typeof value !== "string") return;
+
+            const fieldMap: Record<string, keyof FormState> = {
+                home_logo: "home_logo",
+                home_hero_image_url: "home_hero_image_url",
+                home_eyebrow: "home_eyebrow",
+                home_terminal: "home_terminal",
+                hero_title1: "hero_title1",
+                hero_title2: "hero_title2",
+                hero_title3: "hero_title3",
+                hero_text: "hero_text",
+                cta_submit: "cta_submit",
+                cta_catalogue: "cta_catalogue",
+                cta_palmares: "cta_palmares",
+                feature_text: "feature_text",
+                feature_cta: "feature_cta",
+                theme_title: "theme_title",
+                theme_quote: "theme_quote",
+                feature_tags: "feature_tags",
+            };
+
+            const mappedField = fieldMap[field];
+            if (!mappedField) return;
+
+            if (mappedField === "feature_tags") {
+                const parsedTags = value
+                    .split("|")
+                    .map((item) => item.trim())
+                    .filter(Boolean);
+                setField("feature_tags", parsedTags);
+                return;
+            }
+
+            setField(mappedField, value as FormState[typeof mappedField]);
+        };
+
+        window.addEventListener("message", handlePreviewMessage);
+        return () => window.removeEventListener("message", handlePreviewMessage);
+    }, []);
+
+    const pushPreviewSync = useCallback((fieldOverride?: HomePreviewField | null) => {
+        if (!previewIframeRef.current?.contentWindow) return;
+
+        previewIframeRef.current.contentWindow.postMessage(
+            {
+                type: "marsai-admin-preview-sync",
+                payload: {
+                    selectedField: fieldOverride ?? selectedPreviewField,
+                    values: {
+                        home_logo: form.home_logo,
+                        home_hero_image_url: form.home_hero_image_url,
+                        home_eyebrow: form.home_eyebrow,
+                        home_terminal: form.home_terminal,
+                        hero_title1: form.hero_title1,
+                        hero_title2: form.hero_title2,
+                        hero_title3: form.hero_title3,
+                        hero_text: form.hero_text,
+                        cta_submit: form.cta_submit,
+                        cta_catalogue: form.cta_catalogue,
+                        cta_palmares: form.cta_palmares,
+                        feature_text: form.feature_text,
+                        feature_cta: form.feature_cta,
+                        theme_title: form.theme_title,
+                        theme_quote: form.theme_quote,
+                        feature_tags: form.feature_tags.join("|"),
+                        phase1_close_iso: form.phase1_close_iso,
+                        phase2_catalogue_iso: form.phase2_catalogue_iso,
+                        phase3_palmares_iso: form.phase3_palmares_iso,
+                    },
+                },
+            },
+            "*"
+        );
+    }, [
+        selectedPreviewField,
+        form.home_logo,
+        form.home_hero_image_url,
+        form.home_eyebrow,
+        form.home_terminal,
+        form.hero_title1,
+        form.hero_title2,
+        form.hero_title3,
+        form.hero_text,
+        form.cta_submit,
+        form.cta_catalogue,
+        form.cta_palmares,
+        form.feature_text,
+        form.feature_cta,
+        form.theme_title,
+        form.theme_quote,
+        form.feature_tags,
+        form.phase1_close_iso,
+        form.phase2_catalogue_iso,
+        form.phase3_palmares_iso,
+    ]);
+
+    useEffect(() => {
+        pushPreviewSync();
+    }, [pushPreviewSync]);
+
     const setField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
         setForm((prev) => ({ ...prev, [key]: value }));
     };
 
     const save = async () => {
         setSaving(true);
+        setSaveError("");
         try {
             const currentTranslation = parseJsonValue<Record<string, unknown>>(settings.home_translation || settings.home_translations || "{}", {});
             const root = { ...currentTranslation } as Record<string, unknown>;
@@ -398,6 +597,7 @@ export default function SiteTab() {
             homeNode.heroText = form.hero_text;
             homeNode.ctaSubmit = form.cta_submit;
             homeNode.ctaCatalogue = form.cta_catalogue;
+            homeNode.ctaPalmares = form.cta_palmares;
             homeNode.themeTitle = form.theme_title;
             homeNode.themeQuote = form.theme_quote;
             homeNode.featureText = form.feature_text;
@@ -421,6 +621,16 @@ export default function SiteTab() {
                     };
                 })
                 .filter((item) => item.key || item.label);
+
+            const festivalDates = [
+                { key: "Phase 1", value: form.phase1_close_iso },
+                { key: "Phase 2", value: form.phase2_catalogue_iso },
+                { key: "Phase 3", value: form.phase3_palmares_iso },
+            ];
+            const invalidFestivalDate = festivalDates.find(({ value }) => !isIsoDateTimeLike(value));
+            if (invalidFestivalDate) {
+                throw new Error(`Date invalide détectée (${invalidFestivalDate.key}). Veuillez corriger la date avant de sauvegarder.`);
+            }
 
             const payload: SiteSettings = {
                 phase1_close_iso: form.phase1_close_iso,
@@ -454,12 +664,25 @@ export default function SiteTab() {
                 body: JSON.stringify(payload),
             });
 
-            if (!res.ok) throw new Error("save-failed");
+            if (!res.ok) {
+                const payloadText = await res.text();
+                throw new Error(`Sauvegarde impossible (${res.status}) ${payloadText}`);
+            }
 
             await invalidateSiteCache(BASE, getToken);
             setSettings((prev) => ({ ...prev, ...payload }));
+            await load();
+
+            if (previewIframeRef.current) {
+                previewIframeRef.current.src = `${previewUrl.split("?")[0]}?adminPreview=1&t=${Date.now()}`;
+            }
+
             setSaved(true);
             setTimeout(() => setSaved(false), 1800);
+        } catch (err) {
+            console.error("[SiteTab] save settings", err);
+            const message = err instanceof Error ? err.message : "Sauvegarde impossible";
+            setSaveError(message);
         } finally {
             setSaving(false);
         }
@@ -467,12 +690,20 @@ export default function SiteTab() {
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.22fr)_minmax(0,0.86fr)] gap-6 h-full">
-            <div className="overflow-y-auto pr-1">
-                <div className="rounded-2xl px-4 py-4 md:px-5 md:py-5 space-y-4" style={{ border: "1px solid rgba(255,255,255,.10)", background: "#070518" }}>
+            <div className="pr-1">
+                <div
+                    ref={editorPanelRef}
+                    className="rounded-2xl px-4 py-4 md:px-5 md:py-5 space-y-4"
+                    style={{
+                        border: "1px solid rgba(255,255,255,.10)",
+                        background: "#070518",
+                    }}
+                >
                     <div className="flex items-start justify-between gap-4">
                         <div>
                             <h2 className="f-orb text-[32px] leading-none text-white/90">Éditeur du site</h2>
                             <p className="f-mono text-[11px] text-white/35 mt-1">Organisation compacte par section</p>
+                            {saveError ? <p className="f-mono text-[10px] mt-2" style={{ color: "rgba(255,92,53,.9)" }}>{saveError}</p> : null}
                         </div>
                         <button
                             onClick={save}
@@ -507,13 +738,31 @@ export default function SiteTab() {
                     </div>
 
                     {activeSection === "home" ? (
-                        <>
+                        <div className="flex flex-col gap-4">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                 <Field label="Logo du site">
-                                    <input className="submit-input" value={form.home_logo} onChange={(e) => setField("home_logo", e.target.value)} placeholder="https://..." />
+                                    <input
+                                        className="submit-input"
+                                        value={form.home_logo}
+                                        onFocus={() => {
+                                            setSelectedPreviewField("home_logo");
+                                            setTimeout(() => pushPreviewSync("home_logo"), 0);
+                                        }}
+                                        onChange={(e) => setField("home_logo", e.target.value)}
+                                        placeholder="https://..."
+                                    />
                                 </Field>
                                 <Field label="URL image Hero">
-                                    <input className="submit-input" value={form.home_hero_image_url} onChange={(e) => setField("home_hero_image_url", e.target.value)} placeholder="https://..." />
+                                    <input
+                                        className="submit-input"
+                                        value={form.home_hero_image_url}
+                                        onFocus={() => {
+                                            setSelectedPreviewField("home_hero_image_url");
+                                            setTimeout(() => pushPreviewSync("home_hero_image_url"), 0);
+                                        }}
+                                        onChange={(e) => setField("home_hero_image_url", e.target.value)}
+                                        placeholder="https://..."
+                                    />
                                 </Field>
                                 <Field label="URL plateforme">
                                     <input className="submit-input" value={form.platform_url} onChange={(e) => setField("platform_url", e.target.value)} placeholder="http://..." />
@@ -550,31 +799,33 @@ export default function SiteTab() {
                                 </div>
 
                                 <div className="p-5 space-y-4">
-                                    <Field label="Bandeau d'introduction"><input className="submit-input" value={form.home_eyebrow} onChange={(e) => setField("home_eyebrow", e.target.value)} /></Field>
-                                    <Field label="Texte style terminal"><input className="submit-input" value={form.home_terminal} onChange={(e) => setField("home_terminal", e.target.value)} /></Field>
-                                    <Field label="Titre principal — ligne 1"><input className="submit-input" value={form.hero_title1} onChange={(e) => setField("hero_title1", e.target.value)} /></Field>
-                                    <Field label="Titre principal — ligne 2"><input className="submit-input" value={form.hero_title2} onChange={(e) => setField("hero_title2", e.target.value)} /></Field>
-                                    <Field label="Titre principal — ligne 3"><input className="submit-input" value={form.hero_title3} onChange={(e) => setField("hero_title3", e.target.value)} /></Field>
-                                    <Field label="Texte hero"><textarea className="submit-input resize-none" rows={3} value={form.hero_text} onChange={(e) => setField("hero_text", e.target.value)} /></Field>
-                                    <Field label="CTA Soumission"><input className="submit-input" value={form.cta_submit} onChange={(e) => setField("cta_submit", e.target.value)} /></Field>
-                                    <Field label="CTA Catalogue"><input className="submit-input" value={form.cta_catalogue} onChange={(e) => setField("cta_catalogue", e.target.value)} /></Field>
+                                    <Field label="Bandeau d'introduction"><input className="submit-input" value={form.home_eyebrow} onFocus={() => setSelectedPreviewField("home_eyebrow")} onChange={(e) => setField("home_eyebrow", e.target.value)} /></Field>
+                                    <Field label="Texte style terminal"><input className="submit-input" value={form.home_terminal} onFocus={() => setSelectedPreviewField("home_terminal")} onChange={(e) => setField("home_terminal", e.target.value)} /></Field>
+                                    <Field label="Titre principal — ligne 1"><input className="submit-input" value={form.hero_title1} onFocus={() => setSelectedPreviewField("hero_title1")} onChange={(e) => setField("hero_title1", e.target.value)} /></Field>
+                                    <Field label="Titre principal — ligne 2"><input className="submit-input" value={form.hero_title2} onFocus={() => setSelectedPreviewField("hero_title2")} onChange={(e) => setField("hero_title2", e.target.value)} /></Field>
+                                    <Field label="Titre principal — ligne 3"><input className="submit-input" value={form.hero_title3} onFocus={() => setSelectedPreviewField("hero_title3")} onChange={(e) => setField("hero_title3", e.target.value)} /></Field>
+                                    <Field label="Texte hero"><textarea className="submit-input resize-none" rows={3} value={form.hero_text} onFocus={() => setSelectedPreviewField("hero_text")} onChange={(e) => setField("hero_text", e.target.value)} /></Field>
+                                    <Field label="Bouton phase 1 (Soumettre)"><input className="submit-input" value={form.cta_submit} onFocus={() => setSelectedPreviewField("cta_submit")} onChange={(e) => setField("cta_submit", e.target.value)} /></Field>
+                                    <Field label="Bouton phase 2 (Catalogue)"><input className="submit-input" value={form.cta_catalogue} onFocus={() => setSelectedPreviewField("cta_catalogue")} onChange={(e) => setField("cta_catalogue", e.target.value)} /></Field>
+                                    <Field label="Bouton phase 3 (Palmarès)"><input className="submit-input" value={form.cta_palmares} onFocus={() => setSelectedPreviewField("cta_palmares")} onChange={(e) => setField("cta_palmares", e.target.value)} /></Field>
                                     <Field label="Description section festival">
-                                        <textarea className="submit-input resize-none" rows={3} value={form.feature_text} onChange={(e) => setField("feature_text", e.target.value)} />
+                                        <textarea className="submit-input resize-none" rows={3} value={form.feature_text} onFocus={() => setSelectedPreviewField("feature_text")} onChange={(e) => setField("feature_text", e.target.value)} />
                                     </Field>
-                                    <Field label="Action section festival"><input className="submit-input" value={form.feature_cta} onChange={(e) => setField("feature_cta", e.target.value)} /></Field>
-                                    <Field label="Titre du thème"><input className="submit-input" value={form.theme_title} onChange={(e) => setField("theme_title", e.target.value)} /></Field>
+                                    <Field label="Action section festival"><input className="submit-input" value={form.feature_cta} onFocus={() => setSelectedPreviewField("feature_cta")} onChange={(e) => setField("feature_cta", e.target.value)} /></Field>
+                                    <Field label="Titre du thème"><input className="submit-input" value={form.theme_title} onFocus={() => setSelectedPreviewField("theme_title")} onChange={(e) => setField("theme_title", e.target.value)} /></Field>
                                     <Field label="Citation du thème">
-                                        <textarea className="submit-input resize-none" rows={2} value={form.theme_quote} onChange={(e) => setField("theme_quote", e.target.value)} />
+                                        <textarea className="submit-input resize-none" rows={2} value={form.theme_quote} onFocus={() => setSelectedPreviewField("theme_quote")} onChange={(e) => setField("theme_quote", e.target.value)} />
                                     </Field>
                                     <IndexedListInput
                                         label="Mots-clés de la section festival"
                                         values={form.feature_tags}
                                         placeholder="Ex : Futur souhaitable"
+                                        onFocus={() => setSelectedPreviewField("feature_tags")}
                                         onChange={(values) => setField("feature_tags", values)}
                                     />
                                 </div>
                             </div>
-                        </>
+                        </div>
                     ) : null}
 
                     {activeSection === "submission" ? (
@@ -618,6 +869,7 @@ export default function SiteTab() {
 
             <div className="flex flex-col gap-3">
                 <div
+                    ref={previewHeaderRef}
                     className="rounded-2xl px-4 py-4 md:px-5 md:py-5 flex items-center justify-between gap-3"
                     style={{ border: "1px solid rgba(255,255,255,.1)", background: "#070518" }}
                 >
@@ -653,15 +905,19 @@ export default function SiteTab() {
                 >
                     {previewUrl ? (
                         <iframe
+                            ref={previewIframeRef}
                             id="site-preview"
                             src={previewUrl}
                             className="w-full"
-                            style={{ height: "2400px", border: "none", overflow: "hidden" }}
+                            style={{ height: `${previewFrameHeight}px`, border: "none", overflow: "auto" }}
                             title="Aperçu du site"
-                            scrolling="no"
+                            scrolling="auto"
+                            onLoad={() => {
+                                setTimeout(() => pushPreviewSync(), 80);
+                            }}
                         />
                     ) : (
-                        <div className="flex items-center justify-center min-h-[600px]">
+                        <div className="flex items-center justify-center" style={{ minHeight: `${previewFrameHeight}px` }}>
                             <p className="f-mono text-[10px] text-white/20">Chargement de l'aperçu...</p>
                         </div>
                     )}
@@ -684,15 +940,28 @@ function Section({ title, hint, children }: { title: string; hint?: string; chil
 }
 
 function toLocalParts(iso: string) {
+    const match = typeof iso === "string"
+        ? iso.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/)
+        : null;
+
+    if (match) {
+        const [, year, month, day, hour, minute] = match;
+        return {
+            day,
+            month: String(Math.max(0, Math.min(11, Number(month) - 1))),
+            year,
+            hour,
+            minute,
+        };
+    }
+
     const now = new Date();
-    const parsed = iso ? new Date(iso) : null;
-    const safe = parsed && !Number.isNaN(parsed.getTime()) ? parsed : now;
     return {
-        day: String(safe.getDate()).padStart(2, "0"),
-        month: String(safe.getMonth()),
-        year: String(safe.getFullYear()),
-        hour: String(safe.getHours()).padStart(2, "0"),
-        minute: String(safe.getMinutes()).padStart(2, "0"),
+        day: String(now.getDate()).padStart(2, "0"),
+        month: String(now.getMonth()),
+        year: String(now.getFullYear()),
+        hour: String(now.getHours()).padStart(2, "0"),
+        minute: String(now.getMinutes()).padStart(2, "0"),
     };
 }
 
@@ -704,6 +973,24 @@ function buildIsoFromParts(parts: { day: string; month: string; year: string; ho
 function formatFrenchDate(parts: { day: string; month: string; year: string; hour: string; minute: string }) {
     const monthName = MONTHS_FR[Number(parts.month)] ?? MONTHS_FR[0];
     return `${parts.day} ${monthName} ${parts.year} à ${parts.hour}:${parts.minute}`;
+}
+
+function getDaysInMonth(year: string, month: string) {
+    const y = Number(year);
+    const m = Number(month);
+    if (!Number.isFinite(y) || !Number.isFinite(m)) return 31;
+    return new Date(y, m + 1, 0).getDate();
+}
+
+function isIsoDateTimeLike(value: string) {
+    return /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(:\d{2}(\.\d{1,3})?)?(Z)?$/.test(value);
+}
+
+function withAlpha(color: string, alpha: number) {
+    const match = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)$/i);
+    if (!match) return color;
+    const [, r, g, b] = match;
+    return `rgba(${r},${g},${b},${alpha})`;
 }
 
 function FestivalPhasesSection({
@@ -776,68 +1063,111 @@ function PhaseDateCard({
     icon: React.ReactNode;
 }) {
     const parts = toLocalParts(value);
-    const years = [2025, 2026, 2027, 2028];
+    const currentYear = new Date().getFullYear();
+    const selectedYear = Number(parts.year);
+    const minYear = Math.min(currentYear - 2, Number.isFinite(selectedYear) ? selectedYear - 1 : currentYear - 2);
+    const maxYear = Math.max(currentYear + 12, Number.isFinite(selectedYear) ? selectedYear + 1 : currentYear + 12);
+    const years = Array.from({ length: maxYear - minYear + 1 }, (_, idx) => minYear + idx);
+    const maxDay = getDaysInMonth(parts.year, parts.month);
+    const dayOptions = Array.from({ length: maxDay }, (_, idx) => {
+        const val = String(idx + 1).padStart(2, "0");
+        return { value: val, label: val };
+    });
+    const monthOptions = MONTHS_FR.map((month, idx) => ({ value: String(idx), label: month }));
+    const yearOptions = years.map((year) => ({ value: String(year), label: String(year) }));
+    const hourOptions = Array.from({ length: 24 }, (_, idx) => {
+        const val = String(idx).padStart(2, "0");
+        return { value: val, label: `${val} h` };
+    });
+    const minuteOptions = Array.from({ length: 60 }, (_, idx) => {
+        const val = String(idx).padStart(2, "0");
+        return { value: val, label: `${val} min` };
+    });
+    const phaseBorder = withAlpha(badgeColor, 0.45);
+    const phaseBadgeBackground = "transparent";
+    const phaseIconBackground = "transparent";
 
     const updatePart = (key: "day" | "month" | "year" | "hour" | "minute", next: string) => {
         const nextParts = { ...parts, [key]: next };
+        if (key === "month" || key === "year") {
+            const nextMaxDay = getDaysInMonth(nextParts.year, nextParts.month);
+            if (Number(nextParts.day) > nextMaxDay) {
+                nextParts.day = String(nextMaxDay).padStart(2, "0");
+            }
+        }
         onChange(buildIsoFromParts(nextParts));
     };
 
     return (
-        <div className="rounded-2xl p-3" style={{ border: "1px solid rgba(255,255,255,.12)", background: "rgba(255,255,255,.02)" }}>
+        <div className="rounded-2xl p-3" style={{ border: `1px solid ${phaseBorder}`, background: "transparent" }}>
             <div className="flex items-center justify-between gap-3 px-1 pb-3">
                 <div className="inline-flex items-center gap-2">
-                    <span style={{ color: badgeColor }}>{icon}</span>
+                    <span
+                        className="w-8 h-8 rounded-lg inline-flex items-center justify-center"
+                        style={{ border: `1px solid ${phaseBorder}`, background: phaseIconBackground, color: badgeColor }}
+                    >
+                        {icon}
+                    </span>
                     <p className="f-mono text-[10px] tracking-[0.18em] uppercase" style={{ color: badgeColor }}>{title}</p>
                 </div>
                 <span
                     className="f-mono text-[10px] tracking-[0.16em] uppercase px-3 py-1 rounded-lg"
-                    style={{ border: `1px solid ${badgeColor}`, color: badgeColor, background: "rgba(255,255,255,.02)" }}
+                    style={{ border: `1px solid ${phaseBorder}`, color: badgeColor, background: phaseBadgeBackground }}
                 >
                     {badge}
                 </span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="rounded-xl p-3" style={{ border: "1px solid rgba(255,255,255,.1)", background: "rgba(6,7,30,.52)" }}>
+                <div className="rounded-xl p-3" style={{ border: "1px solid rgba(255,255,255,.1)", background: "transparent" }}>
                     <p className="f-mono text-[9px] tracking-[0.14em] uppercase text-white/36 mb-2 inline-flex items-center gap-1.5"><CalendarDays size={11} /> Sélectionner une date</p>
                     <div className="grid grid-cols-[88px_1fr_96px] gap-2">
-                        <select className="submit-input" value={parts.day} onChange={(e) => updatePart("day", e.target.value)}>
-                            {Array.from({ length: 31 }, (_, idx) => String(idx + 1).padStart(2, "0")).map((day) => (
-                                <option key={day} value={day}>{day}</option>
-                            ))}
-                        </select>
-                        <select className="submit-input" value={parts.month} onChange={(e) => updatePart("month", e.target.value)}>
-                            {MONTHS_FR.map((month, idx) => (
-                                <option key={month} value={String(idx)}>{month}</option>
-                            ))}
-                        </select>
-                        <select className="submit-input" value={parts.year} onChange={(e) => updatePart("year", e.target.value)}>
-                            {years.map((year) => (
-                                <option key={year} value={String(year)}>{year}</option>
-                            ))}
-                        </select>
+                        <Combobox
+                            value={parts.day}
+                            onChange={(next) => updatePart("day", next)}
+                            options={dayOptions}
+                            placeholder="Jour"
+                            searchable={false}
+                        />
+                        <Combobox
+                            value={parts.month}
+                            onChange={(next) => updatePart("month", next)}
+                            options={monthOptions}
+                            placeholder="Mois"
+                            searchable={false}
+                        />
+                        <Combobox
+                            value={parts.year}
+                            onChange={(next) => updatePart("year", next)}
+                            options={yearOptions}
+                            placeholder="Année"
+                            searchable={false}
+                        />
                     </div>
                 </div>
 
-                <div className="rounded-xl p-3" style={{ border: "1px solid rgba(255,255,255,.1)", background: "rgba(6,7,30,.52)" }}>
+                <div className="rounded-xl p-3" style={{ border: "1px solid rgba(255,255,255,.1)", background: "transparent" }}>
                     <p className="f-mono text-[9px] tracking-[0.14em] uppercase text-white/36 mb-2 inline-flex items-center gap-1.5"><Clock3 size={11} /> Heure</p>
                     <div className="grid grid-cols-2 gap-2">
-                        <select className="submit-input" value={parts.hour} onChange={(e) => updatePart("hour", e.target.value)}>
-                            {Array.from({ length: 24 }, (_, idx) => String(idx).padStart(2, "0")).map((hour) => (
-                                <option key={hour} value={hour}>{hour} h</option>
-                            ))}
-                        </select>
-                        <select className="submit-input" value={parts.minute} onChange={(e) => updatePart("minute", e.target.value)}>
-                            {Array.from({ length: 60 }, (_, idx) => String(idx).padStart(2, "0")).map((minute) => (
-                                <option key={minute} value={minute}>{minute} min</option>
-                            ))}
-                        </select>
+                        <Combobox
+                            value={parts.hour}
+                            onChange={(next) => updatePart("hour", next)}
+                            options={hourOptions}
+                            placeholder="Heure"
+                            searchable={false}
+                        />
+                        <Combobox
+                            value={parts.minute}
+                            onChange={(next) => updatePart("minute", next)}
+                            options={minuteOptions}
+                            placeholder="Minute"
+                            searchable={false}
+                        />
                     </div>
                 </div>
             </div>
 
-            <div className="mt-3 rounded-lg px-3 py-2" style={{ border: "1px solid rgba(255,255,255,.08)", background: "rgba(4,6,24,.66)" }}>
+            <div className="mt-3 rounded-lg px-3 py-2" style={{ border: "1px solid rgba(255,255,255,.08)", background: "transparent" }}>
                 <p className="f-mono text-[10px] text-white/55">Date (FR) : <span className="text-white/82">{formatFrenchDate(parts)}</span></p>
             </div>
         </div>
@@ -924,13 +1254,17 @@ function IndexedListInput({
     values,
     onChange,
     placeholder,
+    onFocus,
 }: {
     label: string;
     values: string[];
     onChange: (values: string[]) => void;
     placeholder?: string;
+    onFocus?: () => void;
 }) {
     const [input, setInput] = useState("");
+    const [editingIndex, setEditingIndex] = useState<number | null>(null);
+    const [editingValue, setEditingValue] = useState("");
 
     const addEntry = () => {
         const value = input.trim();
@@ -947,8 +1281,35 @@ function IndexedListInput({
         onChange(values.filter((_, idx) => idx !== index));
     };
 
+    const startEdit = (index: number) => {
+        setEditingIndex(index);
+        setEditingValue(values[index] ?? "");
+    };
+
+    const cancelEdit = () => {
+        setEditingIndex(null);
+        setEditingValue("");
+    };
+
+    const saveEdit = () => {
+        if (editingIndex === null) return;
+        const next = editingValue.trim();
+        if (!next) {
+            cancelEdit();
+            return;
+        }
+
+        if (values.some((entry, idx) => idx !== editingIndex && entry === next)) {
+            cancelEdit();
+            return;
+        }
+
+        onChange(values.map((entry, idx) => (idx === editingIndex ? next : entry)));
+        cancelEdit();
+    };
+
     return (
-        <div className="space-y-3">
+        <div className="space-y-3" onClick={onFocus}>
             <div className="flex items-center justify-between">
                 <label className="f-mono text-[9px] tracking-wide text-white/55">{label}</label>
                 <span className="f-mono text-[9px] px-2.5 py-1 rounded-lg text-white/75" style={{ border: "1px solid rgba(255,255,255,.10)", background: "rgba(255,255,255,.04)" }}>
@@ -960,7 +1321,8 @@ function IndexedListInput({
                 {values.map((value, index) => (
                     <div
                         key={`${value}-${index}`}
-                        className="group h-14 px-5 flex items-center justify-between"
+                        className="group h-14 px-5 flex items-center justify-between cursor-text"
+                        onClick={() => startEdit(index)}
                         style={{
                             borderTop: index === 0 ? "none" : "1px solid rgba(255,255,255,.08)",
                             background: "rgba(8, 9, 31, .65)",
@@ -968,9 +1330,38 @@ function IndexedListInput({
                     >
                         <div className="flex items-center gap-5 min-w-0">
                             <span className="f-mono text-[10px] text-white/35 w-4 text-right">{index + 1}</span>
-                            <span className="f-mono text-[14px] text-white/82 truncate">{value}</span>
+                            {editingIndex === index ? (
+                                <input
+                                    autoFocus
+                                    className="bg-transparent border-none outline-none f-mono text-[14px] text-white/92 w-full"
+                                    value={editingValue}
+                                    onChange={(e) => setEditingValue(e.target.value)}
+                                    onClick={(e) => e.stopPropagation()}
+                                    onBlur={saveEdit}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            e.preventDefault();
+                                            saveEdit();
+                                        }
+                                        if (e.key === "Escape") {
+                                            e.preventDefault();
+                                            cancelEdit();
+                                        }
+                                    }}
+                                />
+                            ) : (
+                                <span className="f-mono text-[14px] text-white/82 truncate">{value}</span>
+                            )}
                         </div>
-                        <button type="button" onClick={() => removeAt(index)} className="f-mono text-[16px] leading-none opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-400" aria-label="Supprimer">
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                removeAt(index);
+                            }}
+                            className="f-mono text-[16px] leading-none opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-400"
+                            aria-label="Supprimer"
+                        >
                             ×
                         </button>
                     </div>
@@ -982,6 +1373,7 @@ function IndexedListInput({
                     className="submit-input"
                     value={input}
                     placeholder={placeholder}
+                    onFocus={onFocus}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => {
                         if (e.key === "Enter") {

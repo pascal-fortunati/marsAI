@@ -16,8 +16,8 @@ router.get("/juries", getAdminJuries);
 router.post("/jury-assignments", postAssignJury);
 
 // Settings (onglet Site)
-router.get("/settings", requireAuth, getSettings);
-router.post("/settings", requireAuth, postSettings);
-router.post("/settings/invalidate-cache", requireAuth, postInvalidateCache);
+router.get("/settings", getSettings);
+router.post("/settings", postSettings);
+router.post("/settings/invalidate-cache", postInvalidateCache);
 
 export default router;

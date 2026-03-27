@@ -1,7 +1,8 @@
 import { getEditableSettings, updateSettings } from "../models/adminSettingsModel.js";
+import { invalidateHomeCache } from "./homeController.js";
 
 function invalidateSiteCache() {
-    return;
+    invalidateHomeCache();
 }
 
 // Get api/admin/settings

@@ -4,33 +4,269 @@ import { MAIN_STATS, PANEL_ROWS, TAGS, getCurrentFestivalPhase, getPhaseNotice, 
 import { marsaiGradients } from "../../theme/marsai";
 import { Button } from "../../components/ui/button";
 import { useEffect, useState } from "react";
+import { getHomeData, type HomeData } from "../../lib/api";
+
+type HomePreviewField =
+    | "home_logo"
+    | "home_hero_image_url"
+    | "home_eyebrow"
+    | "home_terminal"
+    | "hero_title1"
+    | "hero_title2"
+    | "hero_title3"
+    | "hero_text"
+    | "cta_submit"
+    | "cta_catalogue"
+    | "cta_palmares"
+    | "feature_text"
+    | "feature_cta"
+    | "theme_title"
+    | "theme_quote"
+    | "feature_tags";
+
+type HomePreviewValues = Record<HomePreviewField, string>;
+
+type HomePreviewSyncValues = Partial<HomePreviewValues> & {
+    phase1_close_iso?: string;
+    phase2_catalogue_iso?: string;
+    phase3_palmares_iso?: string;
+};
+
+const DEFAULT_PREVIEW_VALUES: HomePreviewValues = {
+    home_logo: "",
+    home_hero_image_url: "",
+    home_eyebrow: "Appel à films ouvert · Marseille 2026",
+    home_terminal: "> FESTIVAL_IA_V1.0 // INITIATING{{cursor}}",
+    hero_title1: "IMAGINEZ",
+    hero_title2: "DES FUTURS",
+    hero_title3: "SOUHAITABLES",
+    hero_text: "Courts-métrages 1-2 min entièrement générés par intelligence artificielle.\nOuvert à tous. Sans inscription.",
+    cta_submit: "Soumettre un film",
+    cta_catalogue: "Voir le catalogue",
+    cta_palmares: "Palmarès",
+    feature_text: "MarsAI place l'humain au coeur de la création assistée par IA. Stimulez votre créativité via le format court et rejoignez une communauté internationale autour de l'IA générative.",
+    feature_cta: "La Plateforme × Mobile Film Festival",
+    theme_title: "Thème 2026",
+    theme_quote: "Imaginez des futurs souhaitables",
+    feature_tags: "Science-fiction|Dystopie|Futur positif|Technologie|Humanité|Écologie|Créativité",
+};
+
+const focusedStyle = {
+    outline: "2px solid rgba(125,113,251,.9)",
+    outlineOffset: "4px",
+    borderRadius: "12px",
+    boxShadow: "0 0 0 10px rgba(125,113,251,.18)",
+} as const;
 
 export default function HomeView() {
 
     const [tick, setTick] = useState(0);
-    const phase = getCurrentFestivalPhase();
+    const [runtimeData, setRuntimeData] = useState<HomeData | null>(null);
+    const [adminPreviewMode, setAdminPreviewMode] = useState(false);
+    const [selectedField, setSelectedField] = useState<HomePreviewField | null>(null);
+    const [previewValues, setPreviewValues] = useState<HomePreviewValues>(DEFAULT_PREVIEW_VALUES);
+    const [previewRuntimeDates, setPreviewRuntimeDates] = useState<HomeData["dates"] | null>(null);
+
+    const resolvePhaseFromDates = (dates?: HomeData["dates"] | null, fallbackPhase?: 1 | 2 | 3 | 4): 1 | 2 | 3 | 4 => {
+        if (!dates) return fallbackPhase ?? getCurrentFestivalPhase();
+
+        const now = Date.now();
+        const p1 = dates.phase1_close ? new Date(dates.phase1_close).getTime() : NaN;
+        const p2 = dates.phase2_catalogue ? new Date(dates.phase2_catalogue).getTime() : NaN;
+        const p3 = dates.phase3_palmares ? new Date(dates.phase3_palmares).getTime() : NaN;
+
+        if (Number.isNaN(p1) || Number.isNaN(p2) || Number.isNaN(p3)) {
+            return fallbackPhase ?? getCurrentFestivalPhase();
+        }
+
+        if (now < p1) return 1;
+        if (now < p2) return 2;
+        if (now < p3) return 3;
+        return 4;
+    };
+
+    const effectiveDates = adminPreviewMode && previewRuntimeDates ? previewRuntimeDates : runtimeData?.dates;
+    const phase = resolvePhaseFromDates(effectiveDates, runtimeData?.phase);
 
     useEffect(() => {
         const interval = setInterval(() => setTick((t) => t + 1), 500);
         return () => clearInterval(interval);
     }, []);
 
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("adminPreview") === "1") setAdminPreviewMode(true);
+
+        const handler = (event: MessageEvent) => {
+            const raw = event.data as unknown;
+            if (!raw || typeof raw !== "object") return;
+            const data = raw as {
+                type?: string;
+                payload?: {
+                    selectedField?: HomePreviewField | null;
+                    values?: HomePreviewSyncValues;
+                };
+            };
+
+            if (data.type !== "marsai-admin-preview-sync") return;
+            setAdminPreviewMode(true);
+            setSelectedField(data.payload?.selectedField ?? null);
+            if (data.payload?.values) {
+                const syncValues = data.payload.values;
+                setPreviewValues((prev) => ({ ...prev, ...(syncValues as Partial<HomePreviewValues>) }));
+                setPreviewRuntimeDates((prev) => ({
+                    phase1_close: typeof syncValues.phase1_close_iso === "string" ? syncValues.phase1_close_iso : (prev?.phase1_close ?? null),
+                    phase2_catalogue: typeof syncValues.phase2_catalogue_iso === "string" ? syncValues.phase2_catalogue_iso : (prev?.phase2_catalogue ?? null),
+                    phase3_palmares: typeof syncValues.phase3_palmares_iso === "string" ? syncValues.phase3_palmares_iso : (prev?.phase3_palmares ?? null),
+                }));
+            }
+        };
+
+        window.addEventListener("message", handler);
+        return () => window.removeEventListener("message", handler);
+    }, []);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        const getTranslationRoot = (obj: unknown): Record<string, unknown> =>
+            typeof obj === "object" && obj !== null ? (obj as Record<string, unknown>) : {};
+
+        const getHomeTranslationByLang = (translation: unknown, lang: "fr" | "en") => {
+            const root = getTranslationRoot(translation);
+            const langNode = getTranslationRoot(root[lang]);
+            const langHome = getTranslationRoot(langNode.home);
+            if (Object.keys(langHome).length > 0) return langHome;
+            return getTranslationRoot(root.home);
+        };
+
+        void getHomeData()
+            .then((data) => {
+                if (cancelled) return;
+                setRuntimeData(data);
+
+                const lang = (localStorage.getItem("marsai_lang") === "en" ? "en" : "fr") as "fr" | "en";
+                const translationSource = data.translation ?? data.translations ?? {};
+                const homeTr = getHomeTranslationByLang(translationSource, lang);
+
+                const parseString = (value: unknown, fallback: string) =>
+                    typeof value === "string" && value.trim().length > 0 ? value : fallback;
+
+                const tagArray = Array.isArray(homeTr.featureTags)
+                    ? homeTr.featureTags.filter((item): item is string => typeof item === "string")
+                    : TAGS;
+
+                setPreviewValues((prev) => ({
+                    ...prev,
+                    home_logo: parseString(data.home_logo ?? data.site_logo, prev.home_logo),
+                    home_eyebrow: parseString(homeTr.eyebrow, prev.home_eyebrow),
+                    home_terminal: parseString(homeTr.terminal, prev.home_terminal),
+                    hero_title1: parseString(homeTr.title1, prev.hero_title1),
+                    hero_title2: parseString(homeTr.title2, prev.hero_title2),
+                    hero_title3: parseString(homeTr.title3, prev.hero_title3),
+                    hero_text: parseString(homeTr.heroText, prev.hero_text),
+                    cta_submit: parseString(homeTr.ctaSubmit, prev.cta_submit),
+                    cta_catalogue: parseString(homeTr.ctaCatalogue, prev.cta_catalogue),
+                    cta_palmares: parseString(homeTr.ctaPalmares, prev.cta_palmares),
+                    feature_text: parseString(homeTr.featureText, prev.feature_text),
+                    feature_cta: parseString(homeTr.featureCta, prev.feature_cta),
+                    theme_title: parseString(homeTr.themeTitle, prev.theme_title),
+                    theme_quote: parseString(homeTr.themeQuote, prev.theme_quote),
+                    feature_tags: tagArray.join("|"),
+                }));
+            })
+            .catch((error) => {
+                console.error("[HomeView] runtime settings", error);
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    const updateValue = (field: HomePreviewField, value: string) => {
+        setPreviewValues((prev) => ({ ...prev, [field]: value }));
+        if (window.parent !== window) {
+            window.parent.postMessage(
+                {
+                    type: "marsai-admin-preview-input",
+                    payload: { field, value },
+                },
+                "*"
+            );
+        }
+    };
+
     return (
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-10 min-h-screen">
-            <HeroSection tick={tick} phase={phase} />
-            <CountdownSection phase={phase} />
+            <HeroSection
+                tick={tick}
+                phase={phase}
+                adminPreviewMode={adminPreviewMode}
+                selectedField={selectedField}
+                values={previewValues}
+                onValueChange={updateValue}
+            />
+            <CountdownSection phase={phase} runtimeDates={effectiveDates} />
             <StatsSection />
-            <ShowcaseSection />
+            <ShowcaseSection
+                adminPreviewMode={adminPreviewMode}
+                selectedField={selectedField}
+                values={previewValues}
+                onValueChange={updateValue}
+            />
             <PartnersSection />
         </div>
     );
 }
 
-function HeroSection({ tick, phase }: { tick: number; phase: 1 | 2 | 3 | 4 }) {
+function HeroSection({
+    tick,
+    phase,
+    adminPreviewMode,
+    selectedField,
+    values,
+    onValueChange,
+}: {
+    tick: number;
+    phase: 1 | 2 | 3 | 4;
+    adminPreviewMode: boolean;
+    selectedField: HomePreviewField | null;
+    values: HomePreviewValues;
+    onValueChange: (field: HomePreviewField, value: string) => void;
+}) {
     const phaseNotice = phase > 1 ? getPhaseNotice(phase, {}) : null;
+    const phaseCta = phase === 3 ? values.cta_catalogue : phase === 4 ? values.cta_palmares : values.cta_submit;
 
     return (
         <section className="flex flex-col items-center text-center pt-6 md:pt-10 pb-10 md:pb-14 gap-5">
+            {(values.home_hero_image_url || (adminPreviewMode && selectedField === "home_hero_image_url")) ? (
+                <div className="flex flex-col items-center gap-2" style={selectedField === "home_hero_image_url" ? focusedStyle : undefined}>
+                    {values.home_hero_image_url ? (
+                        <img
+                            src={values.home_hero_image_url}
+                            alt="Hero"
+                            className="w-24 h-24 rounded-2xl object-cover"
+                            onError={(e) => {
+                                (e.currentTarget as HTMLImageElement).style.display = "none";
+                            }}
+                        />
+                    ) : (
+                        <div className="w-24 h-24 rounded-2xl border border-white/15 bg-white/5 flex items-center justify-center f-mono text-[9px] text-white/45">
+                            IMAGE HERO
+                        </div>
+                    )}
+                    {adminPreviewMode && selectedField === "home_hero_image_url" ? (
+                        <input
+                            className="submit-input w-[360px] max-w-[90vw]"
+                            value={values.home_hero_image_url}
+                            onChange={(e) => onValueChange("home_hero_image_url", e.target.value)}
+                            placeholder="https://..."
+                        />
+                    ) : null}
+                </div>
+            ) : null}
+
             <div
                 className="flex items-center gap-3 px-4 py-2.5 rounded-full border"
                 style={{
@@ -46,8 +282,15 @@ function HeroSection({ tick, phase }: { tick: number; phase: 1 | 2 | 3 | 4 }) {
                 <span className="f-mono text-[9px] tracking-[0.26rem] uppercase leading-none" style={{
                     fontWeight: 500,
                     color: "rgba(200, 190, 255, 0.85)",
+                    ...(selectedField === "home_eyebrow" ? focusedStyle : {}),
                 }}>
-                    {phase === 1 ? "Appel à films ouvert · Marseille 2026" : "Appel à films fermé · Marseille 2026"}
+                    <span
+                        suppressContentEditableWarning
+                        contentEditable={adminPreviewMode && selectedField === "home_eyebrow"}
+                        onInput={(e) => onValueChange("home_eyebrow", e.currentTarget.textContent ?? "")}
+                    >
+                        {values.home_eyebrow}
+                    </span>
                 </span>
             </div>
 
@@ -58,17 +301,33 @@ function HeroSection({ tick, phase }: { tick: number; phase: 1 | 2 | 3 | 4 }) {
                     opacity: 0,
                     transform: "translateY(12px)",
                     animation: "fadeUp 0.7s ease-out 0.3s both",
+                    ...(selectedField === "home_terminal" ? focusedStyle : {}),
                 }}
+                suppressContentEditableWarning
+                contentEditable={adminPreviewMode && selectedField === "home_terminal"}
+                onInput={(e) => onValueChange("home_terminal", e.currentTarget.textContent ?? "")}
             >
-                {`> FESTIVAL_IA_V1.0 // INITIATING${tick % 2 === 0 ? "▮" : " "}`}
+                {values.home_terminal.replace("{{cursor}}", tick % 2 === 0 ? "▮" : " ")}
             </div>
 
             <h1 className="f-orb font-black leading-[0.88] tracking-tight">
-                <span className="block text-[3.5rem] md:text-[7rem] text-white">
-                    IMAGINEZ
+                <span
+                    className="block text-[3.5rem] md:text-[7rem] text-white"
+                    style={selectedField === "hero_title1" ? focusedStyle : undefined}
+                    suppressContentEditableWarning
+                    contentEditable={adminPreviewMode && selectedField === "hero_title1"}
+                    onInput={(e) => onValueChange("hero_title1", e.currentTarget.textContent ?? "")}
+                >
+                    {values.hero_title1}
                 </span>
-                <span className="block text-[3.5rem] md:text-[7rem]" style={{ color: "rgba(255, 255, 255, .26)" }}>
-                    DES FUTURS
+                <span
+                    className="block text-[3.5rem] md:text-[7rem]"
+                    style={{ color: "rgba(255, 255, 255, .26)", ...(selectedField === "hero_title2" ? focusedStyle : {}) }}
+                    suppressContentEditableWarning
+                    contentEditable={adminPreviewMode && selectedField === "hero_title2"}
+                    onInput={(e) => onValueChange("hero_title2", e.currentTarget.textContent ?? "")}
+                >
+                    {values.hero_title2}
                 </span>
                 <span
                     className="block text-[3.5rem] md:text-[7rem]"
@@ -76,15 +335,24 @@ function HeroSection({ tick, phase }: { tick: number; phase: 1 | 2 | 3 | 4 }) {
                         background: "linear-gradient(90deg, #7d71fb 0%, #b867d2 45%, #ff6f76 100%)",
                         WebkitBackgroundClip: "text",
                         WebkitTextFillColor: "transparent",
+                        ...(selectedField === "hero_title3" ? focusedStyle : {}),
                     }}
+                    suppressContentEditableWarning
+                    contentEditable={adminPreviewMode && selectedField === "hero_title3"}
+                    onInput={(e) => onValueChange("hero_title3", e.currentTarget.textContent ?? "")}
                 >
-                    SOUHAITABLES
+                    {values.hero_title3}
                 </span>
             </h1>
 
-            <p className="f-mono text-[11px] text-white/35 max-w-lg leading-relaxed">
-                Courts-métrages 1-2 min entièrement générés par intelligence artificielle.
-                <br />Ouvert à tous. Sans inscription.
+            <p
+                className="f-mono text-[11px] text-white/35 max-w-lg leading-relaxed"
+                style={selectedField === "hero_text" ? focusedStyle : undefined}
+                suppressContentEditableWarning
+                contentEditable={adminPreviewMode && selectedField === "hero_text"}
+                onInput={(e) => onValueChange("hero_text", e.currentTarget.innerText)}
+            >
+                {values.hero_text}
             </p>
 
             {phase === 1 ? (
@@ -94,12 +362,20 @@ function HeroSection({ tick, phase }: { tick: number; phase: 1 | 2 | 3 | 4 }) {
                     style={{
                         background: marsaiGradients.primaryToAccent,
                         animation: "pulseGlow 2.5s ease-in-out infinite",
+                        ...(selectedField === "cta_submit" ? focusedStyle : {}),
                     }}
                 >
-                    <a href="/submit">
+                    <a href="/submit" onClick={(e) => adminPreviewMode && e.preventDefault()}>
                         <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
                         <Upload size={13} className="relative" />
-                        <span className="relative">Soumettre un film</span>
+                        <span
+                            className="relative"
+                            suppressContentEditableWarning
+                            contentEditable={adminPreviewMode && selectedField === "cta_submit"}
+                            onInput={(e) => onValueChange("cta_submit", e.currentTarget.textContent ?? "")}
+                        >
+                            {values.cta_submit}
+                        </span>
                     </a>
                 </Button>
             ) : (
@@ -111,9 +387,20 @@ function HeroSection({ tick, phase }: { tick: number; phase: 1 | 2 | 3 | 4 }) {
                         <Button
                             asChild
                             className="f-orb rounded-full px-9 py-3 text-xs font-bold uppercase tracking-widest text-white transition-all duration-300"
-                            style={{ background: marsaiGradients.primaryToAccent }}
+                            style={{
+                                background: marsaiGradients.primaryToAccent,
+                                ...((phase === 3 && selectedField === "cta_catalogue") || (phase === 4 && selectedField === "cta_palmares") ? focusedStyle : {}),
+                            }}
                         >
-                            <a href={phaseNotice.href}>{phaseNotice.cta}</a>
+                            <a href={phaseNotice.href} onClick={(e) => adminPreviewMode && e.preventDefault()}>
+                                <span
+                                    suppressContentEditableWarning
+                                    contentEditable={adminPreviewMode && ((phase === 3 && selectedField === "cta_catalogue") || (phase === 4 && selectedField === "cta_palmares"))}
+                                    onInput={(e) => onValueChange(phase === 3 ? "cta_catalogue" : "cta_palmares", e.currentTarget.textContent ?? "")}
+                                >
+                                    {phaseCta}
+                                </span>
+                            </a>
                         </Button>
                     ) : null}
                 </div>
@@ -122,13 +409,12 @@ function HeroSection({ tick, phase }: { tick: number; phase: 1 | 2 | 3 | 4 }) {
     );
 }
 
-function CountdownSection({ phase }: { phase: 1 | 2 | 3 | 4 }) {
+function CountdownSection({ phase, runtimeDates }: { phase: 1 | 2 | 3 | 4; runtimeDates?: HomeData["dates"] }) {
     const phaseTimelineIndex = Math.min(phase, 3);
-    const targetDate = phase === 1
-        ? PHASE_DATES.phase1Close
-        : phase === 2
-            ? PHASE_DATES.phase2Close
-            : PHASE_DATES.phase3Close;
+    const p1Date = runtimeDates?.phase1_close ? new Date(runtimeDates.phase1_close) : PHASE_DATES.phase1Close;
+    const p2Date = runtimeDates?.phase2_catalogue ? new Date(runtimeDates.phase2_catalogue) : PHASE_DATES.phase2Close;
+    const p3Date = runtimeDates?.phase3_palmares ? new Date(runtimeDates.phase3_palmares) : PHASE_DATES.phase3Close;
+    const targetDate = phase === 1 ? p1Date : phase === 2 ? p2Date : p3Date;
     const time = useCountdown(targetDate);
 
     const timelineRows = [
@@ -279,7 +565,28 @@ function StatsSection() {
     );
 }
 
-function ShowcaseSection() {
+function ShowcaseSection({
+    adminPreviewMode,
+    selectedField,
+    values,
+    onValueChange,
+}: {
+    adminPreviewMode: boolean;
+    selectedField: HomePreviewField | null;
+    values: HomePreviewValues;
+    onValueChange: (field: HomePreviewField, value: string) => void;
+}) {
+    const tags = values.feature_tags
+        .split("|")
+        .map((item) => item.trim())
+        .filter(Boolean);
+
+    const updateTagAt = (index: number, value: string) => {
+        const nextTags = [...tags];
+        nextTags[index] = value;
+        onValueChange("feature_tags", nextTags.join("|"));
+    };
+
     return (
         <section className="pb-24">
             <div className="grid lg:grid-cols-12 gap-4">
@@ -296,10 +603,14 @@ function ShowcaseSection() {
                             background: "rgba(255,255,255,.03)",
                             border: "1px solid rgba(255,255,255,.08)",
                             color: "rgba(255,255,255,.45)",
+                            ...(selectedField === "feature_cta" ? focusedStyle : {}),
                         }}
+                        suppressContentEditableWarning
+                        contentEditable={adminPreviewMode && selectedField === "feature_cta"}
+                        onInput={(e) => onValueChange("feature_cta", e.currentTarget.textContent ?? "")}
                     >
                         <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--col-or)" }} />
-                        La Plateforme × Mobile Film Festival
+                        {values.feature_cta}
                     </p>
 
                     <h2 className="f-orb text-3xl md:text-5xl font-bold text-white leading-snug">
@@ -316,14 +627,18 @@ function ShowcaseSection() {
                         de la création cinématographique
                     </h2>
 
-                    <p className="f-mono text-sm text-white/42 leading-relaxed max-w-2xl">
-                        MarsAI place l'humain au coeur de la création assistée par IA.
-                        Stimulez votre créativité via le format court et rejoignez une
-                        communauté internationale autour de l'IA générative.
+                    <p
+                        className="f-mono text-sm text-white/42 leading-relaxed max-w-2xl"
+                        style={selectedField === "feature_text" ? focusedStyle : undefined}
+                        suppressContentEditableWarning
+                        contentEditable={adminPreviewMode && selectedField === "feature_text"}
+                        onInput={(e) => onValueChange("feature_text", e.currentTarget.textContent ?? "")}
+                    >
+                        {values.feature_text}
                     </p>
 
-                    <div className="flex flex-wrap gap-2 pt-1">
-                        {TAGS.map((tag, index) => (
+                    <div className="flex flex-wrap gap-2 pt-1" style={selectedField === "feature_tags" ? focusedStyle : undefined}>
+                        {tags.map((tag, index) => (
                             <span
                                 key={index}
                                 className="f-mono text-[8px] tracking-wider px-3 py-1.5 rounded-full"
@@ -332,6 +647,9 @@ function ShowcaseSection() {
                                     background: "rgba(255, 255, 255, .03)",
                                     color: "rgba(255, 255, 255, .45)",
                                 }}
+                                suppressContentEditableWarning
+                                contentEditable={adminPreviewMode && selectedField === "feature_tags"}
+                                onInput={(e) => updateTagAt(index, e.currentTarget.textContent ?? "")}
                             >
                                 {tag}
                             </span>
@@ -376,16 +694,28 @@ function ShowcaseSection() {
                             border: "1px solid rgba(255, 92, 53, .24)",
                         }}
                     >
-                        <p className="f-mono text-[8px] tracking-[0.2rem] uppercase text-orange-300/70 mb-2">Thème 2026</p>
+                        <p
+                            className="f-mono text-[8px] tracking-[0.2rem] uppercase text-orange-300/70 mb-2"
+                            style={selectedField === "theme_title" ? focusedStyle : undefined}
+                            suppressContentEditableWarning
+                            contentEditable={adminPreviewMode && selectedField === "theme_title"}
+                            onInput={(e) => onValueChange("theme_title", e.currentTarget.textContent ?? "")}
+                        >
+                            {values.theme_title}
+                        </p>
                         <p
                             className="f-orb text-xl font-bold leading-tight"
                             style={{
                                 background: "linear-gradient(90deg, #ffffff, #d8cfff)",
                                 WebkitBackgroundClip: "text",
                                 WebkitTextFillColor: "transparent",
+                                ...(selectedField === "theme_quote" ? focusedStyle : {}),
                             }}
+                            suppressContentEditableWarning
+                            contentEditable={adminPreviewMode && selectedField === "theme_quote"}
+                            onInput={(e) => onValueChange("theme_quote", e.currentTarget.textContent ?? "")}
                         >
-                            "Imaginez des futurs souhaitables"
+                            {values.theme_quote}
                         </p>
                     </div>
                 </div>
