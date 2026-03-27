@@ -1,12 +1,18 @@
 import dotenv from "dotenv";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-dotenv.config();
+const currentFilePath = fileURLToPath(import.meta.url);
+const currentDirPath = path.dirname(currentFilePath);
+const backendEnvPath = path.resolve(currentDirPath, "../../.env");
+
+dotenv.config({ path: backendEnvPath });
 
 // Vérifie si une variable d'environnement requise est présente
 function required(name) {
   const value = process.env[name];
   if (!value) {
-    throw new Error(`Missing required env var: ${name}`);
+    throw new Error(`Fichier .env manquant la variable: ${name}`);
   }
   return value;
 }
@@ -19,9 +25,9 @@ function optional(name, fallback = undefined) {
 
 // Récupère l'environnement de l'application (par défaut : développement)
 const nodeEnv = optional("NODE_ENV", "development");
-const corsOrigins = String(
-  optional("CORS_ORIGIN", "http://localhost:5173,http://localhost:4001")
-)
+const defaultCorsOrigin =
+  nodeEnv === "development" ? "http://localhost:4001" : "";
+const corsOrigins = String(optional("CORS_ORIGIN", defaultCorsOrigin))
   .split(",")
   .map((value) => value.trim().replace(/\/$/, ""))
   .filter(Boolean);
@@ -37,7 +43,7 @@ export const env = {
       ? "dev_secret_change_me"
       : required("JWT_SECRET")),
 
-  corsOrigin: corsOrigins[0] || "http://localhost:4001",
+  corsOrigin: corsOrigins[0] || "",
   corsOrigins,
 
   dbHost: optional("DB_HOST", "127.0.0.1"),
@@ -51,39 +57,39 @@ export const env = {
   googleRedirectUri: optional("GOOGLE_REDIRECT_URI", ""),
   youtubeClientId: optional(
     "YOUTUBE_CLIENT_ID",
-    optional("GOOGLE_CLIENT_ID", "")
+    optional("GOOGLE_CLIENT_ID", ""),
   ),
   youtubeClientSecret: optional(
     "YOUTUBE_CLIENT_SECRET",
-    optional("GOOGLE_CLIENT_SECRET", "")
+    optional("GOOGLE_CLIENT_SECRET", ""),
   ),
   youtubeRedirectUri: optional(
     "YOUTUBE_REDIRECT_URI",
-    optional("GOOGLE_REDIRECT_URI", "")
+    optional("GOOGLE_REDIRECT_URI", ""),
   ),
   youtubeRefreshToken: optional(
     "YOUTUBE_REFRESH_TOKEN",
-    optional("GOOGLE_REFRESH_TOKEN", "")
+    optional("GOOGLE_REFRESH_TOKEN", ""),
   ),
 
-  smtpHost: optional("SMTP_HOST", ""),
-  smtpPort: Number(optional("SMTP_PORT", "587")),
-  smtpUser: optional("SMTP_USER", ""),
-  smtpPass: optional("SMTP_PASS", ""),
-  smtpFrom: optional("SMTP_FROM", ""),
+  brevoApiKey: optional("BREVO_API_KEY", ""),
+  brevoSenderEmail: optional("BREVO_SENDER_EMAIL", ""),
+  brevoSenderName: optional("BREVO_SENDER_NAME", "marsAI"),
+  brevoTimeoutSeconds: Number(optional("BREVO_TIMEOUT_SECONDS", "60")),
+  brevoMaxRetries: Number(optional("BREVO_MAX_RETRIES", "2")),
 
   scalewayAccessKey: optional(
     "SCALEWAY_ACCESS_KEY",
-    optional("S3_ACCESS_KEY", "")
+    optional("S3_ACCESS_KEY", ""),
   ),
   scalewaySecretKey: optional(
     "SCALEWAY_SECRET_KEY",
-    optional("S3_SECRET_KEY", "")
+    optional("S3_SECRET_KEY", ""),
   ),
   scalewayEndpoint: optional("SCALEWAY_ENDPOINT", optional("S3_ENDPOINT", "")),
   scalewayBucketName: optional(
     "SCALEWAY_BUCKET_NAME",
-    optional("S3_BUCKET_NAME", "")
+    optional("S3_BUCKET_NAME", ""),
   ),
   scalewayRegion: optional("SCALEWAY_REGION", optional("S3_REGION", "")),
   scalewayFolder: optional("SCALEWAY_FOLDER", optional("S3_FOLDER", "")),
