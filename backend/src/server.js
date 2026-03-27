@@ -1,7 +1,10 @@
-import { app } from "./app.js";
+import { createApp } from "./app.js";
+import { env } from "./config/env.js";
 
-const port = Number(process.env.PORT || 4000);
+// Service pour créer une instance d'application Express
+const app = createApp();
 
-app.listen(port, () => {
-  console.log(`marsAI démarré sur http://localhost:${port}`);
+// Service pour démarrer le serveur Express sur le port spécifié
+app.listen(env.port, "0.0.0.0", () => {
+  console.log(`Serveur API démarré sur http://localhost:${env.port}`);
 });
