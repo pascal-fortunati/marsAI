@@ -10,11 +10,9 @@ function CountBlock({ val, label }: { val: number; label: string }) {
       <div
         className="relative flex h-14 w-14 flex-col items-center justify-center overflow-hidden rounded-lg sm:h-16 sm:w-16 sm:rounded-xl md:h-20 md:w-20"
         style={{
-          background:
-            "linear-gradient(160deg, rgba(125,113,251,0.15) 0%, rgba(5,3,13,0.9) 100%)",
-          border: "1px solid rgba(125,113,251,0.3)",
-          boxShadow:
-            "0 0 20px rgba(125,113,251,0.12), inset 0 1px 0 rgba(255,255,255,0.06)",
+          background: "var(--home-counter-bg)",
+          border: "1px solid var(--home-counter-border)",
+          boxShadow: "var(--home-counter-shadow)",
         }}
       >
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#7d71fb]/80 to-transparent" />

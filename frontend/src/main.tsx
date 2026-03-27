@@ -4,6 +4,9 @@ import { BrowserRouter } from 'react-router-dom'
 import './App.css'
 import './lib/i18n'
 import App from './App.tsx'
+import { resolveInitialTheme, applyTheme } from './theme/theme'
+
+applyTheme(resolveInitialTheme())
 
 // Composant principal de l'application
 createRoot(document.getElementById('root')!).render(

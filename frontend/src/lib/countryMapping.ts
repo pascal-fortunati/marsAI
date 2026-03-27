@@ -1,6 +1,7 @@
 type CountryEntry = [code: string, fr: string, en: string];
 type LanguageEntry = [flagCode: string, fr: string, en: string];
 
+// Pays disponibles
 const COUNTRIES: CountryEntry[] = [
   ["AF", "Afghanistan", "Afghanistan"],
   ["ZA", "Afrique du Sud", "South Africa"],
@@ -199,6 +200,7 @@ const COUNTRIES: CountryEntry[] = [
   ["ZW", "Zimbabwe", "Zimbabwe"],
 ];
 
+// Langues disponibles
 const LANGUAGES: LanguageEntry[] = [
   ["FR", "Français", "French"],
   ["GB", "Anglais", "English"],
@@ -313,10 +315,7 @@ const LANGUAGES: LanguageEntry[] = [
   ["PY", "Guarani", "Guarani"],
 ];
 
-// ─────────────────────────────────────────────────────────────
-//  Helpers internes
-// ─────────────────────────────────────────────────────────────
-
+// Helper qui normalise une chaîne de caractères
 const normalize = (v: string) =>
   String(v)
     .normalize("NFC")
@@ -325,10 +324,11 @@ const normalize = (v: string) =>
     .trim()
     .toLowerCase();
 
+// Helper qui construit une map de correspondance entre clés normalisées et valeurs
 function buildLookup<T>(
   entries: T[],
   keyFn: (e: T) => string,
-  valFn: (e: T) => string
+  valFn: (e: T) => string,
 ): Map<string, string> {
   const map = new Map<string, string>();
   for (const e of entries) {
@@ -338,56 +338,52 @@ function buildLookup<T>(
   return map;
 }
 
-// ─────────────────────────────────────────────────────────────
-//  PAYS — exports publics
-// ─────────────────────────────────────────────────────────────
-
+// Export des noms de pays en français et en anglais
 export const FR_COUNTRY_NAMES = COUNTRIES.map(([, fr]) => fr);
 export const EN_COUNTRY_NAMES = COUNTRIES.map(([, , en]) => en);
 
 const countryCodeByFr = buildLookup(
   COUNTRIES,
   ([, fr]) => fr,
-  ([code]) => code
+  ([code]) => code,
 );
 const countryCodeByEn = buildLookup(
   COUNTRIES,
   ([, , en]) => en,
-  ([code]) => code
+  ([code]) => code,
 );
 
+// Export de la fonction qui cherche le code pays par nom en français ou en anglais
 export function getCountryCode(name: string): string | null {
   const key = normalize(name);
   return countryCodeByFr.get(key) ?? countryCodeByEn.get(key) ?? null;
 }
 
-// ─────────────────────────────────────────────────────────────
-//  LANGUES — exports publics
-// ─────────────────────────────────────────────────────────────
-
+// Export des noms de langues en français et en anglais
 export const FR_LANGUAGE_NAMES = LANGUAGES.map(([, fr]) => fr);
 export const EN_LANGUAGE_NAMES = LANGUAGES.map(([, , en]) => en);
 
 const flagCodeByFrLang = buildLookup(
   LANGUAGES,
   ([, fr]) => fr,
-  ([flag]) => flag
+  ([flag]) => flag,
 );
 const flagCodeByEnLang = buildLookup(
   LANGUAGES,
   ([, , en]) => en,
-  ([flag]) => flag
+  ([flag]) => flag,
 );
 
+// Export de la fonction qui cherche le code drapeau par nom de langue en français ou en anglais
 export function getLanguageFlagCode(name: string): string | null {
   const key = normalize(name);
   return flagCodeByFrLang.get(key) ?? flagCodeByEnLang.get(key) ?? null;
 }
 
-/** Traduit un nom de langue vers "fr" ou "en". */
+// Export de la fonction qui traduit un nom de langue vers "fr" ou "en"
 export function translateLanguageName(
   name: string,
-  targetLang: "fr" | "en"
+  targetLang: "fr" | "en",
 ): string {
   const key = normalize(name);
 

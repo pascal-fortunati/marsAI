@@ -1,9 +1,12 @@
 import { Toast, ToastClose, ToastDescription, ToastProvider, ToastTitle, ToastViewport } from './toast'
 import { useToast } from '../../hooks/use-toast'
 import { CheckCircledIcon, CrossCircledIcon, InfoCircledIcon } from '@radix-ui/react-icons'
+import { useLocation } from 'react-router-dom'
 
 export function Toaster() {
   const { toasts, dismiss } = useToast()
+  const location = useLocation()
+  const isJury = location.pathname.startsWith('/jury')
 
   return (
     <ToastProvider>
@@ -38,7 +41,13 @@ export function Toaster() {
           )
         })()
       ))}
-      <ToastViewport className="right-3 top-3 left-auto bottom-auto sm:right-4 sm:top-4 sm:left-auto sm:bottom-auto" />
+      <ToastViewport
+        className={
+          isJury
+            ? 'left-1/2 top-3 right-auto bottom-auto w-[calc(100%-1.5rem)] max-w-[420px] -translate-x-1/2 sm:top-4'
+            : 'right-3 top-3 left-auto bottom-auto sm:right-4 sm:top-4 sm:left-auto sm:bottom-auto'
+        }
+      />
     </ToastProvider>
   )
 }

@@ -1,6 +1,13 @@
+import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { HomeView } from '../view/home/HomeView'
 
-// Page d'accueil
 export function HomePage() {
-    return <HomeView />
+  const { t } = useTranslation()
+
+  useEffect(() => {
+    document.title = `marsAI · ${t('meta.home')}`
+  }, [t])
+
+  return <HomeView />
 }

@@ -1,24 +1,31 @@
-import type { ReactNode } from 'react'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './table'
+import type { ReactNode } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "./table";
 
 export type DataTableColumn<TData> = {
-  header: ReactNode
-  cell: (row: TData) => ReactNode
-  className?: string
-  headerClassName?: string
-}
+  header: ReactNode;
+  cell: (row: TData) => ReactNode;
+  className?: string;
+  headerClassName?: string;
+};
 
 export function DataTable<TData>({
   columns,
   data,
-  emptyLabel = 'Aucune donnée.',
+  emptyLabel = "Aucune donnée.",
 }: {
-  columns: DataTableColumn<TData>[]
-  data: TData[]
-  emptyLabel?: string
+  columns: DataTableColumn<TData>[];
+  data: TData[];
+  emptyLabel?: string;
 }) {
   return (
-    <div className="rounded-xl border">
+    <div className="rounded-xl">
       <Table>
         <TableHeader>
           <TableRow>
@@ -42,7 +49,10 @@ export function DataTable<TData>({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground">
+              <TableCell
+                colSpan={columns.length}
+                className="h-24 text-center text-muted-foreground"
+              >
                 {emptyLabel}
               </TableCell>
             </TableRow>
@@ -50,5 +60,5 @@ export function DataTable<TData>({
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }

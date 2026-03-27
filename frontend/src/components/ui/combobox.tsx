@@ -62,7 +62,7 @@ export function Combobox({
           disabled={disabled}
           style={triggerStyle}
           className={cn(
-            "w-full rounded-xl border border-white/10 bg-white/[0.03] px-[14px] py-[11px] text-xs text-white/85 outline-none transition-[border-color,background,box-shadow] duration-200 focus-visible:border-[#7d71fb]/50 focus-visible:bg-[#7d71fb]/[0.04] focus-visible:shadow-[0_0_0_3px_rgba(125,113,251,0.08)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+            "w-full rounded-xl border border-border bg-input px-[14px] py-[11px] text-xs text-foreground/90 outline-none transition-[border-color,background,box-shadow] duration-200 focus-visible:border-[#7d71fb]/50 focus-visible:bg-[#7d71fb]/[0.04] focus-visible:shadow-[0_0_0_3px_rgba(125,113,251,0.08)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
             "flex items-center justify-between",
             className
           )}
@@ -80,23 +80,23 @@ export function Combobox({
       <PopoverContent
         align="start"
         className={cn(
-          "w-[var(--radix-popover-trigger-width)] rounded-xl border border-white/10 bg-white/[0.03] p-0 text-white shadow-[0_16px_42px_rgba(5,3,13,0.55)] backdrop-blur-xl",
+          "w-[var(--radix-popover-trigger-width)] rounded-xl border border-border bg-popover p-0 text-popover-foreground shadow-[0_16px_42px_rgba(5,3,13,0.2)] backdrop-blur-xl",
           contentClassName
         )}
       >
         {searchable ? (
-          <div className="border-b border-white/10 bg-white/[0.02] p-2">
+          <div className="border-b border-border bg-secondary/40 p-2">
             <input
               placeholder={searchPlaceholder}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-[14px] py-[11px] text-xs text-white/85 outline-none transition-[border-color,background,box-shadow] duration-200 placeholder:text-white/20 focus-visible:border-[#7d71fb]/50 focus-visible:bg-[#7d71fb]/[0.04] focus-visible:shadow-[0_0_0_3px_rgba(125,113,251,0.08)] focus-visible:outline-none"
+              className="w-full rounded-xl border border-border bg-input px-[14px] py-[11px] text-xs text-foreground/90 outline-none transition-[border-color,background,box-shadow] duration-200 placeholder:text-muted-foreground/70 focus-visible:border-[#7d71fb]/50 focus-visible:bg-[#7d71fb]/[0.04] focus-visible:shadow-[0_0_0_3px_rgba(125,113,251,0.08)] focus-visible:outline-none"
             />
           </div>
         ) : null}
         <div className="max-h-[300px] overflow-y-auto bg-transparent p-1">
           {filteredOptions.length === 0 ? (
-            <div className="py-6 text-center text-sm text-white/45">
+            <div className="py-6 text-center text-sm text-muted-foreground/80">
               {emptyText}
             </div>
           ) : (
@@ -108,7 +108,7 @@ export function Combobox({
                   onChange(option.value);
                   setOpen(false);
                 }}
-                className="flex w-full items-center rounded-sm px-2 py-1.5 text-left text-xs text-white/90 outline-none transition hover:bg-white/10"
+                className="flex w-full items-center rounded-sm px-2 py-1.5 text-left text-xs text-foreground/90 outline-none transition hover:bg-secondary/70"
               >
                 <Check
                   className={cn(

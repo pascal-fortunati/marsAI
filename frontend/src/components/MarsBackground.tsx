@@ -1,35 +1,54 @@
-import { useEffect, useRef } from 'react'
-import { marsaiColors, withAlpha } from '../theme/marsai'
+import { useEffect, useRef, useState } from "react";
+import { marsaiColors, withAlpha } from "../theme/marsai";
 
-function CinemaCanvas() {
-  const ref = useRef<HTMLCanvasElement>(null)
+function CinemaCanvas({ mode }: { mode: "dark" | "light" }) {
+  const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const canvas = ref.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
+    const canvas = ref.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-    let raf = 0
-    let W = 0
-    let H = 0
-    let reduced = false
+    let raf = 0;
+    let W = 0;
+    let H = 0;
+    let reduced = false;
 
-    type Node = { x: number; y: number; vx: number; vy: number; r: number; alpha: number; hue: number }
-    type Frame = { x: number; y: number; w: number; h: number; alpha: number; speed: number; col: string }
+    type Node = {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      r: number;
+      alpha: number;
+      col: string;
+    };
+    type Frame = {
+      x: number;
+      y: number;
+      w: number;
+      h: number;
+      alpha: number;
+      speed: number;
+      col: string;
+    };
 
-    let nodes: Node[] = []
-    let frames: Frame[] = []
+    let nodes: Node[] = [];
+    let frames: Frame[] = [];
 
     const resize = () => {
-      const dpr = window.devicePixelRatio || 1
-      canvas.width = Math.floor(canvas.offsetWidth * dpr)
-      canvas.height = Math.floor(canvas.offsetHeight * dpr)
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      W = canvas.offsetWidth
-      H = canvas.offsetHeight
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.floor(canvas.offsetWidth * dpr);
+      canvas.height = Math.floor(canvas.offsetHeight * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      W = canvas.offsetWidth;
+      H = canvas.offsetHeight;
 
-      const count = reduced ? 35 : 85
+      const area = W * H;
+      const density = reduced ? 0.00004 : mode === "light" ? 0.00008 : 0.0001;
+      const count = Math.max(20, Math.min(120, Math.floor(area * density)));
+
       nodes = Array.from({ length: count }, () => ({
         x: Math.random() * W,
         y: Math.random() * H,
@@ -37,10 +56,12 @@ function CinemaCanvas() {
         vy: (Math.random() - 0.5) * 0.35,
         r: Math.random() * 1.8 + 0.4,
         alpha: Math.random() * 0.5 + 0.1,
-        hue: Math.random() > 0.6 ? 255 : Math.random() > 0.5 ? 20 : 270,
-      }))
+        col: Math.random() > 0.6 ? marsaiColors.accent : marsaiColors.bgdark,
+      }));
 
-      const frameCount = reduced ? 4 : 8
+      const frameCount = reduced
+        ? 2
+        : Math.max(3, Math.min(12, Math.floor(area * 0.000008)));
       frames = Array.from({ length: frameCount }, () => ({
         x: (Math.random() * 0.85 + 0.05) * W,
         y: (Math.random() * 0.85 + 0.05) * H,
@@ -48,172 +69,248 @@ function CinemaCanvas() {
         h: Math.random() * 55 + 40,
         alpha: Math.random() * 0.12 + 0.04,
         speed: (Math.random() - 0.5) * 0.15,
-        col: Math.random() > 0.5 ? marsaiColors.primary : marsaiColors.accent,
-      }))
-    }
+        col: Math.random() > 0.5 ? marsaiColors.bgdark : marsaiColors.accent,
+      }));
+    };
 
-    const drawCornerFrame = (x: number, y: number, w: number, h: number, col: string, alpha: number) => {
-      const s = 12
-      ctx.strokeStyle = col
-      ctx.globalAlpha = alpha
-      ctx.lineWidth = 1
+    const drawCornerFrame = (
+      x: number,
+      y: number,
+      w: number,
+      h: number,
+      col: string,
+      alpha: number,
+    ) => {
+      const s = 12;
+      ctx.strokeStyle = col;
+      ctx.globalAlpha = alpha;
+      ctx.lineWidth = 1;
 
-      ctx.beginPath()
-      ctx.moveTo(x, y + s)
-      ctx.lineTo(x, y)
-      ctx.lineTo(x + s, y)
-      ctx.stroke()
+      ctx.beginPath();
+      ctx.moveTo(x, y + s);
+      ctx.lineTo(x, y);
+      ctx.lineTo(x + s, y);
+      ctx.stroke();
 
-      ctx.beginPath()
-      ctx.moveTo(x + w - s, y)
-      ctx.lineTo(x + w, y)
-      ctx.lineTo(x + w, y + s)
-      ctx.stroke()
+      ctx.beginPath();
+      ctx.moveTo(x + w - s, y);
+      ctx.lineTo(x + w, y);
+      ctx.lineTo(x + w, y + s);
+      ctx.stroke();
 
-      ctx.beginPath()
-      ctx.moveTo(x, y + h - s)
-      ctx.lineTo(x, y + h)
-      ctx.lineTo(x + s, y + h)
-      ctx.stroke()
+      ctx.beginPath();
+      ctx.moveTo(x, y + h - s);
+      ctx.lineTo(x, y + h);
+      ctx.lineTo(x + s, y + h);
+      ctx.stroke();
 
-      ctx.beginPath()
-      ctx.moveTo(x + w - s, y + h)
-      ctx.lineTo(x + w, y + h)
-      ctx.lineTo(x + w, y + h - s)
-      ctx.stroke()
+      ctx.beginPath();
+      ctx.moveTo(x + w - s, y + h);
+      ctx.lineTo(x + w, y + h);
+      ctx.lineTo(x + w, y + h - s);
+      ctx.stroke();
 
       for (let i = 0; i < 3; i++) {
-        ctx.strokeRect(x - 8, y + 6 + i * 10, 5, 6)
-        ctx.strokeRect(x + w + 3, y + 6 + i * 10, 5, 6)
+        ctx.strokeRect(x - 8, y + 6 + i * 10, 5, 6);
+        ctx.strokeRect(x + w + 3, y + 6 + i * 10, 5, 6);
       }
 
-      ctx.globalAlpha = 1
-    }
+      ctx.globalAlpha = 1;
+    };
 
-    let scanY = 0
+    let scanY = 0;
     const draw = () => {
-      ctx.clearRect(0, 0, W, H)
+      ctx.clearRect(0, 0, W, H);
 
-      scanY = (scanY + 0.4) % H
-      const sg = ctx.createLinearGradient(0, scanY - 60, 0, scanY + 60)
-      sg.addColorStop(0, withAlpha(marsaiColors.primary, 0))
-      sg.addColorStop(0.5, withAlpha(marsaiColors.primary, 0.04))
-      sg.addColorStop(1, withAlpha(marsaiColors.primary, 0))
-      ctx.fillStyle = sg
-      ctx.fillRect(0, scanY - 60, W, 120)
+      scanY = (scanY + 0.4) % H;
+      const sg = ctx.createLinearGradient(0, scanY - 60, 0, scanY + 60);
+      sg.addColorStop(0, withAlpha(marsaiColors.bgdark, 0));
+      sg.addColorStop(
+        0.5,
+        withAlpha(marsaiColors.bgdark, mode === "light" ? 0.08 : 0.04),
+      );
+      sg.addColorStop(1, withAlpha(marsaiColors.bgdark, 0));
+      ctx.fillStyle = sg;
+      ctx.fillRect(0, scanY - 60, W, 120);
 
+      // Connexions entre noeuds
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
-          const dx = nodes[i].x - nodes[j].x
-          const dy = nodes[i].y - nodes[j].y
-          const d = Math.sqrt(dx * dx + dy * dy)
-          if (d < 110) {
-            ctx.beginPath()
-            ctx.strokeStyle = `rgba(125,113,251,${(1 - d / 110) * 0.15})`
-            ctx.lineWidth = 0.5
-            ctx.moveTo(nodes[i].x, nodes[i].y)
-            ctx.lineTo(nodes[j].x, nodes[j].y)
-            ctx.stroke()
+          const dx = nodes[i].x - nodes[j].x;
+          const dy = nodes[i].y - nodes[j].y;
+          const d = Math.sqrt(dx * dx + dy * dy);
+          if (d < 120) {
+            ctx.beginPath();
+            ctx.strokeStyle = withAlpha(
+              marsaiColors.bgdark,
+              (1 - d / 120) * (mode === "light" ? 0.45 : 10),
+            );
+            ctx.lineWidth = 0.5;
+            ctx.moveTo(nodes[i].x, nodes[i].y);
+            ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.stroke();
           }
         }
       }
 
+      // Noeuds
       for (const n of nodes) {
-        n.x += n.vx
-        n.y += n.vy
-        if (n.x < 0) n.x = W
-        if (n.x > W) n.x = 0
-        if (n.y < 0) n.y = H
-        if (n.y > H) n.y = 0
+        n.x += n.vx;
+        n.y += n.vy;
+        if (n.x < 0) n.x = W;
+        if (n.x > W) n.x = 0;
+        if (n.y < 0) n.y = H;
+        if (n.y > H) n.y = 0;
 
-        const grd = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 4)
-        grd.addColorStop(0, `hsla(${n.hue},90%,70%,${n.alpha})`)
-        grd.addColorStop(1, `hsla(${n.hue},90%,70%,0)`)
-        ctx.beginPath()
-        ctx.arc(n.x, n.y, n.r * 4, 0, Math.PI * 2)
-        ctx.fillStyle = grd
-        ctx.fill()
+        // Halo / glow
+        const grd = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 4);
+        grd.addColorStop(
+          0,
+          withAlpha(n.col, mode === "light" ? n.alpha * 0.9 : n.alpha),
+        );
+        grd.addColorStop(1, withAlpha(n.col, 0));
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r * 4, 0, Math.PI * 2);
+        ctx.fillStyle = grd;
+        ctx.fill();
 
-        ctx.beginPath()
-        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2)
-        ctx.fillStyle = `hsla(${n.hue},90%,75%,${n.alpha + 0.3})`
-        ctx.fill()
+        // Cercle central
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fillStyle = withAlpha(
+          n.col,
+          mode === "light" ? n.alpha + 0.26 : n.alpha + 0.3,
+        );
+        ctx.fill();
       }
 
+      // Ellipses / frames
       for (const f of frames) {
-        f.y += f.speed
-        if (f.y > H + 80) f.y = -80
-        if (f.y < -80) f.y = H + 80
-        drawCornerFrame(f.x - f.w / 2, f.y - f.h / 2, f.w, f.h, f.col, f.alpha)
+        f.y += f.speed;
+        if (f.y > H + 80) f.y = -80;
+        if (f.y < -80) f.y = H + 80;
+        drawCornerFrame(f.x - f.w / 2, f.y - f.h / 2, f.w, f.h, f.col, f.alpha);
       }
 
-      raf = requestAnimationFrame(draw)
-    }
+      raf = requestAnimationFrame(draw);
+    };
 
-    const mql = window.matchMedia?.('(prefers-reduced-motion: reduce)')
+    const mql = window.matchMedia?.("(prefers-reduced-motion: reduce)");
     const setReduced = () => {
-      reduced = Boolean(mql?.matches)
-      resize()
-    }
+      reduced = Boolean(mql?.matches);
+      resize();
+    };
 
-    setReduced()
-    draw()
+    setReduced();
+    draw();
 
-    const ro = new ResizeObserver(resize)
-    ro.observe(canvas)
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
 
     const onVis = () => {
-      if (document.hidden) cancelAnimationFrame(raf)
-      else draw()
-    }
-    document.addEventListener('visibilitychange', onVis)
+      if (document.hidden) cancelAnimationFrame(raf);
+      else draw();
+    };
+    document.addEventListener("visibilitychange", onVis);
 
     try {
-      mql?.addEventListener?.('change', setReduced)
+      mql?.addEventListener?.("change", setReduced);
     } catch {
-      void 0
+      void 0;
     }
 
     return () => {
-      cancelAnimationFrame(raf)
-      ro.disconnect()
-      document.removeEventListener('visibilitychange', onVis)
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      document.removeEventListener("visibilitychange", onVis);
       try {
-        mql?.removeEventListener?.('change', setReduced)
+        mql?.removeEventListener?.("change", setReduced);
       } catch {
-        void 0
+        void 0;
       }
-    }
-  }, [])
+    };
+  }, [mode]);
 
-  return <canvas ref={ref} className="absolute inset-0 h-full w-full" />
+  return <canvas ref={ref} className="absolute inset-0 h-full w-full" />;
 }
 
 export function MarsBackground() {
+  const [themeMode, setThemeMode] = useState<"dark" | "light">(() => {
+    if (typeof document === "undefined") return "dark";
+    return document.documentElement.getAttribute("data-theme") === "light"
+      ? "light"
+      : "dark";
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const update = () => {
+      setThemeMode(
+        root.getAttribute("data-theme") === "light" ? "light" : "dark",
+      );
+    };
+    const observer = new MutationObserver(update);
+    observer.observe(root, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+    update();
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="pointer-events-none fixed inset-0 z-0">
-      <div className="absolute inset-0" style={{ background: marsaiColors.bg }} />
-      <div className="absolute inset-0 opacity-90">
-        <CinemaCanvas />
-      </div>
+      {/* Fond de base — transparent en dark, très léger en light */}
       <div
         className="absolute inset-0"
         style={{
-          backgroundImage: `radial-gradient(ellipse 80% 80% at 50% 50%, transparent 30%, ${marsaiColors.bg} 100%)`,
+          background:
+            themeMode === "light"
+              ? `radial-gradient(ellipse at top, ${withAlpha(marsaiColors.bgdark, 0.1)}, transparent 50%)`
+              : "transparent",
         }}
       />
+
+      {/* Canvas animé */}
       <div
-        className="absolute inset-0 opacity-[0.02]"
+        className={`absolute inset-0 ${themeMode === "light" ? "opacity-[0.62]" : "opacity-90"}`}
+      >
+        <CinemaCanvas mode={themeMode} />
+      </div>
+
+      {/* Vignette subtile sur les bords */}
+      <div
+        className="absolute inset-0"
         style={{
           backgroundImage:
-            'linear-gradient(rgba(125,113,251,1) 1px,transparent 1px),linear-gradient(90deg,rgba(125,113,251,1) 1px,transparent 1px)',
-          backgroundSize: '64px 64px',
+            themeMode === "light"
+              ? `radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, ${withAlpha(marsaiColors.primary, 0.25)} 100%)`
+              : `radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, ${withAlpha(marsaiColors.bgdark, 0.55)} 100%)`,
         }}
       />
+
+      {/* Grille */}
+      <div
+        className={`absolute inset-0 ${themeMode === "light" ? "opacity-[0.06]" : "opacity-[0.10]"}`}
+        style={{
+          backgroundImage:
+            themeMode === "light"
+              ? `linear-gradient(${withAlpha(marsaiColors.bgdark, 0.42)} 1px,transparent 1px),linear-gradient(90deg,${withAlpha(marsaiColors.bgdark, 0.42)} 1px,transparent 1px)`
+              : `linear-gradient(${withAlpha(marsaiColors.accent, 0.55)} 1.5px, transparent 1.5px),linear-gradient(90deg, ${withAlpha(marsaiColors.accent, 0.55)} 1.5px, transparent 1.5px)`,
+          backgroundSize: "64px 64px",
+        }}
+      />
+
+      {/* Ligne du haut */}
       <div
         className="absolute inset-x-0 top-0 h-px"
-        style={{ background: `linear-gradient(to right, transparent, ${withAlpha(marsaiColors.primary, 0.55)}, transparent)` }}
+        style={{
+          background: `linear-gradient(to right, transparent, ${withAlpha(
+            marsaiColors.bgdark,
+            themeMode === "light" ? 0.48 : 0.55,
+          )}, transparent)`,
+        }}
       />
     </div>
-  )
+  );
 }

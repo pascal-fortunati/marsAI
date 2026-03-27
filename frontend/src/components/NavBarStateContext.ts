@@ -18,6 +18,8 @@ export type NavBarPanelConfig = {
   tabs: NavBarPanelTab[]
   activeTab: string
   onTabChange: (key: string) => void
+  setupIncomplete?: boolean
+  onOpenSetup?: () => void
 }
 
 export type NavBarJuryStats = {

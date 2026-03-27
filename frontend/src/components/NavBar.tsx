@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import type { FestivalSettings } from "../config/festival";
 import {
@@ -6,10 +6,10 @@ import {
   isPalmaresAvailable,
   isSubmissionOpen,
 } from "../config/festival";
-import marsAiLogo from "../assets/mars_ai_logo.png";
 import { decodeJwtPayload, getStoredToken } from "../lib/api";
 import { fetchPublicFestivalSettings } from "../lib/siteSettings";
 import { setLanguage } from "../lib/i18n";
+import { resolveInitialTheme, setTheme, type ThemeMode } from "../theme/theme";
 import { marsaiColors } from "../theme/marsai";
 import { useNavBarState } from "./NavBarStateContext";
 import { useTranslation } from "react-i18next";
@@ -50,6 +50,22 @@ function FlagEN() {
   );
 }
 
+function resolveNavLogoSrc(
+  siteLogo: string | null | undefined,
+  platformBaseUrl: string | null | undefined,
+) {
+  const raw = String(siteLogo || "").trim();
+  if (!raw) return "";
+  if (/^data:image\//i.test(raw)) return raw;
+  if (/^https?:\/\//i.test(raw)) return raw;
+  const base = String(platformBaseUrl || "").trim() || window.location.origin;
+  try {
+    return new URL(raw, base).toString();
+  } catch {
+    return "";
+  }
+}
+
 function LangSwitch({
   className = "",
   currentLang,
@@ -72,7 +88,7 @@ function LangSwitch({
             type="button"
             aria-label={item.label}
             onClick={() => onChange(item.key)}
-            className="relative h-11 w-11 rounded-full border text-sm transition-all duration-200"
+            className="relative h-11 w-11 cursor-pointer rounded-full border text-sm transition-all duration-200"
             style={{
               borderColor: active
                 ? "rgba(125,113,251,0.55)"
@@ -96,6 +112,51 @@ function LangSwitch({
   );
 }
 
+function ThemeSwitch({
+  mode,
+  onToggle,
+}: {
+  mode: ThemeMode;
+  onToggle: () => void;
+}) {
+  const isLight = mode === "light";
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={isLight ? "Activer thème sombre" : "Activer thème clair"}
+      className="relative flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border text-sm transition-all duration-200"
+      style={{
+        borderColor: isLight
+          ? "rgba(125, 113, 251, 0.55)"
+          : "rgba(125,113,251,0.45)",
+        background: isLight
+          ? "linear-gradient(135deg, rgba(125, 113, 251, 0.22), rgba(255, 92, 53, 0.2"
+          : "linear-gradient(135deg, rgba(125,113,251,0.24), rgba(20,26,46,0.38))",
+      }}
+    >
+      {isLight ? (
+        <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none">
+          <circle cx="12" cy="12" r="4.5" fill="rgb(255, 92, 53)" />
+          <path
+            d="M12 2.5v2.2M12 19.3v2.2M4.7 4.7l1.6 1.6M17.7 17.7l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.7 19.3l1.6-1.6M17.7 6.3l1.6-1.6"
+            stroke="rgb(255, 92, 53)"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+          />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none">
+          <path
+            d="M16.8 14.2A7 7 0 0 1 9.8 7.2a6.9 6.9 0 0 1 1.1-3.8 8.4 8.4 0 1 0 9.7 9.7 6.9 6.9 0 0 1-3.8 1.1Z"
+            fill="rgb(255, 92, 53)"
+          />
+        </svg>
+      )}
+    </button>
+  );
+}
+
 export function NavBar() {
   const { t, i18n } = useTranslation();
   const currentLang: "fr" | "en" = i18n.language?.startsWith("fr")
@@ -107,20 +168,95 @@ export function NavBar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [tick, setTick] = useState(0);
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() =>
+    resolveInitialTheme(),
+  );
   const [nowMs, setNowMs] = useState(() => Date.now());
   const [settings, setSettings] = useState<FestivalSettings | null>(null);
+  const [failedLogoSrc, setFailedLogoSrc] = useState<string | null>(null);
+  const [previewFocusTarget, setPreviewFocusTarget] = useState<string | null>(
+    null,
+  );
+  const previewDraftRef = useRef<string | null>(null);
   const [role, setRole] = useState<string | null>(() => {
     const token = getStoredToken();
     const payload = token ? decodeJwtPayload<{ role?: string }>(token) : null;
     return payload?.role ?? null;
   });
   const { panel, jury } = useNavBarState();
+  const previewMode = useMemo(
+    () =>
+      new URLSearchParams(window.location.search).get("previewHome") === "1",
+    [],
+  );
+  const isLightTheme = themeMode === "light";
+
+  useEffect(() => {
+    setTheme(themeMode);
+  }, [themeMode]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (!previewMode) return;
+    const applyDraft = () => {
+      try {
+        const raw = localStorage.getItem("marsai_preview_home_draft");
+        if (!raw || raw === previewDraftRef.current) return;
+        previewDraftRef.current = raw;
+        const draft = JSON.parse(raw) as Partial<FestivalSettings>;
+        const hasSiteLogo = Object.prototype.hasOwnProperty.call(
+          draft,
+          "siteLogo",
+        );
+        const hasPlatformBaseUrl = Object.prototype.hasOwnProperty.call(
+          draft,
+          "platformBaseUrl",
+        );
+        setSettings((prev) => ({
+          ...(prev ?? {
+            phase1CloseIso: null,
+            phase2CatalogueIso: null,
+            phase3PalmaresIso: null,
+          }),
+          siteLogo: hasSiteLogo
+            ? (draft.siteLogo ?? null)
+            : (prev?.siteLogo ?? null),
+          platformBaseUrl: hasPlatformBaseUrl
+            ? (draft.platformBaseUrl ?? null)
+            : (prev?.platformBaseUrl ?? null),
+        }));
+      } catch {
+        void 0;
+      }
+    };
+    const id = window.setInterval(applyDraft, 250);
+    const startId = window.setTimeout(applyDraft, 30);
+    return () => {
+      window.clearInterval(id);
+      window.clearTimeout(startId);
+    };
+  }, [previewMode]);
+
+  useEffect(() => {
+    if (!previewMode) return;
+    const onMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      const payload = event.data as { type?: string; target?: string };
+      if (
+        payload?.type !== "marsai-preview-focus" ||
+        typeof payload.target !== "string"
+      )
+        return;
+      setPreviewFocusTarget(payload.target.trim() || null);
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [previewMode]);
 
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 600);
@@ -176,6 +312,42 @@ export function NavBar() {
   const showSubmit = isSubmissionOpen(nowMs, settings);
   const showPanel = role === "admin" || role === "moderator";
   const showJury = role === "jury";
+  const configuredLogoSrc = resolveNavLogoSrc(
+    settings?.siteLogo,
+    settings?.platformBaseUrl,
+  );
+  const navLogoSrc =
+    configuredLogoSrc && failedLogoSrc !== configuredLogoSrc
+      ? configuredLogoSrc
+      : "";
+  const logoPreviewClass =
+    previewFocusTarget === "siteLogo"
+      ? isLightTheme
+        ? "ring-4 ring-[#7d71fb] ring-offset-2 ring-offset-[#f4f7ff] shadow-[0_0_42px_rgba(125,113,251,0.45)]"
+        : "ring-4 ring-[#7d71fb] ring-offset-2 ring-offset-[#05030d] shadow-[0_0_42px_rgba(125,113,251,0.65)]"
+      : "";
+  const logoImgStyle = isLightTheme
+    ? {
+        filter:
+          "brightness(0) saturate(100%) invert(8%) sepia(42%) saturate(1827%) hue-rotate(230deg) brightness(72%) contrast(108%)",
+      }
+    : undefined;
+  const logoTextStyle = isLightTheme
+    ? { color: "rgba(20, 14, 80, 0.96)" }
+    : undefined;
+  const logoMaskStyle = isLightTheme
+    ? {
+        backgroundColor: "rgba(20, 14, 80, 0.96)",
+        WebkitMaskImage: `url("${navLogoSrc}")`,
+        maskImage: `url("${navLogoSrc}")`,
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+      }
+    : undefined;
 
   if (isPanel) {
     if (!showPanel) return null;
@@ -192,38 +364,74 @@ export function NavBar() {
     const tabs = panel?.tabs ?? [];
     const activeTab = panel?.activeTab ?? "";
     const onTabChange = panel?.onTabChange ?? (() => {});
+    const setupIncomplete = Boolean(panel?.setupIncomplete);
+    const onOpenSetup = panel?.onOpenSetup ?? (() => {});
 
     return (
-      <div className="sticky top-0 z-50 border-b border-[#7d71fb]/20 bg-[#05030d]/90 backdrop-blur-xl shadow-[0_4px_60px_rgba(125,113,251,0.07)]">
+      <div
+        className={`sticky top-0 z-50 border-b backdrop-blur-xl ${
+          isLightTheme
+            ? "border-[#7d71fb]/15 bg-white/80 shadow-[0_4px_40px_rgba(30,41,59,0.08)]"
+            : "border-[#7d71fb]/20 bg-[#05030d]/90 shadow-[0_4px_60px_rgba(125,113,251,0.07)]"
+        }`}
+      >
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#7d71fb]/70 to-transparent" />
-        <div className="mx-auto max-w-screen-2xl px-8">
-          <div className="flex items-center justify-between py-5">
+        <div className="mx-auto max-w-screen-2xl px-4 sm:px-8">
+          <div className="flex items-center justify-between py-4 sm:py-5">
             <div className="flex items-center gap-4">
               <Link
                 to="/"
-                className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl"
+                className={`flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl ${logoPreviewClass}`}
+                data-preview-target="siteLogo"
               >
-                <img
-                  src={marsAiLogo}
-                  alt="marsAI"
-                  className="h-full w-full object-contain"
-                />
+                {navLogoSrc ? (
+                  isLightTheme ? (
+                    <>
+                      <img
+                        src={navLogoSrc}
+                        alt=""
+                        className="hidden"
+                        onError={() => {
+                          if (navLogoSrc === configuredLogoSrc) {
+                            setFailedLogoSrc(configuredLogoSrc);
+                          }
+                        }}
+                      />
+                      <span className="h-full w-full" style={logoMaskStyle} />
+                    </>
+                  ) : (
+                    <img
+                      src={navLogoSrc}
+                      alt="marsAI"
+                      className="h-full w-full object-contain"
+                      style={logoImgStyle}
+                      onError={() => {
+                        if (navLogoSrc === configuredLogoSrc) {
+                          setFailedLogoSrc(configuredLogoSrc);
+                        }
+                      }}
+                    />
+                  )
+                ) : null}
               </Link>
               <div>
-                <div className="f-orb text-base font-black text-white">
+                <div
+                  className="f-orb text-base font-black text-white"
+                  style={logoTextStyle}
+                >
                   MARS<span style={{ color: marsaiColors.accent }}>AI</span>
-                  <span className="ml-2 text-white/25">·</span>
-                  <span className="ml-2 text-white/55">
+                  <span className="ml-2 hidden text-white/25 sm:inline">·</span>
+                  <span className="ml-2 hidden text-white/55 sm:inline">
                     {t("nav.dashboard")}
                   </span>
                 </div>
-                <div className="f-mono text-xs text-white/28">
+                <div className="f-mono hidden text-xs text-white/28 sm:block">
                   {stats.loading ? t("common.loading") : subtitle}
                 </div>
               </div>
             </div>
 
-            <div className="hidden sm:flex items-center divide-x divide-white/8">
+            <div className="hidden md:flex items-center divide-x divide-white/8">
               {[
                 {
                   label: t("nav.stats.films"),
@@ -274,22 +482,64 @@ export function NavBar() {
                 </div>
               ))}
             </div>
-            <LangSwitch currentLang={currentLang} onChange={setLanguage} />
+            <div className="flex items-center gap-2 shrink-0">
+              {setupIncomplete ? (
+                <button
+                  type="button"
+                  onClick={onOpenSetup}
+                  className="f-mono hidden h-9 items-center gap-1.5 rounded-full border border-[#ff5c35]/35 bg-[#ff5c35]/12 px-3 text-[10px] uppercase tracking-widest text-[#ff9f86] transition hover:bg-[#ff5c35]/20 hover:text-[#ffc3b2] sm:inline-flex"
+                >
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#ff5c35]" />
+                  {t("nav.setup")}
+                </button>
+              ) : null}
+              <LangSwitch currentLang={currentLang} onChange={setLanguage} />
+              <ThemeSwitch
+                mode={themeMode}
+                onToggle={() =>
+                  setThemeMode((prev) => (prev === "dark" ? "light" : "dark"))
+                }
+              />
+              <button
+                className="flex flex-col gap-1 p-2 md:hidden"
+                onClick={() => setMenuOpen(!menuOpen)}
+              >
+                <span
+                  className={`block h-px w-5 ${
+                    isLightTheme ? "bg-slate-700" : "bg-white"
+                  } transition-all duration-300 ${
+                    menuOpen ? "translate-y-1.5 rotate-45" : ""
+                  }`}
+                />
+                <span
+                  className={`block h-px w-5 ${
+                    isLightTheme ? "bg-slate-700" : "bg-white"
+                  } transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`}
+                />
+                <span
+                  className={`block h-px w-5 ${
+                    isLightTheme ? "bg-slate-700" : "bg-white"
+                  } transition-all duration-300 ${
+                    menuOpen ? "-translate-y-1.5 -rotate-45" : ""
+                  }`}
+                />
+              </button>
+            </div>
           </div>
 
           {tabs.length > 0 ? (
-            <div className="flex gap-0 border-t border-white/6">
+            <div className="hidden gap-0 border-t border-white/6 md:flex">
               {tabs.map((t) => (
                 <button
                   key={t.key}
                   onClick={() => onTabChange(t.key)}
-                  className={`f-mono relative flex items-center gap-2.5 px-6 py-4 text-sm transition-colors ${
+                  className={`f-mono relative flex min-w-[130px] flex-none cursor-pointer items-center justify-center gap-2 px-3 py-3 text-xs transition-colors sm:flex-1 sm:py-4 sm:text-sm ${
                     activeTab === t.key
                       ? "text-[#7d71fb] border-b-2 border-[#7d71fb]"
                       : "text-white hover:text-[#7d71fb] border-b-2 border-transparent hover:border-[#7d71fb]"
                   }`}
                 >
-                  {t.label}
+                  <span className="truncate">{t.label}</span>
                   {t.badge != null && t.badge > 0 && (
                     <span
                       className="flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold text-white"
@@ -302,6 +552,54 @@ export function NavBar() {
               ))}
             </div>
           ) : null}
+
+          {tabs.length > 0 ? (
+            <div
+              className={`overflow-hidden transition-all duration-300 md:hidden ${
+                menuOpen ? "max-h-96" : "max-h-0"
+              }`}
+            >
+              <div
+                className={`f-mono flex flex-col gap-px border-t border-white/8 px-2 py-2 backdrop-blur-xl ${
+                  isLightTheme ? "bg-white/90" : "bg-[#05030d]/95"
+                }`}
+              >
+                {tabs.map((t) => (
+                  <button
+                    key={`mobile-${t.key}`}
+                    onClick={() => onTabChange(t.key)}
+                    className={`flex items-center justify-between rounded px-3 py-2.5 text-xs tracking-widest transition-all ${
+                      activeTab === t.key
+                        ? "bg-[#7d71fb]/10 text-[#7d71fb]"
+                        : isLightTheme
+                          ? "text-slate-500 hover:bg-slate-900/5 hover:text-slate-700"
+                          : "text-white/40 hover:bg-white/5 hover:text-white/70"
+                    }`}
+                  >
+                    <span>{t.label}</span>
+                    {t.badge != null && t.badge > 0 ? (
+                      <span
+                        className="flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold text-white"
+                        style={{ background: marsaiColors.accent }}
+                      >
+                        {t.badge}
+                      </span>
+                    ) : null}
+                  </button>
+                ))}
+                {setupIncomplete ? (
+                  <button
+                    type="button"
+                    onClick={onOpenSetup}
+                    className="mt-1 flex items-center justify-between rounded border border-[#ff5c35]/25 bg-[#ff5c35]/10 px-3 py-2.5 text-xs tracking-widest text-[#ffb39f]"
+                  >
+                    <span>{t("nav.setup")}</span>
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#ff5c35]" />
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     );
@@ -309,36 +607,68 @@ export function NavBar() {
 
   if (isJury) {
     if (!showJury) return null;
-    const subtitle = jury?.subtitle ?? t("nav.secureAccess");
     const stats = jury?.stats ?? { voted: 0, total: 0, pct: 0, done: false };
 
     return (
-      <div className="sticky top-0 z-50 border-b border-[#7d71fb]/20 bg-[#05030d]/90 backdrop-blur-xl shadow-[0_4px_60px_rgba(125,113,251,0.07)]">
+      <div
+        className={`sticky top-0 z-50 border-b backdrop-blur-xl ${
+          isLightTheme
+            ? "border-[#7d71fb]/15 bg-white/80 shadow-[0_4px_40px_rgba(30,41,59,0.08)]"
+            : "border-[#7d71fb]/20 bg-[#05030d]/90 shadow-[0_4px_60px_rgba(125,113,251,0.07)]"
+        }`}
+      >
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#7d71fb]/70 to-transparent" />
-        <div className="mx-auto max-w-screen-2xl px-8">
-          <div className="flex items-center justify-between py-5">
+        <div className="mx-auto max-w-screen-2xl px-4 sm:px-8">
+          <div className="flex items-center justify-between py-4 sm:py-5">
             <div className="flex items-center gap-4">
               <Link
                 to="/"
-                className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl"
+                className={`flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl ${logoPreviewClass}`}
+                data-preview-target="siteLogo"
               >
-                <img
-                  src={marsAiLogo}
-                  alt="marsAI"
-                  className="h-full w-full object-contain"
-                />
+                {navLogoSrc ? (
+                  isLightTheme ? (
+                    <>
+                      <img
+                        src={navLogoSrc}
+                        alt=""
+                        className="hidden"
+                        onError={() => {
+                          if (navLogoSrc === configuredLogoSrc) {
+                            setFailedLogoSrc(configuredLogoSrc);
+                          }
+                        }}
+                      />
+                      <span className="h-full w-full" style={logoMaskStyle} />
+                    </>
+                  ) : (
+                    <img
+                      src={navLogoSrc}
+                      alt="marsAI"
+                      className="h-full w-full object-contain"
+                      style={logoImgStyle}
+                      onError={() => {
+                        if (navLogoSrc === configuredLogoSrc) {
+                          setFailedLogoSrc(configuredLogoSrc);
+                        }
+                      }}
+                    />
+                  )
+                ) : null}
               </Link>
               <div>
-                <div className="f-orb text-base font-black text-white">
+                <div
+                  className="f-orb text-base font-black text-white"
+                  style={logoTextStyle}
+                >
                   MARS<span style={{ color: marsaiColors.accent }}>AI</span>
                   <span className="mx-2 text-white/25">·</span>
                   <span className="text-white/55">{t("nav.jurySpace")}</span>
                 </div>
-                <div className="f-mono text-xs text-white/28">{subtitle}</div>
               </div>
             </div>
 
-            <div className="hidden sm:flex items-center divide-x divide-white/8">
+            <div className="hidden md:flex items-center divide-x divide-white/8">
               {[
                 {
                   label: t("nav.stats.films"),
@@ -371,7 +701,15 @@ export function NavBar() {
                 </div>
               ))}
             </div>
-            <LangSwitch currentLang={currentLang} onChange={setLanguage} />
+            <div className="flex items-center gap-2">
+              <LangSwitch currentLang={currentLang} onChange={setLanguage} />
+              <ThemeSwitch
+                mode={themeMode}
+                onToggle={() =>
+                  setThemeMode((prev) => (prev === "dark" ? "light" : "dark"))
+                }
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -384,7 +722,9 @@ export function NavBar() {
         className={[
           "sticky top-0 z-50 transition-all duration-500",
           scrolled
-            ? "border-b border-[#7d71fb]/20 bg-[#05030d]/55 backdrop-blur-xl shadow-[0_4px_60px_rgba(125,113,251,0.07)] supports-[backdrop-filter]:bg-[#05030d]/45"
+            ? isLightTheme
+              ? "border-b border-[#7d71fb]/15 bg-white/72 backdrop-blur-xl shadow-[0_4px_40px_rgba(30,41,59,0.08)] supports-[backdrop-filter]:bg-white/65"
+              : "border-b border-[#7d71fb]/20 bg-[#05030d]/55 backdrop-blur-xl shadow-[0_4px_60px_rgba(125,113,251,0.07)] supports-[backdrop-filter]:bg-[#05030d]/45"
             : "bg-transparent",
         ].join(" ")}
       >
@@ -392,15 +732,45 @@ export function NavBar() {
 
         <nav className="mx-auto flex max-w-screen-2xl items-center gap-6 px-8 py-5">
           <Link to="/" className="flex items-center gap-4 shrink-0">
-            <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl">
-              <img
-                src={marsAiLogo}
-                alt="marsAI"
-                className="h-full w-full object-contain"
-              />
+            <div
+              className={`flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl ${logoPreviewClass}`}
+              data-preview-target="siteLogo"
+            >
+              {navLogoSrc ? (
+                isLightTheme ? (
+                  <>
+                    <img
+                      src={navLogoSrc}
+                      alt=""
+                      className="hidden"
+                      onError={() => {
+                        if (navLogoSrc === configuredLogoSrc) {
+                          setFailedLogoSrc(configuredLogoSrc);
+                        }
+                      }}
+                    />
+                    <span className="h-full w-full" style={logoMaskStyle} />
+                  </>
+                ) : (
+                  <img
+                    src={navLogoSrc}
+                    alt="marsAI"
+                    className="h-full w-full object-contain"
+                    style={logoImgStyle}
+                    onError={() => {
+                      if (navLogoSrc === configuredLogoSrc) {
+                        setFailedLogoSrc(configuredLogoSrc);
+                      }
+                    }}
+                  />
+                )
+              ) : null}
             </div>
             <div>
-              <div className="f-orb text-base font-black text-white">
+              <div
+                className="f-orb text-base font-black text-white"
+                style={logoTextStyle}
+              >
                 MARS<span style={{ color: marsaiColors.accent }}>AI</span>
               </div>
               <div className="f-mono text-xs text-white/28">
@@ -460,22 +830,32 @@ export function NavBar() {
 
           <div className="flex items-center gap-2 shrink-0">
             <LangSwitch currentLang={currentLang} onChange={setLanguage} />
+            <ThemeSwitch
+              mode={themeMode}
+              onToggle={() =>
+                setThemeMode((prev) => (prev === "dark" ? "light" : "dark"))
+              }
+            />
             <button
               className="flex flex-col gap-1 p-2 md:hidden"
               onClick={() => setMenuOpen(!menuOpen)}
             >
               <span
-                className={`block h-px w-5 bg-white transition-all duration-300 ${
+                className={`block h-px w-5 ${
+                  isLightTheme ? "bg-slate-700" : "bg-white"
+                } transition-all duration-300 ${
                   menuOpen ? "translate-y-1.5 rotate-45" : ""
                 }`}
               />
               <span
-                className={`block h-px w-5 bg-white transition-all duration-300 ${
-                  menuOpen ? "opacity-0" : ""
-                }`}
+                className={`block h-px w-5 ${
+                  isLightTheme ? "bg-slate-700" : "bg-white"
+                } transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`}
               />
               <span
-                className={`block h-px w-5 bg-white transition-all duration-300 ${
+                className={`block h-px w-5 ${
+                  isLightTheme ? "bg-slate-700" : "bg-white"
+                } transition-all duration-300 ${
                   menuOpen ? "-translate-y-1.5 -rotate-45" : ""
                 }`}
               />
@@ -488,7 +868,11 @@ export function NavBar() {
             menuOpen ? "max-h-64" : "max-h-0"
           }`}
         >
-          <div className="f-mono flex flex-col gap-px border-t border-white/8 bg-[#05030d]/95 px-4 py-3 backdrop-blur-xl">
+          <div
+            className={`f-mono flex flex-col gap-px border-t border-white/8 px-4 py-3 backdrop-blur-xl ${
+              isLightTheme ? "bg-white/90" : "bg-[#05030d]/95"
+            }`}
+          >
             {[
               {
                 to: "/submit",
@@ -526,7 +910,9 @@ export function NavBar() {
                     `flex items-center gap-2 rounded px-3 py-2.5 text-xs tracking-widest transition-all ${
                       isActive
                         ? "bg-[#7d71fb]/10 text-[#7d71fb]"
-                        : "text-white/40 hover:bg-white/5 hover:text-white/70"
+                        : isLightTheme
+                          ? "text-slate-500 hover:bg-slate-900/5 hover:text-slate-700"
+                          : "text-white/40 hover:bg-white/5 hover:text-white/70"
                     }`
                   }
                 >

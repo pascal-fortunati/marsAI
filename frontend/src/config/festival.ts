@@ -2,7 +2,7 @@
 const toMs = (iso: string) => new Date(iso).getTime()
 
 // Logo des partenaires
-export type PartnerLogo = { url: string; name?: string | null }
+export type PartnerLogo = { url: string; name?: string | null; linkUrl?: string | null }
 
 // Paramètres de la home
 export type FestivalSettings = {
@@ -11,6 +11,7 @@ export type FestivalSettings = {
   phase3PalmaresIso: string | null
   siteLogo?: string | null
   heroImageUrl?: string | null
+  platformBaseUrl?: string | null
   footerText?: string | null
   partnersLogos?: PartnerLogo[]
   festivalDescription?: string | null

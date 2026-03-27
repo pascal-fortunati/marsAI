@@ -201,7 +201,7 @@ export function HomeView({
     (target === "home.eyebrowText" && previewFocusTarget === "home.eyebrow");
   const highlightClass = (target: string, shape = "rounded-lg") =>
     isPreviewFocused(target)
-      ? `${shape} ring-4 ring-[#7d71fb] ring-offset-2 ring-offset-[#05030d] shadow-[0_0_42px_rgba(125,113,251,0.65)]`
+      ? `${shape} ring-4 ring-[#7d71fb] ring-offset-2 ring-offset-background shadow-[0_0_42px_rgba(125,113,251,0.65)]`
       : "";
 
   const isFrLanguage = i18n.language?.startsWith("fr");
@@ -348,20 +348,13 @@ export function HomeView({
         style={
           shownSettings?.heroImageUrl
             ? {
-                backgroundImage: `linear-gradient(rgba(5,3,13,0.82), rgba(5,3,13,0.9)), url("${shownSettings.heroImageUrl}")`,
+                backgroundImage: `linear-gradient(var(--home-hero-overlay-start), var(--home-hero-overlay-end)), url("${shownSettings.heroImageUrl}")`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }
             : undefined
         }
       >
-        {shownSettings?.siteLogo ? (
-          <div className="absolute left-5 top-5 z-20 rounded-full border border-white/10 bg-black/30 px-4 py-1.5 backdrop-blur-sm">
-            <span className="f-orb text-xs font-black tracking-wider text-white/90">
-              {shownSettings.siteLogo}
-            </span>
-          </div>
-        ) : null}
         <div
           className="pointer-events-none absolute left-1/2 top-1/2 h-[700px] w-[700px]"
           style={{ animation: "rotateSlow 40s linear infinite" }}
@@ -625,9 +618,8 @@ export function HomeView({
               <div
                 className="relative overflow-hidden rounded-2xl p-5"
                 style={{
-                  background:
-                    "linear-gradient(135deg, rgba(125,113,251,0.1) 0%, rgba(5,3,13,0.7) 100%)",
-                  border: "1px solid rgba(125,113,251,0.25)",
+                  background: "var(--home-timeline-card-bg)",
+                  border: "1px solid var(--home-timeline-card-border)",
                   backdropFilter: "blur(12px)",
                 }}
               >
@@ -665,11 +657,11 @@ export function HomeView({
                     className="flex items-center gap-3 rounded-xl px-4 py-3 transition-all"
                     style={{
                       background: p.active
-                        ? "rgba(125,113,251,0.1)"
-                        : "rgba(255,255,255,0.02)",
+                        ? "var(--home-timeline-item-bg-active)"
+                        : "var(--home-timeline-item-bg-idle)",
                       border: p.active
-                        ? "1px solid rgba(125,113,251,0.3)"
-                        : "1px solid rgba(255,255,255,0.05)",
+                        ? "1px solid var(--home-timeline-item-border-active)"
+                        : "1px solid var(--home-timeline-item-border-idle)",
                       opacity: p.active ? 1 : 0.45,
                     }}
                   >
@@ -678,8 +670,10 @@ export function HomeView({
                       style={{
                         background: p.active
                           ? "linear-gradient(135deg, #7d71fb, #ff5c35)"
-                          : "rgba(255,255,255,0.05)",
-                        color: p.active ? "#fff" : "rgba(255,255,255,0.25)",
+                          : "var(--home-timeline-step-bg-idle)",
+                        color: p.active
+                          ? "#fff"
+                          : "var(--home-timeline-step-text-idle)",
                         boxShadow: p.active
                           ? "0 0 14px rgba(125,113,251,0.5)"
                           : "none",
@@ -757,18 +751,31 @@ export function HomeView({
 
         <div
           className={[
-            "relative z-10 flex flex-col items-center gap-2 opacity-30",
+            "relative z-10 flex flex-col items-center gap-2",
             previewStandalone ? "mb-2" : "mb-8",
           ].join(" ")}
-          style={{ animation: "fadeIn 1s ease-out 2s both" }}
+          style={{
+            animation: "fadeIn 1s ease-out 2s both",
+            opacity: "var(--home-scroll-opacity)",
+          }}
         >
-          <span className="f-mono text-[8px] uppercase tracking-[0.4em] text-white/50">
+          <span
+            className="f-mono text-[8px] uppercase tracking-[0.4em]"
+            style={{ color: "var(--home-scroll-color)" }}
+          >
             {t("home.scroll")}
           </span>
-          <div className="h-8 w-4 rounded-full border border-white/20 flex items-start justify-center pt-1.5">
+          <div
+            className="h-8 w-4 rounded-full border flex items-start justify-center pt-1.5"
+            style={{ borderColor: "var(--home-scroll-border)" }}
+          >
             <div
-              className="h-1.5 w-1.5 rounded-full bg-white/60"
-              style={{ animation: "float 1.2s ease-in-out infinite" }}
+              className="h-1.5 w-1.5 rounded-full"
+              style={{
+                backgroundColor: "var(--home-scroll-dot)",
+                animation: "float 1.2s ease-in-out infinite",
+              }}
+              aria-hidden
             />
           </div>
         </div>
@@ -806,9 +813,8 @@ export function HomeView({
             ].join(" ")}
             data-preview-target="home.featureSection"
             style={{
-              background:
-                "linear-gradient(135deg, rgba(255,255,255,0.03), rgba(5,3,13,0.7))",
-              border: "1px solid rgba(255,255,255,0.07)",
+              background: "var(--home-feature-bg)",
+              border: "1px solid var(--home-feature-border)",
             }}
           >
             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
