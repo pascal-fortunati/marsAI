@@ -1,10 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
 import AdminLayout from "./AdminLayout";
 import FilmsTab from "./tabs/FilmsTab";
+import SiteTab from "./tabs/SiteTab";
 import type { AdminTab, AdminFilm, AdminStats } from "./AdminTypes";
 
 // Placeholders pour les onglets non encore développés
-const SiteTab = () => <ComingSoon label="Site" />;
 const PartnersTab = () => <ComingSoon label="Partenaires" />;
 const YouTubeTab = () => <ComingSoon label="YouTube" />;
 const EmailsTab = () => <ComingSoon label="Emails" />;
@@ -12,6 +12,8 @@ const EmailsTab = () => <ComingSoon label="Emails" />;
 const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
 const getToken = () => localStorage.getItem("jwt_token") ?? localStorage.getItem("marsai_token") ?? "";
 
+
+// ONGLET FILMS
 export default function AdminView() {
     const [activeTab, setActiveTab] = useState<AdminTab>("films");
     const [films, setFilms] = useState<AdminFilm[]>([]);
@@ -95,3 +97,5 @@ function ComingSoon({ label }: { label: string }) {
         </div>
     );
 }
+
+// ONGLET SITE
