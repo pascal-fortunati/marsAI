@@ -19,7 +19,9 @@ function optional(name, fallback = undefined) {
 
 // Récupère l'environnement de l'application (par défaut : développement)
 const nodeEnv = optional("NODE_ENV", "development");
-const corsOrigins = String(optional("CORS_ORIGIN", "http://localhost:4001"))
+const corsOrigins = String(
+  optional("CORS_ORIGIN", "http://localhost:5173,http://localhost:4001")
+)
   .split(",")
   .map((value) => value.trim().replace(/\/$/, ""))
   .filter(Boolean);
