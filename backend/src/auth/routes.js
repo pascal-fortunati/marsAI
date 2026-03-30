@@ -3,13 +3,15 @@ import passport from "../auth/passport.js";
 
 const router = express.Router();
 
-// Démarre le flow OAuth
-router.get("/login", passport.authenticate("oauth2"));
 
-// Callback OAuth
+// Démarre le flow Google OAuth
+router.get("/login", passport.authenticate("google", { scope: ["profile", "email"] }));
+
+
+// Callback Google OAuth
 router.get(
   "/callback",
-  passport.authenticate("oauth2", {
+  passport.authenticate("google", {
     failureRedirect: "/api/auth/failed",
     session: true,
   }),
