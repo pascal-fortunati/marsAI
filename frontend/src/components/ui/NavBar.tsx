@@ -2,9 +2,8 @@ import { useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { X, Moon, Sun } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Button } from "./Button";
-import darkLogo from "../../assets/marsai_logo.png";
-import lightLogo from "../../assets/marsai_logo-clair.png";
+import { Button } from "./button";
+import darkLogo from "../../assets/mars_ai_logo.png";
 import { toggleTheme, getStoredTheme, type Theme } from "../../lib/theme";
 
 interface NavBarProps {
@@ -38,21 +37,19 @@ function FlagButton({
       onClick={onClick}
       variant={isActive ? "default" : "ghost"}
       size="icon"
-      className={`relative rounded-full shrink-0 h-[44px] w-[44px] transition-all ${
-        isActive
+      className={`relative rounded-full shrink-0 h-[44px] w-[44px] transition-all ${isActive
           ? "bg-gradient-to-tr from-indigo-400/40 to-orange-500/35"
           : "bg-secondary/60 hover:bg-secondary"
-      } ${className ?? ""}`}
+        } ${className ?? ""}`}
       data-name={`Button - ${isFrench ? "Français" : "English"}`}
       aria-label={ariaLabel}
     >
       <div
         aria-hidden="true"
-        className={`absolute border border-solid inset-0 pointer-events-none rounded-full ${
-          isActive
+        className={`absolute border border-solid inset-0 pointer-events-none rounded-full ${isActive
             ? "border-indigo-400/70 shadow-lg shadow-indigo-400/45 animate-pulse"
             : "border-border"
-        }`}
+          }`}
       />
 
       {/* Drapeau SVG */}
@@ -131,7 +128,7 @@ export default function NavBar({
   remainingFilms = 9,
   progression = 25,
   currentLang = "fr",
-  onLangChange = () => {},
+  onLangChange = () => { },
 }: NavBarProps) {
   const { t } = useTranslation();
   const [theme, setTheme] = useState<Theme>(getStoredTheme());
@@ -408,11 +405,10 @@ export default function NavBar({
                       onClick={handleThemeToggle}
                       variant="ghost"
                       size="icon"
-                      className={`relative rounded-full shrink-0 h-[44px] w-[44px] transition-all hover:bg-secondary/30 active:bg-secondary/50 ${
-                        theme === "light"
+                      className={`relative rounded-full shrink-0 h-[44px] w-[44px] transition-all hover:bg-secondary/30 active:bg-secondary/50 ${theme === "light"
                           ? "text-amber-500"
                           : "text-muted-foreground"
-                      }`}
+                        }`}
                       aria-label={
                         theme === "dark"
                           ? currentLang === "fr"

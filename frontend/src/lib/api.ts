@@ -19,12 +19,6 @@ export const apiUrl = (path: string) =>
 // Clé de stockage du token d'authentification
 const tokenKey = "marsai_token";
 
-// Token sentinel utilise pour forcer un mode demo 100% frontend.
-export const DEMO_LOCAL_TOKEN = "__marsai_demo_local__";
-
-export const isDemoLocalToken = (token: string | null | undefined) =>
-  token === DEMO_LOCAL_TOKEN;
-
 // Récupère le token d'authentification stocké
 export const getStoredToken = () => {
   try {
@@ -87,9 +81,8 @@ export const consumeAuthErrorFromUrl = () => {
   params.delete("error_description");
   params.delete("error");
   const nextSearch = params.toString();
-  const nextUrl = `${window.location.pathname}${
-    nextSearch ? `?${nextSearch}` : ""
-  }${window.location.hash}`;
+  const nextUrl = `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ""
+    }${window.location.hash}`;
   window.history.replaceState(null, "", nextUrl);
   return message;
 };

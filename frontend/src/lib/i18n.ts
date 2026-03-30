@@ -14,34 +14,24 @@ function detectLanguage() {
   return 'fr'
 }
 
-function syncDocumentLanguage(lang: 'fr' | 'en') {
-  if (typeof document === 'undefined') return
-  document.documentElement.lang = lang
-}
-
-const initialLanguage = detectLanguage()
-
 // Initialise i18next avec les ressources et la langue détectée
 i18n.use(initReactI18next).init({
   resources,
-  lng: initialLanguage,
+  lng: detectLanguage(),
   fallbackLng: 'fr',
   interpolation: { escapeValue: false },
 })
 
-syncDocumentLanguage(initialLanguage)
-
 // Change la langue utilisée par i18next et stocke la sélection dans le stockage local
 export function setLanguage(lang: 'fr' | 'en') {
   localStorage.setItem(STORAGE_KEY, lang)
-  syncDocumentLanguage(lang)
   void i18n.changeLanguage(lang)
 }
 
 // Applique les traductions d'un objet à la langue spécifiée
 function applyObject(lng: 'fr' | 'en', baseKey: string, value: unknown) {
   if (Array.isArray(value) || typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' || value === null) {
-    ;(i18n as unknown as { addResource: (lng: string, ns: string, key: string, value: unknown) => void }).addResource(lng, 'translation', baseKey, value)
+    ; (i18n as unknown as { addResource: (lng: string, ns: string, key: string, value: unknown) => void }).addResource(lng, 'translation', baseKey, value)
     return
   }
   if (!value || typeof value !== 'object') return

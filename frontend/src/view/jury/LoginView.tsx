@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { StarfieldNeural } from "../../components/ui/StarfieldNeural";
-import marsAiLogo from "../../assets/marsai_logo.png";
+import marsAiLogo from "../../assets/mars_ai_logo.png";
 import { apiFetchJson, DEMO_LOCAL_TOKEN } from "../../lib/api";
 
 type GoogleCredentialResponse = {
