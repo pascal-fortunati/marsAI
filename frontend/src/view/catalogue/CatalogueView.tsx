@@ -39,12 +39,20 @@ async function preloadPosters(items: Film[], signal: AbortSignal) {
 export function CatalogueView() {
   const { t } = useTranslation();
   const [page, setPage] = useState(1);
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list">(() => {
+    const stored = localStorage.getItem("catalogueViewMode");
+    return (stored === "list" || stored === "grid") ? stored : "grid";
+  });
   const [activeFilm, setActiveFilm] = useState<Film | null>(null);
   const [films, setFilms] = useState<Film[]>([]);
   const [total, setTotal] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Sauvegarder la préférence de mode d'affichage en localStorage
+  useEffect(() => {
+    localStorage.setItem("catalogueViewMode", viewMode);
+  }, [viewMode]);
 
   useEffect(() => {
     const ac = new AbortController();
