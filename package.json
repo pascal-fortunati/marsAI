@@ -10,5 +10,10 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "express-session": "^1.19.0",
+    "passport": "^0.7.0",
+    "passport-oauth2": "^1.8.0"
+  }
 }
