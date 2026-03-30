@@ -9,10 +9,9 @@ import {
   uploadSubmissionFile,
 } from "../services/objectStorageService.js";
 import { getFestivalSettings } from "../services/siteSettingsService.js";
-import {
-  uploadSubmissionVideoToYoutube,
-} from "../services/youtubeUploadService.js";
+import { uploadSubmissionVideoToYoutube } from "../services/youtubeUploadService.js";
 import { sendSubmissionReceivedEmail } from "../services/notificationEmailService.js";
+import { probeVideoDurationSeconds } from "../services/videoMetadataService.js";
 
 // Crée une nouvelle soumission
 function safeBasename(filename) {
@@ -44,6 +43,19 @@ function hasAllowedMime(mimeType, allowedMimes) {
   return allowedMimes.includes(mime);
 }
 
+function parseDurationSeconds(value) {
+  const str = String(value || "").trim();
+  if (!str) return 0;
+  if (str.includes(":")) {
+    const [m, s] = str.split(":").map((v) => Number(v));
+    const min = Number.isFinite(m) ? m : 0;
+    const sec = Number.isFinite(s) ? s : 0;
+    return min * 60 + sec;
+  }
+  const n = Number(str);
+  return Number.isFinite(n) ? n : 0;
+}
+
 // Crée une nouvelle soumission
 export async function postSubmission(req, res, next) {
   try {
@@ -54,7 +66,12 @@ export async function postSubmission(req, res, next) {
 
     const id = crypto.randomUUID();
     const fields = {};
-    const files = { videoUrl: null, posterUrl: null, subtitlesUrl: null, youtubePrivateId: null };
+    const files = {
+      videoUrl: null,
+      posterUrl: null,
+      subtitlesUrl: null,
+      youtubePrivateId: null,
+    };
     const writes = [];
     const objectStorageFiles = [];
     const useObjectStorage = isObjectStorageConfigured();
@@ -66,7 +83,10 @@ export async function postSubmission(req, res, next) {
     let parsingError = null;
     fs.mkdirSync(uploadRoot, { recursive: true });
 
-    const busboy = Busboy({ headers: req.headers, limits: { files: 3, fileSize: 350 * 1024 * 1024 } });
+    const busboy = Busboy({
+      headers: req.headers,
+      limits: { files: 3, fileSize: 350 * 1024 * 1024 },
+    });
 
     busboy.on("field", (name, value) => {
       fields[name] = value;
@@ -100,22 +120,38 @@ export async function postSubmission(req, res, next) {
       const subtitleExt = [".srt", ".vtt"];
       const videoMimes = ["video/mp4", "video/quicktime"];
       const posterMimes = ["image/jpeg", "image/png", "image/gif"];
-      const subtitleMimes = ["text/plain", "text/vtt", "application/x-subrip", "application/octet-stream"];
-      if (name === "video" && (!hasAllowedExtension(lowerName, videoExt) || !hasAllowedMime(mimeType, videoMimes))) {
+      const subtitleMimes = [
+        "text/plain",
+        "text/vtt",
+        "application/x-subrip",
+        "application/octet-stream",
+      ];
+      if (
+        name === "video" &&
+        (!hasAllowedExtension(lowerName, videoExt) ||
+          !hasAllowedMime(mimeType, videoMimes))
+      ) {
         file.resume();
         const err = new Error("Format vidéo invalide");
         err.status = 400;
         parsingError = err;
         return;
       }
-      if (name === "poster" && (!hasAllowedExtension(lowerName, posterExt) || !hasAllowedMime(mimeType, posterMimes))) {
+      if (
+        name === "poster" &&
+        (!hasAllowedExtension(lowerName, posterExt) ||
+          !hasAllowedMime(mimeType, posterMimes))
+      ) {
         file.resume();
         const err = new Error("Format image invalide");
         err.status = 400;
         parsingError = err;
         return;
       }
-      if (name === "subtitles" && !hasAllowedExtension(lowerName, subtitleExt)) {
+      if (
+        name === "subtitles" &&
+        !hasAllowedExtension(lowerName, subtitleExt)
+      ) {
         file.resume();
         const err = new Error("Format sous-titres invalide");
         err.status = 400;
@@ -163,7 +199,8 @@ export async function postSubmission(req, res, next) {
       } else {
         if (name === "video") files.videoUrl = `/uploads/${id}/${targetName}`;
         if (name === "poster") files.posterUrl = `/uploads/${id}/${targetName}`;
-        if (name === "subtitles") files.subtitlesUrl = `/uploads/${id}/${targetName}`;
+        if (name === "subtitles")
+          files.subtitlesUrl = `/uploads/${id}/${targetName}`;
       }
     });
 
@@ -173,6 +210,32 @@ export async function postSubmission(req, res, next) {
       try {
         if (parsingError) throw parsingError;
         await Promise.all(writes);
+        if (!localVideoPath) {
+          const err = new Error("Fichier vidéo source introuvable");
+          err.status = 400;
+          throw err;
+        }
+        const detectedDurationSeconds =
+          await probeVideoDurationSeconds(localVideoPath);
+        if (detectedDurationSeconds > 120) {
+          const err = new Error(
+            `Durée vidéo invalide: ${detectedDurationSeconds}s (max 120s)`,
+          );
+          err.status = 400;
+          throw err;
+        }
+        const enteredDurationSeconds = parseDurationSeconds(fields.duration);
+        if (
+          enteredDurationSeconds > 0 &&
+          Math.abs(enteredDurationSeconds - detectedDurationSeconds) > 2
+        ) {
+          const err = new Error(
+            `Durée déclarée invalide (${enteredDurationSeconds}s). Durée détectée: ${detectedDurationSeconds}s`,
+          );
+          err.status = 400;
+          throw err;
+        }
+        fields.duration = String(detectedDurationSeconds);
         if (useObjectStorage) {
           for (const entry of objectStorageFiles) {
             const stat = await fs.promises.stat(entry.diskPath);
@@ -196,18 +259,18 @@ export async function postSubmission(req, res, next) {
           const source = useObjectStorage
             ? await getSubmissionFileStreamFromStorage({ key: videoStorageKey })
             : (() => {
-                if (!localVideoPath) {
-                  const err = new Error("Fichier vidéo source introuvable");
-                  err.status = 500;
-                  throw err;
-                }
-                const stat = fs.statSync(localVideoPath);
-                return {
-                  stream: fs.createReadStream(localVideoPath),
-                  contentLength: stat.size,
-                  contentType: localVideoContentType,
-                };
-              })();
+              if (!localVideoPath) {
+                const err = new Error("Fichier vidéo source introuvable");
+                err.status = 500;
+                throw err;
+              }
+              const stat = fs.statSync(localVideoPath);
+              return {
+                stream: fs.createReadStream(localVideoPath),
+                contentLength: stat.size,
+                contentType: localVideoContentType,
+              };
+            })();
 
           const youtubeUpload = await uploadSubmissionVideoToYoutube({
             title: String(fields.title || "marsAI Submission"),
@@ -238,7 +301,11 @@ export async function postSubmission(req, res, next) {
         next(err);
       } finally {
         if (useObjectStorage) {
-          await Promise.allSettled(objectStorageFiles.map((entry) => fs.promises.unlink(entry.diskPath)));
+          await Promise.allSettled(
+            objectStorageFiles.map((entry) =>
+              fs.promises.unlink(entry.diskPath),
+            ),
+          );
           await fs.promises.rm(uploadRoot, { recursive: true, force: true });
         }
       }
