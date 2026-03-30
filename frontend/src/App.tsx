@@ -12,7 +12,7 @@ import { HomePage } from "./pages/HomePage";
 import { JuryPage } from "./pages/JuryPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PalmaresPage } from "./pages/PalmaresPage";
-import { PanelPage } from "./pages/PanelPage";
+//import { PanelPage } from "./pages/PanelPage";
 import { SubmitPage } from "./pages/SubmitPage";
 
 const INTRO_SKIP_PATHS = ["/panel", "/jury"];
@@ -73,7 +73,7 @@ function App() {
             <Route path="/catalogue" element={<CataloguePage />} />
             <Route path="/palmares" element={<PalmaresPage />} />
             <Route path="/jury" element={<JuryPage />} />
-            <Route path="/panel" element={<PanelPage />} />
+            {/* <Route path="/panel" element={<PanelPage />} /> */}
             <Route path="/home" element={<Navigate to="/" replace />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

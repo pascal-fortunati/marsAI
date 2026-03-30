@@ -1,8 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import i18n, { setLanguage } from "../../lib/i18n";
-import { apiFetchJson, getStoredToken, isDemoLocalToken } from "../../lib/api";
-import NavBar from "../../components/ui/NavBar";
+import {
+  ApiError,
+  apiFetchJson,
+  consumeAuthErrorFromUrl,
+  consumeTokenFromUrlHash,
+  decodeJwtPayload,
+  getStoredToken,
+} from "../../lib/api";
+import { NavBar } from "../../components/NavBar";
 import { StarfieldNeural } from "../../components/ui/StarfieldNeural";
 
 import { FilmSearch } from "./FilmSearch";
@@ -18,48 +25,9 @@ type ApiFilm = Film & {
   voteComment?: string;
 };
 
-const DEMO_FILMS: Film[] = [
-  {
-    id: "demo-1",
-    title: "Marseille 2040 : Les Jardins Suspendus",
-    country: "France",
-    duration: "1m58",
-    synopsis:
-      "Dans un futur proche, Marseille verdit grace a des jardins suspendus co-crees par citoyens et IA.",
-    tags: ["Futur souhaitable", "Ecologie", "Innovation sociale"],
-    year: "2026",
-    director: "Nadia B.",
-    youtubeId: "yZt-LKoIyLA",
-  },
-  {
-    id: "demo-2",
-    title: "La Mediterranee Recomposee",
-    country: "France",
-    duration: "1m52",
-    synopsis:
-      "Une IA cartographie les futurs de la Mediterranee et revele des routes solidaires entre les rives.",
-    tags: ["Solidarite", "Nature", "Paix"],
-    year: "2026",
-    director: "Lucie M.",
-    youtubeId: "OFRn_T7pOcw",
-  },
-  {
-    id: "demo-3",
-    title: "Reseau Solidaire",
-    country: "France",
-    duration: "2m00",
-    synopsis:
-      "Une plateforme open-source guidee par IA relie les besoins urgents aux ressources locales.",
-    tags: ["Solidarite", "Espoir", "Education"],
-    year: "2026",
-    director: "Ines K.",
-    youtubeId: "B4lvob2KmhA",
-  },
-];
 
 export function JuryView() {
   const { t } = useTranslation();
-  const isDemoMode = useMemo(() => isDemoLocalToken(getStoredToken()), []);
   const [currentLang, setCurrentLang] = useState<"fr" | "en">(() =>
     i18n.language?.toLowerCase().startsWith("en") ? "en" : "fr",
   );
