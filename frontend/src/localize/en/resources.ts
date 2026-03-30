@@ -700,6 +700,8 @@ export const enTranslation = {
         requiredCategory: "Category is required",
         requiredDuration: "Duration is required",
         maxDuration: "Max duration is 2 minutes",
+        durationMismatch:
+          "Entered duration does not match the detected video duration",
         requiredAiTools: "Please provide at least one AI tool",
         requiredTags: "Please select at least one thematic tag",
         requiredMusic: "Music credits are required",
@@ -759,6 +761,9 @@ export const enTranslation = {
       hints: {
         age: "> You must be at least 18 years old to participate",
         durationMax: "> Max length: 2 minutes (tolerance beyond 1 min)",
+        detectedDuration: "> Auto-detected duration: {{duration}}",
+        durationMismatch:
+          "> Please align duration with the auto-detected video duration",
         synopsisMax: "(max 300 characters)",
       },
       buttons: {

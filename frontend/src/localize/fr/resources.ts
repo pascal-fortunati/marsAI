@@ -713,6 +713,7 @@ export const frTranslation = {
         requiredCategory: "Catégorie requise",
         requiredDuration: "Durée requise",
         maxDuration: "Durée max 2 minutes",
+        durationMismatch: "La durée saisie ne correspond pas à la durée détectée",
         requiredAiTools: "Indiquez au moins un outil IA",
         requiredTags: "Sélectionnez au moins une thématique",
         requiredMusic: "Mentions musiques requises",
@@ -772,6 +773,9 @@ export const frTranslation = {
       hints: {
         age: "> Vous devez avoir 18 ans révolus pour participer",
         durationMax: "> Durée max : 2 minutes (tolérance au-delà de 1 min)",
+        detectedDuration: "> Durée détectée automatiquement : {{duration}}",
+        durationMismatch:
+          "> Ajustez la durée selon la vidéo détectée automatiquement",
         synopsisMax: "(max 300 caractères)",
       },
       buttons: {

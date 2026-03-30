@@ -302,12 +302,11 @@ function DropZone({
     if (!isAllowedUploadFile(kind, f)) {
       setError(
         t(
-          `submit.dropzone.invalid${
-            kind === "video"
-              ? "Video"
-              : kind === "poster"
-                ? "Poster"
-                : "Subtitles"
+          `submit.dropzone.invalid${kind === "video"
+            ? "Video"
+            : kind === "poster"
+              ? "Poster"
+              : "Subtitles"
           }Type`,
         ),
       );
@@ -600,11 +599,10 @@ function StepDirector({
               <Button
                 type="button"
                 variant="outline"
-                className={`w-full justify-start rounded-xl border border-border bg-input px-[14px] py-[11px] text-left text-xs font-normal normal-case tracking-normal text-foreground/90 shadow-none transition-[border-color,background,box-shadow] duration-200 hover:bg-[#7d71fb]/[0.04] hover:text-foreground ${
-                  errors.dirBirthdate
+                className={`w-full justify-start rounded-xl border border-border bg-input px-[14px] py-[11px] text-left text-xs font-normal normal-case tracking-normal text-foreground/90 shadow-none transition-[border-color,background,box-shadow] duration-200 hover:bg-[#7d71fb]/[0.04] hover:text-foreground ${errors.dirBirthdate
                     ? "border-[rgba(255,92,53,0.5)] bg-[rgba(255,92,53,0.04)]"
                     : "focus-visible:border-[#7d71fb]/50 focus-visible:bg-[#7d71fb]/[0.04] focus-visible:shadow-[0_0_0_3px_rgba(125,113,251,0.08)]"
-                }`}
+                  }`}
               >
                 {birthdateDisplay || t("submit.placeholders.birthdate")}
               </Button>
@@ -840,6 +838,7 @@ function StepFilm({
   form,
   set,
   errors,
+  detectedDurationSeconds,
   countries,
   languages,
   categories,
@@ -849,6 +848,7 @@ function StepFilm({
   form: FormData;
   set: <K extends keyof FormData>(k: K, v: FormData[K]) => void;
   errors: Record<string, string>;
+  detectedDurationSeconds: number | null;
   countries: string[];
   languages: string[];
   categories: string[];
@@ -857,6 +857,17 @@ function StepFilm({
 }) {
   const { t } = useTranslation();
   const synopsisLen = form.synopsis.length;
+  const typedDuration = form.duration ? parseDuration(form.duration) : 0;
+  const durationMismatch =
+    detectedDurationSeconds !== null &&
+    typedDuration > 0 &&
+    Math.abs(typedDuration - detectedDurationSeconds) > 2;
+  const detectedDurationLabel =
+    detectedDurationSeconds !== null
+      ? `${Math.floor(detectedDurationSeconds / 60)}:${String(
+        detectedDurationSeconds % 60,
+      ).padStart(2, "0")}`
+      : null;
 
   return (
     <div
@@ -895,6 +906,18 @@ function StepFilm({
               {t("submit.hints.durationMax")}
             </p>
           )}
+          {detectedDurationLabel ? (
+            <p className="f-mono mt-1 text-[9px] text-white/55">
+              {t("submit.hints.detectedDuration", {
+                duration: detectedDurationLabel,
+              })}
+            </p>
+          ) : null}
+          {durationMismatch ? (
+            <p className="f-mono mt-1 text-[9px] text-[#ffb199]">
+              {t("submit.hints.durationMismatch")}
+            </p>
+          ) : null}
           <FieldError msg={errors.duration} />
         </div>
       </div>
@@ -908,11 +931,10 @@ function StepFilm({
         </Label>
         <Textarea
           rows={3}
-          className={`resize-none ${
-            errors.synopsis
+          className={`resize-none ${errors.synopsis
               ? "border-[rgba(255,92,53,0.5)] bg-[rgba(255,92,53,0.04)]"
               : ""
-          }`}
+            }`}
           value={form.synopsis}
           onChange={(e) => {
             if (e.target.value.length <= 300) set("synopsis", e.target.value);
@@ -1035,11 +1057,10 @@ function StepFilm({
         <Label required>{t("submit.labels.music")}</Label>
         <Textarea
           rows={2}
-          className={`resize-none ${
-            errors.musicCredits
+          className={`resize-none ${errors.musicCredits
               ? "border-[rgba(255,92,53,0.5)] bg-[rgba(255,92,53,0.04)]"
               : ""
-          }`}
+            }`}
           value={form.musicCredits}
           onChange={(e) => set("musicCredits", e.target.value)}
           placeholder={t("submit.placeholders.music")}
@@ -1067,10 +1088,12 @@ function StepUploads({
   form,
   set,
   errors,
+  onVideoPicked,
 }: {
   form: FormData;
   set: <K extends keyof FormData>(k: K, v: FormData[K]) => void;
   errors: Record<string, string>;
+  onVideoPicked: (file: File | null) => Promise<void> | void;
 }) {
   const { t } = useTranslation();
   return (
@@ -1090,7 +1113,7 @@ function StepUploads({
         accept=".mp4,.mov"
         maxMb={300}
         file={form.videoFile}
-        onChange={(f) => set("videoFile", f)}
+        onChange={(f) => void onVideoPicked(f)}
         required
         hint={t("submit.uploads.videoHint")}
       />
@@ -1264,12 +1287,12 @@ function StepConsents({
       {(errors.consentRules ||
         errors.consentPromo ||
         errors.consentCopyright) && (
-        <div className="rounded-xl border border-[#ff5c35]/25 bg-[#ff5c35]/8 p-3">
-          <p className="f-mono text-[9px] text-[#ff5c35]">
-            {t("submit.errors.consentsRequired")}
-          </p>
-        </div>
-      )}
+          <div className="rounded-xl border border-[#ff5c35]/25 bg-[#ff5c35]/8 p-3">
+            <p className="f-mono text-[9px] text-[#ff5c35]">
+              {t("submit.errors.consentsRequired")}
+            </p>
+          </div>
+        )}
 
       <div className="rounded-xl border border-white/6 bg-white/2 p-4">
         <p className="f-mono text-[10px] leading-relaxed text-white/30">
@@ -1375,6 +1398,35 @@ function SuccessScreen({
   );
 }
 
+function formatDurationSeconds(seconds: number): string {
+  const safe = Math.max(0, Math.round(Number(seconds) || 0));
+  const min = Math.floor(safe / 60);
+  const sec = String(safe % 60).padStart(2, "0");
+  return `${min}:${sec}`;
+}
+
+function readVideoDuration(file: File): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const video = document.createElement("video");
+    video.preload = "metadata";
+    video.src = url;
+    video.onloadedmetadata = () => {
+      const duration = Number(video.duration);
+      URL.revokeObjectURL(url);
+      if (!Number.isFinite(duration) || duration <= 0) {
+        reject(new Error("INVALID_DURATION"));
+        return;
+      }
+      resolve(Math.round(duration));
+    };
+    video.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("VIDEO_METADATA_ERROR"));
+    };
+  });
+}
+
 // Composant représentant la vue de soumission
 export function SubmitView() {
   const { t, i18n } = useTranslation();
@@ -1393,6 +1445,9 @@ export function SubmitView() {
   const [step, setStep] = useState<Step>(0);
   const [submitting, setSubmitting] = useState(false);
   const [submissionId, setSubmissionId] = useState("");
+  const [videoDetectedDuration, setVideoDetectedDuration] = useState<
+    number | null
+  >(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [options, setOptions] = useState<SubmissionOptions>(fallbackOptions);
@@ -1481,7 +1536,7 @@ export function SubmitView() {
       .then((o) => {
         if (o) setOptions(o);
       })
-      .catch(() => {});
+      .catch(() => { });
     return () => ac.abort();
   }, [fallbackOptions]);
 
@@ -1611,6 +1666,11 @@ export function SubmitView() {
         errs.duration = t("submit.errors.requiredDuration");
       else if (parseDuration(form.duration) > 120)
         errs.duration = t("submit.errors.maxDuration");
+      else if (
+        videoDetectedDuration !== null &&
+        Math.abs(parseDuration(form.duration) - videoDetectedDuration) > 2
+      )
+        errs.duration = t("submit.errors.durationMismatch");
       if (form.aiTools.length === 0)
         errs.aiTools = t("submit.errors.requiredAiTools");
       if (form.semanticTags.length === 0)
@@ -1625,6 +1685,8 @@ export function SubmitView() {
       if (!form.videoFile) errs.videoFile = t("submit.errors.requiredVideo");
       else if (!isAllowedUploadFile("video", form.videoFile))
         errs.videoFile = t("submit.dropzone.invalidVideoType");
+      else if (videoDetectedDuration !== null && videoDetectedDuration > 120)
+        errs.videoFile = t("submit.errors.maxDuration");
       if (!form.posterFile) errs.posterFile = t("submit.errors.requiredPoster");
       else if (!isAllowedUploadFile("poster", form.posterFile))
         errs.posterFile = t("submit.dropzone.invalidPosterType");
@@ -1646,6 +1708,24 @@ export function SubmitView() {
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
+
+  const onVideoPicked = useCallback(
+    async (file: File | null) => {
+      set("videoFile", file as FormData["videoFile"]);
+      if (!file) {
+        setVideoDetectedDuration(null);
+        return;
+      }
+      try {
+        const detected = await readVideoDuration(file);
+        setVideoDetectedDuration(detected);
+        set("duration", formatDurationSeconds(detected));
+      } catch {
+        setVideoDetectedDuration(null);
+      }
+    },
+    [set],
+  );
 
   const next = () => {
     if (!validateStep(step)) return;
@@ -1718,13 +1798,15 @@ export function SubmitView() {
       if (!res.ok) {
         throw new Error(
           data?.error ||
-            raw ||
-            `${t("submit.errors.submitFailed")} (HTTP ${res.status})`,
+          raw ||
+          `${t("submit.errors.submitFailed")} (HTTP ${res.status})`,
         );
       }
       if (!data?.id || typeof data.id !== "string") {
         throw new Error(
-          raw ? t("submit.errors.invalidServerResponse") : "Réponse vide du serveur",
+          raw
+            ? t("submit.errors.invalidServerResponse")
+            : "Réponse vide du serveur",
         );
       }
 
@@ -1766,6 +1848,7 @@ export function SubmitView() {
             setSubmissionId("");
             setSubmitError(null);
             setErrors({});
+            setVideoDetectedDuration(null);
             setStep(0);
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
@@ -1852,9 +1935,17 @@ export function SubmitView() {
             categories={smartOptions.categories}
             aiToolSuggestions={smartOptions.aiToolSuggestions}
             semanticTags={smartOptions.semanticTags}
+            detectedDurationSeconds={videoDetectedDuration}
           />
         )}
-        {step === 2 && <StepUploads form={form} set={set} errors={errors} />}
+        {step === 2 && (
+          <StepUploads
+            form={form}
+            set={set}
+            errors={errors}
+            onVideoPicked={onVideoPicked}
+          />
+        )}
         {step === 3 && <StepConsents form={form} set={set} errors={errors} />}
 
         <div
