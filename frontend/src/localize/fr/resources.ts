@@ -158,6 +158,8 @@ export const frTranslation = {
       videoUnavailable: "Vidéo indisponible",
       pageLabel: "{{page}}/{{total}} · {{count}} films",
       rangeLabel: "Films {{from}}–{{to}} sur {{total}}",
+      gridView: "Vue grille",
+      listView: "Vue liste",
     },
     palmares: {
       eyebrow: "marsAI 2026 · Marseille · Résultats officiels",

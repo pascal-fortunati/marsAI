@@ -106,7 +106,178 @@ export function BadgePill({
   );
 }
 
-// ─── FilmModal ───────────────────────────────────────────────────────────────
+// ─── FilmListCard ────────────────────────────────────────────────────────────
+
+export function FilmListCard({
+  film,
+  onClick,
+}: {
+  film: Film;
+  onClick: () => void;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const [posterFailed, setPosterFailed] = useState(false);
+  const [posterLoaded, setPosterLoaded] = useState(false);
+
+  const hasPrize =
+    film.badge && ["grand_prix", "prix_jury"].includes(film.badge);
+  const showPoster = Boolean(film.posterUrl) && !posterFailed;
+  const badgeColor = film.badge ? BADGE_CFG[film.badge].col : null;
+
+  return (
+    <div
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          onClick();
+        }
+      }}
+      className="cursor-pointer group relative flex gap-4 items-center overflow-hidden rounded-2xl text-left transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7d71fb]/60"
+      style={{
+        background: hovered
+          ? "var(--catalogue-card-hover-bg)"
+          : "var(--catalogue-card-bg)",
+        border: hovered
+          ? "1px solid rgba(125,113,251,0.3)"
+          : hasPrize
+            ? `1px solid ${badgeColor}30`
+            : "1px solid var(--catalogue-card-border)",
+        boxShadow: hovered
+          ? "0 8px 32px rgba(125,113,251,0.12)"
+          : hasPrize
+            ? `0 0 14px ${badgeColor}18`
+            : "none",
+        padding: "1rem",
+      }}
+    >
+      {/* Ligne de couleur à gauche */}
+      <div
+        className="absolute left-0 top-0 bottom-0 w-1 transition-opacity duration-300"
+        style={{
+          background: film.badge
+            ? `linear-gradient(180deg, transparent, ${BADGE_CFG[film.badge].col}70, transparent)`
+            : "linear-gradient(180deg, transparent, rgba(125,113,251,0.5), transparent)",
+          opacity: hovered || hasPrize ? 1 : 0,
+        }}
+      />
+
+      {/* Thumbnail compact */}
+      <div className="relative flex-shrink-0 aspect-video w-48 overflow-hidden bg-black rounded-xl">
+        {showPoster ? (
+          <>
+            {!posterLoaded ? (
+              <Skeleton className="absolute inset-0 rounded-none bg-white/12" />
+            ) : null}
+            <img
+              src={film.posterUrl || undefined}
+              alt={film.title}
+              className="absolute inset-0 h-full w-full object-cover transition-[transform,opacity] duration-500"
+              style={{
+                transform: hovered ? "scale(1.04)" : "scale(1)",
+                opacity: posterLoaded ? 1 : 0,
+              }}
+              loading="lazy"
+              referrerPolicy="no-referrer"
+              onLoad={() => setPosterLoaded(true)}
+              onError={() => {
+                setPosterFailed(true);
+                setPosterLoaded(false);
+              }}
+            />
+          </>
+        ) : (
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(135deg,
+                hsl(${(film.id?.charCodeAt(0) * 37 + 260) % 360}, 55%, 11%) 0%,
+                hsl(${(film.id?.charCodeAt(0) * 37 + 310) % 360}, 45%, 7%) 100%)`,
+            }}
+          />
+        )}
+
+        <div
+          className="absolute inset-0 flex items-center justify-center transition-opacity duration-200"
+          style={{
+            opacity: hovered ? 1 : 0,
+            background: "var(--catalogue-overlay-bg)",
+          }}
+        >
+          <div
+            className="flex h-11 w-11 items-center justify-center rounded-full"
+            style={{
+              background: "linear-gradient(135deg, #7d71fb, #ff5c35)",
+              boxShadow: "0 0 28px rgba(125,113,251,0.5)",
+            }}
+          >
+            <svg
+              className="ml-1 h-4 w-4 text-white"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      {/* Contenu texte */}
+      <div className="relative flex flex-1 flex-col gap-2 min-w-0 pl-2">
+        {/* Méta : pays + année */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <CountryFlag country={film.country} />
+          <span className="font-mono text-[9px] uppercase tracking-widest text-white/60">
+            {film.country}
+          </span>
+          <MetaDot />
+          <span className="font-mono text-[9px] text-white/60">
+            {film.year}
+          </span>
+          <MetaDot />
+          <p className="font-mono text-[9px] text-white/60 truncate">
+            {film.director}
+          </p>
+        </div>
+
+        {/* Titre */}
+        <h3
+          className="line-clamp-1 text-sm font-black leading-tight tracking-tight text-white/90"
+          style={{ fontFamily: "'Orbitron', sans-serif" }}
+        >
+          {film.title}
+        </h3>
+
+        {/* Synopsis */}
+        <p className="line-clamp-2 font-mono text-[10px] leading-relaxed text-white/60">
+          {film.synopsis}
+        </p>
+
+        {/* Outils IA */}
+        <div className="flex flex-wrap gap-1 pt-1">
+          {film.aiTools.slice(0, 2).map((tool) => (
+            <span
+              key={tool}
+              className="font-mono rounded border border-[#7d71fb]/18 bg-[#7d71fb]/6 px-1.5 py-0.5 text-[7px] text-[#7d71fb]/60"
+            >
+              {tool}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Badge */}
+      {film.badge && (
+        <div className="flex-shrink-0">
+          <BadgePill badge={film.badge} prize={film.prize} size="sm" />
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function FilmModal({
   film,
@@ -239,10 +410,12 @@ export function FilmCard({
   film,
   index,
   onClick,
+  viewMode = "grid",
 }: {
   film: Film;
   index: number;
   onClick: () => void;
+  viewMode?: "grid" | "list";
 }) {
   const [hovered, setHovered] = useState(false);
   const [posterFailed, setPosterFailed] = useState(false);
@@ -253,11 +426,22 @@ export function FilmCard({
   const showPoster = Boolean(film.posterUrl) && !posterFailed;
   const badgeColor = film.badge ? BADGE_CFG[film.badge].col : null;
 
+  if (viewMode === "list") {
+    return <FilmListCard film={film} onClick={onClick} />;
+  }
+
   return (
-    <button
+    <div
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          onClick();
+        }
+      }}
       className="cursor-pointer group relative flex h-full w-full flex-col overflow-hidden rounded-2xl text-left transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7d71fb]/60"
       style={{
         background: hovered
@@ -412,7 +596,7 @@ export function FilmCard({
           </div>
         )}
       </div>
-    </button>
+    </div>
   );
 }
 

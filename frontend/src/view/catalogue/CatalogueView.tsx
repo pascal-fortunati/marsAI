@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Grid3X3, List } from "lucide-react";
 import { apiFetchJson } from "../../lib/api";
 import { PageHeader, AccentTitle } from "../../components/PageHeader";
 import { PageShell } from "../../components/PageShell";
@@ -38,6 +39,7 @@ async function preloadPosters(items: Film[], signal: AbortSignal) {
 export function CatalogueView() {
   const { t } = useTranslation();
   const [page, setPage] = useState(1);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [activeFilm, setActiveFilm] = useState<Film | null>(null);
   const [films, setFilms] = useState<Film[]>([]);
   const [total, setTotal] = useState(0);
@@ -80,17 +82,54 @@ export function CatalogueView() {
 
   return (
     <PageShell size="xl">
-      <PageHeader
-        eyebrow={t("catalogue.eyebrow")}
-        title={
-          <>
-            {t("catalogue.title")}{" "}
-            <span className="ml-3">
-              <AccentTitle>2026</AccentTitle>
-            </span>
-          </>
-        }
-      />
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <PageHeader
+            eyebrow={t("catalogue.eyebrow")}
+            title={
+              <>
+                {t("catalogue.title")}{" "}
+                <span className="ml-3">
+                  <AccentTitle>2026</AccentTitle>
+                </span>
+              </>
+            }
+          />
+        </div>
+
+        {/* View Mode Toggle */}
+        <button
+          onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
+          title={viewMode === "grid" ? t("catalogue.listView") : t("catalogue.gridView")}
+          className="transition-all duration-300"
+          style={{
+            background: "none",
+            border: "1px solid rgba(125,113,251,0.4)",
+            borderRadius: "0.5rem",
+            padding: "0.5rem",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <span
+            style={{
+              backgroundImage: "linear-gradient(135deg, rgb(125, 113, 251), rgb(255, 92, 53))",
+              backgroundSize: "200%",
+              backgroundClip: "text",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              animation: "shimText 3s linear infinite",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {viewMode === "grid" ? <List size={20} /> : <Grid3X3 size={20} />}
+          </span>
+        </button>
+      </div>
 
       {error ? (
         <Alert
@@ -105,10 +144,13 @@ export function CatalogueView() {
 
       <div
         key={page}
-        className="mt-10 grid auto-rows-fr items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        className={viewMode === "grid"
+          ? "mt-10 grid auto-rows-fr items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-4"
+          : "mt-10 flex flex-col gap-3"
+        }
       >
         {loading ? (
-          <CatalogueSkeleton count={PER_PAGE} />
+          <CatalogueSkeleton count={PER_PAGE} viewMode={viewMode} />
         ) : (
           films.map((film, i) => (
             <FilmCard
@@ -116,6 +158,7 @@ export function CatalogueView() {
               film={film}
               index={i}
               onClick={() => setActiveFilm(film)}
+              viewMode={viewMode}
             />
           ))
         )}

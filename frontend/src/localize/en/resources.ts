@@ -158,6 +158,8 @@ export const enTranslation = {
       videoUnavailable: "Video unavailable",
       pageLabel: "{{page}}/{{total}} · {{count}} films",
       rangeLabel: "Films {{from}}–{{to}} of {{total}}",
+      gridView: "Grid view",
+      listView: "List view",
     },
     palmares: {
       eyebrow: "marsAI 2026 · Marseille · Official results",
