@@ -1,14 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import i18n, { setLanguage } from "../../lib/i18n";
-import {
-  ApiError,
-  apiFetchJson,
-  consumeAuthErrorFromUrl,
-  consumeTokenFromUrlHash,
-  decodeJwtPayload,
-  getStoredToken,
-} from "../../lib/api";
+import { apiFetchJson } from "../../lib/api";
 import { NavBar } from "../../components/NavBar";
 import { StarfieldNeural } from "../../components/ui/StarfieldNeural";
 
@@ -59,16 +52,6 @@ export function JuryView() {
       setIsFetchingFilms(true);
       setFilmsError("");
 
-      if (isDemoMode) {
-        setTimeout(() => {
-          setFilms(DEMO_FILMS);
-          setVotesByFilm({});
-          setCommentsByFilm({});
-          setIsFetchingFilms(false);
-        }, 2500); // Délai artificiel pour voir le skeleton
-        return;
-      }
-
       try {
         const response = await apiFetchJson<{ films: ApiFilm[] }>("/api/films");
         if (cancelled) return;
@@ -107,7 +90,7 @@ export function JuryView() {
     return () => {
       cancelled = true;
     };
-  }, [isDemoMode]);
+  },);
 
   const handleSelectFilm = (film: Film) => {
     setSelectedFilm(film);
@@ -159,14 +142,6 @@ export function JuryView() {
     decision: VoteDecision,
     comment?: string,
   ) => {
-    if (isDemoMode) {
-      setVotesByFilm((previous) => ({ ...previous, [filmId]: decision }));
-      if (typeof comment === "string") {
-        setCommentsByFilm((previous) => ({ ...previous, [filmId]: comment }));
-      }
-      setVoteStatus("success");
-      return;
-    }
 
     setVoteStatus("submitting");
     try {
