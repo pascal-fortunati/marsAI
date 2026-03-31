@@ -180,14 +180,18 @@ function PosterThumb({
   film,
   ringColor,
   size = "md",
+  customSize,
 }: {
   film: Film;
   ringColor: string;
   size?: "sm" | "md" | "lg";
+  customSize?: string;
 }) {
   const [failed, setFailed] = useState(false);
   const sizeClass =
     size === "lg" ? "h-24 w-24" : size === "sm" ? "h-14 w-14" : "h-20 w-20";
+  const sizeStyle = customSize ? { width: customSize, height: customSize } : {};
+
   if (film.posterUrl && !failed) {
     return (
       <img
@@ -196,18 +200,19 @@ function PosterThumb({
         loading="lazy"
         referrerPolicy="no-referrer"
         onError={() => setFailed(true)}
-        className={`${sizeClass} rounded-full object-cover`}
+        className={customSize ? "rounded-full object-cover" : `${sizeClass} rounded-full object-cover`}
         style={{
+          ...sizeStyle,
           border: `3px solid ${ringColor}`,
-          boxShadow: `0 0 0 3px rgba(0,0,0,.45), 0 0 14px ${ringColor}55`,
         }}
       />
     );
   }
   return (
     <div
-      className={`${sizeClass} rounded-full`}
+      className={customSize ? "rounded-full" : `${sizeClass} rounded-full`}
       style={{
+        ...sizeStyle,
         border: `3px solid ${ringColor}`,
         boxShadow: `0 0 0 3px rgba(0,0,0,.45), 0 0 14px ${ringColor}55`,
         background: "linear-gradient(135deg, #20222f, #0f1017)",
@@ -216,97 +221,98 @@ function PosterThumb({
   );
 }
 
-function PodiumCard({
-  film,
-  rank,
-  color,
-  featured,
-  onClick,
-}: {
-  film: Film;
-  rank: number;
-  color: string;
-  featured?: boolean;
-  onClick: (film: Film) => void;
-}) {
-  return (
-    <button
-      onClick={() => onClick(film)}
-      className={`relative rounded-2xl border px-6 py-5 text-left transition-all duration-300 hover:translate-y-[-2px] ${featured ? "md:min-h-[220px]" : "md:min-h-[200px]"}`}
-      style={{
-        border: `1px solid ${color}${featured ? "aa" : "55"}`,
-        background: featured
-          ? `linear-gradient(180deg, ${color}20, hsl(var(--card)) 35%)`
-          : "linear-gradient(180deg, hsl(var(--secondary) / 0.55), hsl(var(--card)))",
-        boxShadow: featured ? `0 0 30px ${color}35` : `0 0 16px ${color}20`,
-      }}
-    >
-      <div
-        className="absolute right-3 top-3 f-orb flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs font-black text-white"
-        style={{ background: color }}
-      >
-        {rank}
-      </div>
-      <div className="flex items-center gap-4">
-        <PosterThumb
-          film={film}
-          ringColor={color}
-          size={featured ? "lg" : "md"}
-        />
-        <div className="min-w-0">
-          <div
-            className={`f-orb truncate font-black text-white ${featured ? "text-2xl" : "text-xl"}`}
-          >
-            {film.title}
-          </div>
-          <div className="f-mono mt-1 text-sm text-white/65">
-            {film.director}
-          </div>
-          <div className="f-mono mt-1 text-xs text-white/40">
-            {film.country}
-          </div>
-        </div>
-      </div>
-      <div
-        className="mt-4 inline-flex items-center rounded-full px-3 py-1 f-mono text-xs font-bold"
-        style={{ background: `${color}22`, color }}
-      >
-        ⚡ {film.duration}
-      </div>
-    </button>
-  );
-}
-
-function GrandPrixCard({
+function PodiumLaureats({
   grandPrix,
   podiumSides,
   onClick,
+  isLightTheme,
 }: {
   grandPrix: Film;
   podiumSides: Film[];
   onClick: (film: Film) => void;
+  isLightTheme: boolean;
 }) {
   const left = podiumSides[0] || null;
   const right = podiumSides[1] || null;
+  const podiumImage = isLightTheme ? "https://i.postimg.cc/N0zyJ0fG/pd-white.png" : "https://i.postimg.cc/fbr32bTM/pd-black.png";
+
+  const spots = [
+    {
+      film: left,
+      rank: 2,
+      x: "19.5%",
+      y: "48.5%",
+      size: "clamp(80px, 13vw, 193px)",
+      color: "#aeaeae",
+    },
+    {
+      film: grandPrix,
+      rank: 1,
+      x: "49.5%",
+      y: "32.5%",
+      size: "clamp(90px, 15vw, 193px)",
+      color: "#ffd966",
+    },
+    {
+      film: right,
+      rank: 3,
+      x: "80.4%",
+      y: "49.5%",
+      size: "clamp(80px, 13vw, 193px)",
+      color: "#c77f60",
+    },
+  ] as const;
+
   return (
-    <div className="grid gap-4 md:grid-cols-3 md:items-end">
-      {left ? (
-        <PodiumCard film={left} rank={2} color="#aeaeae" onClick={onClick} />
-      ) : (
-        <div className="hidden md:block" />
-      )}
-      <PodiumCard
-        film={grandPrix}
-        rank={1}
-        color="#ffd966"
-        featured
-        onClick={onClick}
-      />
-      {right ? (
-        <PodiumCard film={right} rank={3} color="#c77f60" onClick={onClick} />
-      ) : (
-        <div className="hidden md:block" />
-      )}
+    <div className="space-y-6">
+      <div className="relative mx-auto w-full max-w-6xl">
+        <img
+          src={podiumImage}
+          alt="Podium"
+          className="h-auto w-full select-none"
+          draggable={false}
+        />
+
+        {spots.map((spot) => {
+          if (!spot.film) return null;
+          return (
+            <button
+              key={spot.rank}
+              onClick={() => onClick(spot.film as Film)}
+              className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full scale-105"
+              style={{ left: spot.x, top: spot.y, width: spot.size, height: spot.size }}
+              aria-label={`${spot.film.title} - position ${spot.rank}`}
+            >
+              <PosterThumb
+                film={spot.film as Film}
+                ringColor={spot.color}
+                customSize={spot.size}
+              />
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="grid gap-2 sm:grid-cols-3">
+        {spots
+          .filter((spot) => spot.film)
+          .map((spot) => (
+            <div
+              key={`meta-${spot.rank}`}
+              className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-center"
+            >
+              <div className="f-mono text-[11px] uppercase tracking-widest text-white/50">
+                #{spot.rank}
+              </div>
+              <div className="f-orb truncate text-lg font-black text-white">
+                {spot.film?.title}
+              </div>
+              <div className="f-mono mt-1 text-xs text-white/55">
+                {spot.film?.director}
+              </div>
+            </div>
+          ))}
+      </div>
     </div>
   );
 }
@@ -370,11 +376,27 @@ function SelectionGrid({
 // Composant représentant la vue des palmarès
 export function PalmaresView() {
   const { t } = useTranslation();
+  const [isLightTheme, setIsLightTheme] = useState(() => {
+    if (typeof document === "undefined") return false;
+    return document.documentElement.getAttribute("data-theme") === "light";
+  });
   const [activeFilm, setActiveFilm] = useState<Film | null>(null);
   const [laureats, setLaureats] = useState<Film[]>([]);
   const [selection, setSelection] = useState<Film[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const update = () => setIsLightTheme(root.getAttribute("data-theme") === "light");
+    const observer = new MutationObserver(update);
+    observer.observe(root, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+    update();
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const ac = new AbortController();
@@ -477,10 +499,11 @@ export function PalmaresView() {
       {!loading && grandPrix && (
         <>
           <SectionDivider label={t("palmares.grandPrix")} color="#ffd70065" />
-          <GrandPrixCard
+          <PodiumLaureats
             grandPrix={grandPrix}
             podiumSides={podiumSides}
             onClick={setActiveFilm}
+            isLightTheme={isLightTheme}
           />
         </>
       )}

@@ -157,6 +157,12 @@ export function createApp() {
     ),
   );
 
+  // Serve static files (images, videos, etc) from frontend/public
+  // This must be BEFORE API routes and before the 404 handler
+  app.use(express.static(
+    path.resolve(process.cwd(), "..", "frontend", "public")
+  ));
+
   app.use("/api", healthRouter);
   app.use("/api", authRouter);
   app.use("/api", siteRouter);
@@ -187,17 +193,17 @@ export function createApp() {
     const payload =
       env.nodeEnv === "development"
         ? {
-            error,
-            stack: err?.stack,
-            code,
-            errno: typeof err?.errno === "number" ? err.errno : null,
-            sqlState: typeof err?.sqlState === "string" ? err.sqlState : null,
-            sql: typeof err?.sql === "string" ? err.sql : null,
-            meta:
-              typeof err?.meta === "object" && err.meta !== null
-                ? err.meta
-                : null,
-          }
+          error,
+          stack: err?.stack,
+          code,
+          errno: typeof err?.errno === "number" ? err.errno : null,
+          sqlState: typeof err?.sqlState === "string" ? err.sqlState : null,
+          sql: typeof err?.sql === "string" ? err.sql : null,
+          meta:
+            typeof err?.meta === "object" && err.meta !== null
+              ? err.meta
+              : null,
+        }
         : { error };
     res.status(status).json(payload);
   });
