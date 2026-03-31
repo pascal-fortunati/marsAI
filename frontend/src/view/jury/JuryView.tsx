@@ -1,13 +1,9 @@
+// ...existing code...
 import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
-import i18n, { setLanguage } from "../../lib/i18n";
 import { apiFetchJson } from "../../lib/api";
 import { NavBar } from "../../components/NavBar";
 import { StarfieldNeural } from "../../components/ui/StarfieldNeural";
-
-import { FilmSearch } from "./FilmSearch";
 import { FilmDetail } from "./FilmDetail";
-import { VideoPlayer } from "./VideoPlayer";
 import { JuryVote } from "./JuryVote";
 import { AssignedFilms } from "./AssignedFilms";
 import JurySkeleton from "./JurySkeleton";
@@ -18,18 +14,12 @@ type ApiFilm = Film & {
   voteComment?: string;
 };
 
-
 export function JuryView() {
-  const { t } = useTranslation();
-  const [currentLang, setCurrentLang] = useState<"fr" | "en">(() =>
-    i18n.language?.toLowerCase().startsWith("en") ? "en" : "fr",
-  );
-
+  // const { t } = useTranslation();
   const [films, setFilms] = useState<Film[]>([]);
   const [isFetchingFilms, setIsFetchingFilms] = useState(true);
   const [filmsError, setFilmsError] = useState("");
-
-  const [isLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<
     "all" | "voted" | "remaining"
@@ -44,6 +34,11 @@ export function JuryView() {
   const [voteStatus, setVoteStatus] = useState<
     "idle" | "submitting" | "success" | "error"
   >("idle");
+
+  // Sélection d'un film dans la liste
+  const handleSelectFilm = (film: Film | null) => {
+    setSelectedFilm(film);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -73,85 +68,70 @@ export function JuryView() {
         setCommentsByFilm(nextComments);
       } catch (error) {
         if (cancelled) return;
-        const message =
-          error instanceof Error
-            ? error.message
-            : "Unable to load assigned films.";
-        setFilmsError(message);
-      } finally {
-        if (!cancelled) {
-          setIsFetchingFilms(false);
+        let message = "Unable to load assigned films.";
+        if (
+          error &&
+          typeof error === "object" &&
+          "message" in error &&
+          typeof (error as any).message === "string"
+        ) {
+          message = (error as any).message;
+          const msg = message.toLowerCase();
+          if (
+            msg.includes("non authentifié") ||
+            msg.includes("not authenticated")
+          ) {
+            setIsLoggedIn(false);
+          }
         }
+        setFilmsError(message);
       }
+      setIsFetchingFilms(false);
     };
-
     loadAssignedFilms();
-
     return () => {
       cancelled = true;
     };
-  },);
-
-  const handleSelectFilm = (film: Film) => {
-    setSelectedFilm(film);
-  };
-
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
-
+  }, []);
+  // Filtrage des films selon la recherche et le filtre actif
   const filteredFilms = useMemo(() => {
-    const normalizedQuery = searchQuery.trim().toLowerCase();
-
-    return films.filter((film) => {
-      const isVoted = Boolean(votesByFilm[film.id]);
-      const passesFilter =
-        activeFilter === "all" ||
-        (activeFilter === "voted" && isVoted) ||
-        (activeFilter === "remaining" && !isVoted);
-
-      if (!passesFilter) return false;
-
-      if (!normalizedQuery) return true;
-
-      const haystack = [film.title, film.country, film.tags?.join(" ")]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-      return haystack.includes(normalizedQuery);
-    });
-  }, [films, searchQuery, activeFilter, votesByFilm]);
-
-  useEffect(() => {
-    // Conserve une selection coherente avec les filtres/recherche actifs.
-    if (filteredFilms.length === 0) {
-      setSelectedFilm(null);
-      return;
+    let filtered = films;
+    if (activeFilter === "voted") {
+      filtered = filtered.filter((film: Film) => votesByFilm[film.id]);
+    } else if (activeFilter === "remaining") {
+      filtered = filtered.filter((film: Film) => !votesByFilm[film.id]);
     }
-
-    if (
-      !selectedFilm ||
-      !filteredFilms.some((film) => film.id === selectedFilm.id)
-    ) {
-      setSelectedFilm(filteredFilms[0]);
+    if (searchQuery.trim() !== "") {
+      const query = searchQuery.trim().toLowerCase();
+      filtered = filtered.filter(
+        (film: Film) =>
+          film.title.toLowerCase().includes(query) ||
+          (film.director && film.director.toLowerCase().includes(query)),
+      );
     }
-  }, [filteredFilms, selectedFilm]);
+    return filtered;
+  }, [films, votesByFilm, activeFilter, searchQuery]);
 
   const handleVote = async (
     filmId: string,
     decision: VoteDecision,
     comment?: string,
   ) => {
-
     setVoteStatus("submitting");
     try {
       await apiFetchJson<{ ok: boolean }>("/api/vote", {
         method: "POST",
         body: JSON.stringify({ filmId, decision, comment }),
       });
-      setVotesByFilm((previous) => ({ ...previous, [filmId]: decision }));
+      setVotesByFilm((previous: Record<string, VoteDecision>) => ({
+        ...previous,
+        [filmId]: decision,
+      }));
       if (typeof comment === "string") {
-        setCommentsByFilm((previous) => ({ ...previous, [filmId]: comment }));
+        setCommentsByFilm((previous: Record<string, string>) => ({
+          ...previous,
+          [filmId]: comment,
+        }));
       }
       setVoteStatus("success");
     } catch {
@@ -160,144 +140,73 @@ export function JuryView() {
   };
 
   const filmsTotal = films.length;
-  const filmsValidated = Object.values(votesByFilm).filter(
-    (decision) => decision === "validate",
-  ).length;
-  const filmsToReview = Object.values(votesByFilm).filter(
-    (decision) => decision === "review",
-  ).length;
-  const filmsRefused = Object.values(votesByFilm).filter(
-    (decision) => decision === "refuse",
-  ).length;
-  const filmsDecided = filmsValidated + filmsToReview + filmsRefused;
-  const filmsRemaining = filmsTotal - filmsDecided;
-  const progression =
-    filmsTotal > 0 ? Math.round((filmsDecided / filmsTotal) * 100) : 0;
 
-  const handleNextFilm = () => {
-    const source = filteredFilms.length > 0 ? filteredFilms : films;
-    if (source.length === 0) {
-      setSelectedFilm(null);
-      return;
-    }
-
-    if (!selectedFilm) {
-      setSelectedFilm(source[0]);
-      return;
-    }
-
-    const currentIndex = source.findIndex(
-      (film) => film.id === selectedFilm.id,
-    );
-    if (currentIndex === -1) {
-      setSelectedFilm(source[0]);
-      return;
-    }
-
-    const nextIndex = (currentIndex + 1) % source.length;
-    setSelectedFilm(source[nextIndex]);
-  };
-
-  const handleLangChange = (lang: "fr" | "en") => {
-    setCurrentLang(lang);
-    setLanguage(lang);
-  };
-
-  if (isFetchingFilms) {
-    return <JurySkeleton />;
-  }
+  const filmsRemaining = filmsTotal - Object.keys(votesByFilm).length;
+  const progression = filmsTotal
+    ? Math.round((Object.keys(votesByFilm).length / filmsTotal) * 100)
+    : 0;
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-background text-foreground transition-colors">
-      <a
-        href="#jury-main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-background focus:px-3 focus:py-2 focus:text-foreground focus:ring-2 focus:ring-ring"
-      >
-        Aller au contenu principal
-      </a>
-
-      <div className="absolute inset-0 z-0">
-        <StarfieldNeural />
-      </div>
-
-      <div className="relative z-10 pt-24">
-        <NavBar
-          totalFilms={filmsTotal}
-          votedFilms={filmsValidated}
-          reviewFilms={filmsToReview}
-          refusedFilms={filmsRefused}
-          remainingFilms={filmsRemaining}
-          progression={progression}
-          currentLang={currentLang}
-          onLangChange={handleLangChange}
-        />
-        <div className="mx-auto w-full max-w-screen-2xl p-4 lg:p-5">
-          <div className="sticky top-24 z-40 -mx-2 mb-4 bg-background/85 px-2 py-2 backdrop-blur-md lg:mb-5">
-            <FilmSearch
-              query={searchQuery}
-              onSearch={handleSearch}
-              activeFilter={activeFilter}
-              onFilterChange={setActiveFilter}
-              decidedFilms={filmsDecided}
-              totalFilms={filmsTotal}
+    <div className="relative min-h-screen bg-background">
+      <StarfieldNeural />
+      <NavBar />
+      <main className="container mx-auto py-8">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+          <section className="md:col-span-1">
+            <AssignedFilms
+              filmsTotal={filmsTotal}
+              filmsRemaining={filmsRemaining}
               progression={progression}
-              disabled={!isLoggedIn}
+              activeFilter={activeFilter}
+              searchResults={filteredFilms}
+              selectedFilm={selectedFilm}
+              votesByFilm={votesByFilm}
+              isLoggedIn={isLoggedIn}
+              onSelectFilm={handleSelectFilm}
             />
-          </div>
+          </section>
+          <section className="md:col-span-2">
+            {isFetchingFilms ? (
+              <JurySkeleton />
+            ) : filmsError ? (
+              <div className="panel p-8 text-center text-red-500">
+                {filmsError}
+              </div>
+            ) : selectedFilm ? (
+              <FilmDetail film={selectedFilm} />
+            ) : null}
 
-          <section className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-5">
-            <aside className="hidden lg:block lg:sticky lg:top-5">
-              <AssignedFilms
-                filmsTotal={filmsTotal}
-                filmsRemaining={filmsRemaining}
-                progression={progression}
-                activeFilter={activeFilter}
-                searchResults={filteredFilms}
-                selectedFilm={selectedFilm}
-                votesByFilm={votesByFilm}
-                isLoggedIn={isLoggedIn}
-                onSelectFilm={handleSelectFilm}
-              />
-            </aside>
-
-            <main id="jury-main-content" className="space-y-4 lg:space-y-5">
-              {filmsError && (
-                <div className="feedback-error px-4 py-3 text-sm">
-                  {filmsError}
-                </div>
-              )}
-              <VideoPlayer film={selectedFilm} hasFilms={films.length > 0} />
-              <FilmDetail
-                film={selectedFilm}
-                voteDecision={
-                  selectedFilm ? votesByFilm[selectedFilm.id] : undefined
-                }
-              />
-              <JuryVote
-                film={selectedFilm}
-                status={voteStatus}
-                onVote={handleVote}
-                commentValue={
-                  selectedFilm ? (commentsByFilm[selectedFilm.id] ?? "") : ""
-                }
-                onCommentChange={(nextComment) => {
-                  if (!selectedFilm) return;
-                  // Conserve les brouillons de commentaires liés au film actuellement sélectionné.
-                  setCommentsByFilm((previous) => ({
-                    ...previous,
-                    [selectedFilm.id]: nextComment,
+            <JuryVote
+              film={selectedFilm}
+              status={voteStatus}
+              onVote={handleVote}
+              commentValue={
+                selectedFilm ? commentsByFilm[selectedFilm.id] || "" : ""
+              }
+              onCommentChange={(next: string) => {
+                if (selectedFilm) {
+                  setCommentsByFilm((prev: Record<string, string>) => ({
+                    ...prev,
+                    [selectedFilm.id]: next,
                   }));
-                }}
-                onNextFilm={handleNextFilm}
-                isVoteLocked={Boolean(
-                  selectedFilm && votesByFilm[selectedFilm.id],
-                )}
-                disabled={!isLoggedIn || !selectedFilm}
-              />
-            </main>
+                }
+              }}
+              onNextFilm={() => {
+                // Sélectionne le film suivant dans la liste filtrée
+                if (!selectedFilm) return;
+                const idx = filteredFilms.findIndex(
+                  (f: Film) => f.id === selectedFilm.id,
+                );
+                if (idx >= 0 && idx < filteredFilms.length - 1) {
+                  setSelectedFilm(filteredFilms[idx + 1]);
+                }
+              }}
+              isVoteLocked={false}
+              disabled={isFetchingFilms || !selectedFilm}
+            />
           </section>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

@@ -25,7 +25,7 @@ app.use(passport.session());
 import authRoutes from "./auth/routes.js";
 app.use("/api/auth", authRoutes);
 
-import juryRoutes from "../jury/jury.js";
+import juryRoutes from "./jury/jury.js";
 app.use("/api", juryRoutes);
 
 app.get("/api/health", (_req, res) => {
