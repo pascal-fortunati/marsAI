@@ -1,4 +1,5 @@
 import { AuthLoginCard } from "../../components/AuthLoginCard";
+import { DemoModeLink } from "./demoMode";
 import { useTranslation } from "react-i18next";
 
 export function LoginView({
@@ -37,25 +38,9 @@ export function LoginView({
           }
           redirectPath={redirectPath}
         />
-        {/* Lien temporaire pour mode démo, à supprimer plus tard */}
-        <div style={{ textAlign: "center", marginTop: -82 }}>
-          <a
-            href="#demo"
-            style={{
-              fontSize: 12,
-              color: "#888",
-              textDecoration: "underline",
-              cursor: "pointer",
-            }}
-            onClick={(e) => {
-              e.preventDefault();
-              localStorage.setItem("marsai_token", "__marsai_demo_local__");
-              window.location.reload();
-            }}
-          >
-            Passer en mode démo (temporaire)
-          </a>
-        </div>
+        {/* ===== PATCH DEMO: START - Remove next line to disable demo mode ===== */}
+        <DemoModeLink />
+        {/* ===== PATCH DEMO: END ===== */}
       </div>
     </>
   );

@@ -8,6 +8,7 @@ import {
   getStoredToken,
   setStoredToken,
 } from "../lib/api";
+import { DEMO_TOKEN } from "../components/NavBarStateContext";
 
 export function JuryPage() {
   const { t } = useTranslation();
@@ -25,6 +26,13 @@ export function JuryPage() {
           setIsLoggedIn(false);
           setIsLoading(false);
         }
+        return;
+      }
+      // ===== PATCH DEMO: START - Remove entire block to disable demo mode =====
+      // Mode démo : bypass API
+      if (token === DEMO_TOKEN) {
+        setIsLoggedIn(true);
+        setIsLoading(false);
         return;
       }
       try {
