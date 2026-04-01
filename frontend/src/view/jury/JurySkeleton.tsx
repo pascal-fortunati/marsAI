@@ -44,7 +44,7 @@ export default function JurySkeleton({ theme }: JurySkeletonProps) {
 
   return (
     <div
-      className={`relative min-h-screen overflow-x-hidden transition-colors ${rootBg}`}
+      className={`relative min-h-screen overflow-x-hidden transition-colors`}
     >
       {/* Wireframe NavBar (hauteur ~100px, fixed en haut) */}
       <div

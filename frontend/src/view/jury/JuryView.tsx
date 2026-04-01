@@ -293,7 +293,7 @@ export function JuryView() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-background text-foreground transition-colors">
+    <div className="relative min-h-screen overflow-x-hidden text-foreground transition-colors">
       <a
         href="#jury-main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-background focus:px-3 focus:py-2 focus:text-foreground focus:ring-2 focus:ring-ring"
@@ -301,7 +301,7 @@ export function JuryView() {
         Aller au contenu principal
       </a>
 
-      <div className="relative z-10 pt-24">
+      <div className="relative z-10 min-h-screen pt-24">
         <div className="mx-auto w-full max-w-screen-2xl p-4 lg:p-5">
           <div className="sticky top-24 z-40 -mx-2 mb-4 bg-background/85 px-2 py-2 backdrop-blur-md lg:mb-5">
             <FilmSearch
