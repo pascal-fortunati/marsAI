@@ -15,6 +15,12 @@ import {
 import { PalmaresSkeleton } from "../../skeletons/PalmaresSkeleton";
 import { BADGE_CFG } from "./palmaresConfig";
 import type { Film, PalmaresResponse } from "./palmaresTypes";
+import orDark from "../../assets/podium/or-dark.png";
+import orLight from "../../assets/podium/or-light.png";
+import argentDark from "../../assets/podium/argent-dark.png";
+import argentLight from "../../assets/podium/argent-light.png";
+import bronzeDark from "../../assets/podium/bronze-dark.png";
+import bronzeLight from "../../assets/podium/bronze-light.png";
 
 // Composant représentant une étiquette avec une couleur et du texte
 function Tag({ color, children }: { color: string; children: ReactNode }) {
@@ -232,69 +238,90 @@ function PodiumLaureats({
   onClick: (film: Film) => void;
   isLightTheme: boolean;
 }) {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const left = podiumSides[0] || null;
   const right = podiumSides[1] || null;
-  const podiumImage = isLightTheme ? "https://i.postimg.cc/N0zyJ0fG/pd-white.png" : "https://i.postimg.cc/fbr32bTM/pd-black.png";
 
-  const spots = [
+  const podiums = [
     {
       film: left,
       rank: 2,
-      x: "19.5%",
-      y: "48.5%",
-      size: "clamp(80px, 13vw, 193px)",
+      image: isLightTheme ? argentLight : argentDark,
+      avatarX: isMobile ? "50%" : "51.5%",
+      avatarY: isMobile ? "41%" : "33.5%",
+      size: isMobile ? "clamp(70px, 10vw, 205px)" : "clamp(40px, 8vw, 145px)",
       color: "#aeaeae",
     },
     {
       film: grandPrix,
       rank: 1,
-      x: "49.5%",
-      y: "32.5%",
-      size: "clamp(90px, 15vw, 193px)",
+      image: isLightTheme ? orLight : orDark,
+      avatarX: isMobile ? "50%" : "51.5%",
+      avatarY: isMobile ? "41.5%" : "33.5%",
+      size: isMobile ? "clamp(78px, 11vw, 210px)" : "clamp(90px, 15vw, 205px)",
       color: "#ffd966",
     },
     {
       film: right,
       rank: 3,
-      x: "80.4%",
-      y: "49.5%",
-      size: "clamp(80px, 13vw, 193px)",
+      image: isLightTheme ? bronzeLight : bronzeDark,
+      avatarX: isMobile ? "50%" : "51.5%",
+      avatarY: isMobile ? "41%" : "33.5%",
+      size: isMobile ? "clamp(70px, 10vw, 205px)" : "clamp(40px, 8vw, 145px)",
       color: "#c77f60",
     },
   ] as const;
 
   return (
     <div className="space-y-6">
-      <div className="relative mx-auto w-full max-w-6xl">
-        <img
-          src={podiumImage}
-          alt="Podium"
-          className="h-auto w-full select-none"
-          draggable={false}
-        />
-
-        {spots.map((spot) => {
-          if (!spot.film) return null;
+      <div className="grid gap-2 sm:gap-4 mx-auto w-full max-w-6xl" style={{ gridTemplateColumns: '0.9fr 1.0fr 0.9fr' }}>
+        {podiums.map((podium) => {
+          if (!podium.film) return <div key={podium.rank} />;
+          const isSideCol = podium.rank !== 1;
           return (
-            <button
-              key={spot.rank}
-              onClick={() => onClick(spot.film as Film)}
-              className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full scale-105"
-              style={{ left: spot.x, top: spot.y, width: spot.size, height: spot.size }}
-              aria-label={`${spot.film.title} - position ${spot.rank}`}
+            <div
+              key={podium.rank}
+              className={`relative w-full ${isSideCol ? 'h-52 sm:h-56' : 'h-64 sm:h-80'}`}
             >
-              <PosterThumb
-                film={spot.film as Film}
-                ringColor={spot.color}
-                customSize={spot.size}
+              <img
+                src={podium.image}
+                alt={`Podium - Rank ${podium.rank}`}
+                className="h-full w-full object-contain select-none"
+                draggable={false}
               />
-            </button>
+
+              <button
+                onClick={() => onClick(podium.film as Film)}
+                className="absolute rounded-full transition-transform lg:scale-105"
+                style={{
+                  left: podium.avatarX,
+                  top: podium.avatarY,
+                  width: podium.size,
+                  height: podium.size,
+                  transform: "translate(-50%, -50%)",
+                }}
+                aria-label={`${podium.film.title} - position ${podium.rank}`}
+              >
+                <PosterThumb
+                  film={podium.film as Film}
+                  ringColor={podium.color}
+                  customSize={podium.size}
+                />
+              </button>
+            </div>
           );
         })}
       </div>
 
       <div className="grid gap-2 sm:grid-cols-3">
-        {spots
+        {podiums
           .filter((spot) => spot.film)
           .map((spot) => (
             <div
