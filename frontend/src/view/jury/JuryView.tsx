@@ -70,7 +70,7 @@ export function JuryView() {
   const [isLoggedIn] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<
-    "all" | "voted" | "remaining"
+    "all" | "voted" | "review" | "refused"
   >("all");
   const [selectedFilm, setSelectedFilm] = useState<Film | null>(null);
   const [votesByFilm, setVotesByFilm] = useState<Record<string, VoteDecision>>(
@@ -161,11 +161,12 @@ export function JuryView() {
     const normalizedQuery = searchQuery.trim().toLowerCase();
 
     return films.filter((film) => {
-      const isVoted = Boolean(votesByFilm[film.id]);
+      const voteDecision = votesByFilm[film.id];
       const passesFilter =
         activeFilter === "all" ||
-        (activeFilter === "voted" && isVoted) ||
-        (activeFilter === "remaining" && !isVoted);
+        (activeFilter === "voted" && voteDecision === "validate") ||
+        (activeFilter === "review" && voteDecision === "review") ||
+        (activeFilter === "refused" && voteDecision === "refuse");
 
       if (!passesFilter) return false;
 
@@ -271,7 +272,9 @@ export function JuryView() {
     setJury({
       subtitle: "Espace Jury",
       stats: {
-        voted: filmsDecided,
+        validated: filmsValidated,
+        review: filmsToReview,
+        refused: filmsRefused,
         total: filmsTotal,
         pct: progression,
         done: filmsRemaining === 0,
@@ -279,6 +282,9 @@ export function JuryView() {
     });
     return () => setJury(null);
   }, [
+    filmsValidated,
+    filmsToReview,
+    filmsRefused,
     filmsDecided,
     filmsTotal,
     progression,
@@ -301,9 +307,9 @@ export function JuryView() {
         Aller au contenu principal
       </a>
 
-      <div className="relative z-10 min-h-screen pt-24">
+      <div className="relative z-10 min-h-screen">
         <div className="mx-auto w-full max-w-screen-2xl p-4 lg:p-5">
-          <div className="sticky top-24 z-40 -mx-2 mb-4 bg-background/85 px-2 py-2 backdrop-blur-md lg:mb-5">
+          <div className="sticky z-40 -mx-2 mb-4 bg-background/85 px-2 py-2 backdrop-blur-md lg:mb-5">
             <FilmSearch
               query={searchQuery}
               onSearch={handleSearch}

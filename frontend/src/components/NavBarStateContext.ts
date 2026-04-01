@@ -25,7 +25,9 @@ export type NavBarPanelConfig = {
 }
 
 export type NavBarJuryStats = {
-  voted: number
+  validated: number
+  review: number
+  refused: number
   total: number
   pct: number
   done: boolean

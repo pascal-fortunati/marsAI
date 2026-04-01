@@ -619,7 +619,14 @@ export function NavBar() {
 
   if (isJury) {
     if (!showJury) return null;
-    const stats = jury?.stats ?? { voted: 0, total: 0, pct: 0, done: false };
+    const stats = jury?.stats ?? {
+      validated: 0,
+      review: 0,
+      refused: 0,
+      total: 0,
+      pct: 0,
+      done: false,
+    };
 
     return (
       <div
@@ -689,13 +696,18 @@ export function NavBar() {
                 },
                 {
                   label: t("jury.voted"),
-                  val: stats.voted,
+                  val: stats.validated,
                   color: "text-[#22c55e]",
                 },
                 {
                   label: t("jury.remaining"),
-                  val: Math.max(0, stats.total - stats.voted),
+                  val: stats.review,
                   color: "text-[#f59e0b]",
+                },
+                {
+                  label: t("jury.refused"),
+                  val: stats.refused,
+                  color: "text-[#ef4444]",
                 },
                 {
                   label: t("nav.stats.progress"),
