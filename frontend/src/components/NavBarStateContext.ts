@@ -1,5 +1,7 @@
 import { createContext, useContext } from 'react'
 
+export const DEMO_TOKEN = 'demo'
+
 export type NavBarPanelTab = { key: string; label: string; badge?: number }
 
 export type NavBarPanelStats = {
@@ -39,6 +41,8 @@ export type NavBarState = {
   jury: NavBarJuryConfig | null
   setPanel: (cfg: NavBarPanelConfig | null) => void
   setJury: (cfg: NavBarJuryConfig | null) => void
+  isJuryLoading: boolean
+  setIsJuryLoading: (loading: boolean) => void
 }
 
 export const NavBarStateCtx = createContext<NavBarState | null>(null)
