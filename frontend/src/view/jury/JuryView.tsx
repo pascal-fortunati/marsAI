@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import i18n, { setLanguage } from "../../lib/i18n";
 import { apiFetchJson, getStoredToken } from "../../lib/api";
 import { StarfieldNeural } from "../../components/ui/StarfieldNeural";
 import { FilmSearch } from "./FilmSearch";
@@ -64,9 +63,6 @@ export function JuryView() {
   // ===== PATCH DEMO: START - Remove to disable demo mode =====
   const isDemoMode = useMemo(() => getStoredToken() === DEMO_TOKEN, []);
   // ===== PATCH DEMO: END =====
-  const [currentLang, setCurrentLang] = useState<"fr" | "en">(() =>
-    i18n.language?.toLowerCase().startsWith("en") ? "en" : "fr",
-  );
 
   const [films, setFilms] = useState<Film[]>([]);
   const [isFetchingFilms, setIsFetchingFilms] = useState(true);
@@ -269,11 +265,6 @@ export function JuryView() {
     setSelectedFilm(source[nextIndex]);
   };
 
-  const handleLangChange = (lang: "fr" | "en") => {
-    setCurrentLang(lang);
-    setLanguage(lang);
-  };
-
   // Met à jour le contexte NavBar pour le mode jury
   const { setJury } = useNavBarState();
   // ===== PATCH DEMO: START - useEffect used to auto-initialize jury context =====
@@ -288,7 +279,6 @@ export function JuryView() {
       },
     });
     return () => setJury(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     filmsDecided,
     filmsTotal,
