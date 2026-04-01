@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiFetchJson, getStoredToken } from "../../lib/api";
-import { StarfieldNeural } from "../../components/ui/StarfieldNeural";
 import { FilmSearch } from "./FilmSearch";
 import { FilmDetail } from "./FilmDetail";
 import { VideoPlayer } from "./VideoPlayer";
@@ -301,10 +300,6 @@ export function JuryView() {
       >
         Aller au contenu principal
       </a>
-
-      <div className="absolute inset-0 z-0">
-        <StarfieldNeural />
-      </div>
 
       <div className="relative z-10 pt-24">
         <div className="mx-auto w-full max-w-screen-2xl p-4 lg:p-5">

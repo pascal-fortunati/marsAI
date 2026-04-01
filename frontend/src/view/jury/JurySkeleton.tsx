@@ -1,6 +1,5 @@
 // Wireframe JurySkeleton : composant squelette (dark / light)
 import { useEffect, useState } from "react";
-import { StarfieldNeural } from "../../components/ui/StarfieldNeural";
 
 type JurySkeletonProps = {
   theme?: "dark" | "light";
@@ -133,19 +132,6 @@ export default function JurySkeleton({ theme }: JurySkeletonProps) {
             </main>
           </section>
         </div>
-      </div>
-      {/* Effet de fond d'étoiles minimaliste (via composant existant) */}
-      <div
-        className={`absolute inset-0 z-0 pointer-events-none ${
-          isDark
-            ? "opacity-70 mix-blend-screen"
-            : "opacity-100 mix-blend-normal"
-        }`}
-      >
-        <StarfieldNeural
-          theme={currentTheme}
-          intensity={isDark ? "normal" : "high"}
-        />
       </div>
       {/* Effet de fond wireframe */}
       <div
