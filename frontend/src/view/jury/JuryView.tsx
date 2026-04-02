@@ -1,10 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
-import i18n, { setLanguage } from "../../lib/i18n";
-import { apiFetchJson } from "../../lib/api";
-import { NavBar } from "../../components/NavBar";
-import { StarfieldNeural } from "../../components/ui/StarfieldNeural";
-
+import { apiFetchJson, getStoredToken } from "../../lib/api";
 import { FilmSearch } from "./FilmSearch";
 import { FilmDetail } from "./FilmDetail";
 import { VideoPlayer } from "./VideoPlayer";
@@ -12,18 +7,61 @@ import { JuryVote } from "./JuryVote";
 import { AssignedFilms } from "./AssignedFilms";
 import JurySkeleton from "./JurySkeleton";
 import type { Film, VoteDecision } from "./types";
+import {
+  useNavBarState,
+  DEMO_TOKEN,
+} from "../../components/NavBarStateContext";
 
 type ApiFilm = Film & {
   voteDecision?: VoteDecision;
   voteComment?: string;
 };
 
+const DEMO_FILMS: Film[] = [
+  // ===== PATCH DEMO: START - Remove entire array to disable demo mode =====
+  {
+    id: "demo-1",
+    title: "Marseille 2040 : Les Jardins Suspendus",
+    country: "France",
+    duration: "1m58",
+    synopsis:
+      "Dans un futur proche, Marseille verdit grace a des jardins suspendus co-crees par citoyens et IA.",
+    tags: ["Futur souhaitable", "Ecologie", "Innovation sociale"],
+    year: "2026",
+    director: "Nadia B.",
+    youtubeId: "yZt-LKoIyLA",
+  },
+  {
+    id: "demo-2",
+    title: "La Mediterranee Recomposee",
+    country: "France",
+    duration: "1m52",
+    synopsis:
+      "Une IA cartographie les futurs de la Mediterranee et revele des routes solidaires entre les rives.",
+    tags: ["Solidarite", "Nature", "Paix"],
+    year: "2026",
+    director: "Lucie M.",
+    youtubeId: "OFRn_T7pOcw",
+  },
+  {
+    id: "demo-3",
+    title: "Reseau Solidaire",
+    country: "France",
+    duration: "2m00",
+    synopsis:
+      "Une plateforme open-source guidee par IA relie les besoins urgents aux ressources locales.",
+    tags: ["Solidarite", "Espoir", "Education"],
+    year: "2026",
+    director: "Ines K.",
+    youtubeId: "B4lvob2KmhA",
+  },
+  // ===== PATCH DEMO: END =====
+];
 
 export function JuryView() {
-  const { t } = useTranslation();
-  const [currentLang, setCurrentLang] = useState<"fr" | "en">(() =>
-    i18n.language?.toLowerCase().startsWith("en") ? "en" : "fr",
-  );
+  // ===== PATCH DEMO: START - Remove to disable demo mode =====
+  const isDemoMode = useMemo(() => getStoredToken() === DEMO_TOKEN, []);
+  // ===== PATCH DEMO: END =====
 
   const [films, setFilms] = useState<Film[]>([]);
   const [isFetchingFilms, setIsFetchingFilms] = useState(true);
@@ -32,7 +70,7 @@ export function JuryView() {
   const [isLoggedIn] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<
-    "all" | "voted" | "remaining"
+    "all" | "voted" | "review" | "refused"
   >("all");
   const [selectedFilm, setSelectedFilm] = useState<Film | null>(null);
   const [votesByFilm, setVotesByFilm] = useState<Record<string, VoteDecision>>(
@@ -45,12 +83,31 @@ export function JuryView() {
     "idle" | "submitting" | "success" | "error"
   >("idle");
 
+  // ===== PATCH DEMO: START - Remove entire useEffect to disable demo mode =====
+  const { setIsJuryLoading } = useNavBarState();
+  useEffect(() => {
+    setIsJuryLoading(isFetchingFilms);
+  }, [isFetchingFilms, setIsJuryLoading]);
+  // ===== PATCH DEMO: END =====
+
   useEffect(() => {
     let cancelled = false;
 
     const loadAssignedFilms = async () => {
       setIsFetchingFilms(true);
       setFilmsError("");
+
+      // ===== PATCH DEMO: START - Remove entire "if" block to disable demo mode =====
+      if (isDemoMode) {
+        setTimeout(() => {
+          setFilms(DEMO_FILMS);
+          setVotesByFilm({});
+          setCommentsByFilm({});
+          setIsFetchingFilms(false);
+        }, 2500); // Délai artificiel pour voir le skeleton
+        return;
+      }
+      // ===== PATCH DEMO: END =====
 
       try {
         const response = await apiFetchJson<{ films: ApiFilm[] }>("/api/films");
@@ -90,7 +147,7 @@ export function JuryView() {
     return () => {
       cancelled = true;
     };
-  },);
+  }, [isDemoMode]);
 
   const handleSelectFilm = (film: Film) => {
     setSelectedFilm(film);
@@ -104,11 +161,12 @@ export function JuryView() {
     const normalizedQuery = searchQuery.trim().toLowerCase();
 
     return films.filter((film) => {
-      const isVoted = Boolean(votesByFilm[film.id]);
+      const voteDecision = votesByFilm[film.id];
       const passesFilter =
         activeFilter === "all" ||
-        (activeFilter === "voted" && isVoted) ||
-        (activeFilter === "remaining" && !isVoted);
+        (activeFilter === "voted" && voteDecision === "validate") ||
+        (activeFilter === "review" && voteDecision === "review") ||
+        (activeFilter === "refused" && voteDecision === "refuse");
 
       if (!passesFilter) return false;
 
@@ -128,7 +186,6 @@ export function JuryView() {
       setSelectedFilm(null);
       return;
     }
-
     if (
       !selectedFilm ||
       !filteredFilms.some((film) => film.id === selectedFilm.id)
@@ -142,6 +199,16 @@ export function JuryView() {
     decision: VoteDecision,
     comment?: string,
   ) => {
+    // ===== PATCH DEMO: START - Remove entire "if" block to disable demo mode =====
+    if (isDemoMode) {
+      setVotesByFilm((previous) => ({ ...previous, [filmId]: decision }));
+      if (typeof comment === "string") {
+        setCommentsByFilm((previous) => ({ ...previous, [filmId]: comment }));
+      }
+      setVoteStatus("success");
+      return;
+    }
+    // ===== PATCH DEMO: END =====
 
     setVoteStatus("submitting");
     try {
@@ -198,17 +265,41 @@ export function JuryView() {
     setSelectedFilm(source[nextIndex]);
   };
 
-  const handleLangChange = (lang: "fr" | "en") => {
-    setCurrentLang(lang);
-    setLanguage(lang);
-  };
+  // Met à jour le contexte NavBar pour le mode jury
+  const { setJury } = useNavBarState();
+  // ===== PATCH DEMO: START - useEffect used to auto-initialize jury context =====
+  useEffect(() => {
+    setJury({
+      subtitle: "Espace Jury",
+      stats: {
+        validated: filmsValidated,
+        review: filmsToReview,
+        refused: filmsRefused,
+        total: filmsTotal,
+        pct: progression,
+        done: filmsRemaining === 0,
+      },
+    });
+    return () => setJury(null);
+  }, [
+    filmsValidated,
+    filmsToReview,
+    filmsRefused,
+    filmsDecided,
+    filmsTotal,
+    progression,
+    filmsRemaining,
+    setJury,
+    isDemoMode,
+  ]);
+  // ===== PATCH DEMO: END =====
 
   if (isFetchingFilms) {
     return <JurySkeleton />;
   }
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-background text-foreground transition-colors">
+    <div className="relative min-h-screen overflow-x-hidden text-foreground transition-colors">
       <a
         href="#jury-main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-background focus:px-3 focus:py-2 focus:text-foreground focus:ring-2 focus:ring-ring"
@@ -216,23 +307,9 @@ export function JuryView() {
         Aller au contenu principal
       </a>
 
-      <div className="absolute inset-0 z-0">
-        <StarfieldNeural />
-      </div>
-
-      <div className="relative z-10 pt-24">
-        <NavBar
-          totalFilms={filmsTotal}
-          votedFilms={filmsValidated}
-          reviewFilms={filmsToReview}
-          refusedFilms={filmsRefused}
-          remainingFilms={filmsRemaining}
-          progression={progression}
-          currentLang={currentLang}
-          onLangChange={handleLangChange}
-        />
+      <div className="relative z-10 min-h-screen">
         <div className="mx-auto w-full max-w-screen-2xl p-4 lg:p-5">
-          <div className="sticky top-24 z-40 -mx-2 mb-4 bg-background/85 px-2 py-2 backdrop-blur-md lg:mb-5">
+          <div className="sticky z-40 -mx-2 mb-4 bg-background/85 px-2 py-2 backdrop-blur-md lg:mb-5">
             <FilmSearch
               query={searchQuery}
               onSearch={handleSearch}

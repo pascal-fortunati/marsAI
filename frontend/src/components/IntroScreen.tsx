@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import marsAiLogo from "../assets/mars_ai_logo.png";
+// Utilisation directe du logo depuis public/
 
 interface Props {
   onDone: () => void;
@@ -66,6 +66,7 @@ export function IntroScreen({ onDone }: Props) {
         opacity: fadingOut ? 0 : 1,
         transitionDuration: `${FADE_DURATION_S}s`,
         transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
+        pointerEvents: fadingOut ? "none" : "auto",
       }}
     >
       <video
@@ -85,7 +86,7 @@ export function IntroScreen({ onDone }: Props) {
         ].join(" ")}
       >
         <img
-          src={marsAiLogo}
+          src="/mars_ai_logo.png"
           alt="marsAI"
           className="mb-4 w-[clamp(180px,50vw,320px)] max-w-full object-contain drop-shadow-[0_0_35px_rgba(255,92,53,0.35)]"
         />
