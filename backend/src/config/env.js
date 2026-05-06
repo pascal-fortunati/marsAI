@@ -71,6 +71,7 @@ export const env = {
     "YOUTUBE_REFRESH_TOKEN",
     optional("GOOGLE_REFRESH_TOKEN", ""),
   ),
+  ffprobePath: optional("FFPROBE_PATH", "ffprobe"),
 
   brevoApiKey: optional("BREVO_API_KEY", ""),
   brevoSenderEmail: optional("BREVO_SENDER_EMAIL", ""),
