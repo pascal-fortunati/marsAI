@@ -1,4 +1,4 @@
-import marsAiLogo from "../assets/mars_ai_logo.png";
+// Utilisation directe du logo depuis public/
 import { apiUrl } from "../lib/api";
 import { marsaiColors } from "../theme/marsai";
 import { Button } from "./ui/button";
@@ -31,8 +31,8 @@ export function AuthLoginCard({
   const logoMaskStyle = isLightTheme
     ? {
         backgroundColor: "rgba(20, 14, 80, 0.96)",
-        WebkitMaskImage: `url("${marsAiLogo}")`,
-        maskImage: `url("${marsAiLogo}")`,
+        WebkitMaskImage: `url("/src/assets/mars_ai_logo.png")`,
+        maskImage: `url("/src/assets/mars_ai_logo.png")`,
         WebkitMaskRepeat: "no-repeat",
         maskRepeat: "no-repeat",
         WebkitMaskPosition: "center",
@@ -73,7 +73,11 @@ export function AuthLoginCard({
           <div className="mx-auto mb-8 flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl">
             {isLightTheme ? (
               <>
-                <img src={marsAiLogo} alt="" className="hidden" />
+                <img
+                  src="/src/assets/mars_ai_logo.png"
+                  alt=""
+                  className="hidden"
+                />
                 <span
                   className="h-full w-full"
                   role="img"
@@ -83,7 +87,7 @@ export function AuthLoginCard({
               </>
             ) : (
               <img
-                src={marsAiLogo}
+                src="/src/assets/mars_ai_logo.png"
                 alt="marsAI"
                 className="h-full w-full object-contain"
               />

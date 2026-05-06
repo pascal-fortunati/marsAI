@@ -11,7 +11,7 @@ import { fetchPublicFestivalSettings } from "../lib/siteSettings";
 import { setLanguage } from "../lib/i18n";
 import { resolveInitialTheme, setTheme, type ThemeMode } from "../theme/theme";
 import { marsaiColors } from "../theme/marsai";
-import { useNavBarState } from "./NavBarStateContext";
+import { useNavBarState, DEMO_TOKEN } from "./NavBarStateContext";
 import { useTranslation } from "react-i18next";
 
 function FlagFR() {
@@ -178,11 +178,18 @@ export function NavBar() {
     null,
   );
   const previewDraftRef = useRef<string | null>(null);
-  const [role, setRole] = useState<string | null>(() => {
-    const token = getStoredToken();
+  // ===== PATCH DEMO: START - Remove block to disable demo mode =====
+  // Initialize role from token on mount
+  let roleFromToken: string | null = null;
+  const token = getStoredToken();
+  if (token === DEMO_TOKEN) {
+    roleFromToken = "jury";
+  } else {
     const payload = token ? decodeJwtPayload<{ role?: string }>(token) : null;
-    return payload?.role ?? null;
-  });
+    roleFromToken = payload?.role ?? null;
+  }
+  // ===== PATCH DEMO: END =====
+  const [role, setRole] = useState<string | null>(roleFromToken);
   const { panel, jury } = useNavBarState();
   const previewMode = useMemo(
     () =>
@@ -272,11 +279,11 @@ export function NavBar() {
     const ac = new AbortController();
     fetchPublicFestivalSettings(ac.signal)
       .then(setSettings)
-      .catch(() => { });
+      .catch(() => {});
     const id = setInterval(() => {
       fetchPublicFestivalSettings(ac.signal)
         .then(setSettings)
-        .catch(() => { });
+        .catch(() => {});
     }, 5 * 60_000);
     return () => {
       window.clearInterval(id);
@@ -287,6 +294,12 @@ export function NavBar() {
   useEffect(() => {
     const compute = () => {
       const token = getStoredToken();
+      // ===== PATCH DEMO: START - Remove entire "if" block to disable demo mode =====
+      if (token === DEMO_TOKEN) {
+        setRole("jury");
+        return;
+      }
+      // ===== PATCH DEMO: END =====
       const payload = token ? decodeJwtPayload<{ role?: string }>(token) : null;
       setRole(payload?.role ?? null);
     };
@@ -316,10 +329,11 @@ export function NavBar() {
     settings?.siteLogo,
     settings?.platformBaseUrl,
   );
+  // Fallback sur /mars_ai_logo.png si aucun logo configuré
   const navLogoSrc =
     configuredLogoSrc && failedLogoSrc !== configuredLogoSrc
       ? configuredLogoSrc
-      : "";
+      : "/src/assets/mars_ai_logo.png";
   const logoPreviewClass =
     previewFocusTarget === "siteLogo"
       ? isLightTheme
@@ -328,25 +342,25 @@ export function NavBar() {
       : "";
   const logoImgStyle = isLightTheme
     ? {
-      filter:
-        "brightness(0) saturate(100%) invert(8%) sepia(42%) saturate(1827%) hue-rotate(230deg) brightness(72%) contrast(108%)",
-    }
+        filter:
+          "brightness(0) saturate(100%) invert(8%) sepia(42%) saturate(1827%) hue-rotate(230deg) brightness(72%) contrast(108%)",
+      }
     : undefined;
   const logoTextStyle = isLightTheme
     ? { color: "rgba(20, 14, 80, 0.96)" }
     : undefined;
   const logoMaskStyle = isLightTheme
     ? {
-      backgroundColor: "rgba(20, 14, 80, 0.96)",
-      WebkitMaskImage: `url("${navLogoSrc}")`,
-      maskImage: `url("${navLogoSrc}")`,
-      WebkitMaskRepeat: "no-repeat",
-      maskRepeat: "no-repeat",
-      WebkitMaskPosition: "center",
-      maskPosition: "center",
-      WebkitMaskSize: "contain",
-      maskSize: "contain",
-    }
+        backgroundColor: "rgba(20, 14, 80, 0.96)",
+        WebkitMaskImage: `url("${navLogoSrc}")`,
+        maskImage: `url("${navLogoSrc}")`,
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+      }
     : undefined;
 
   if (isPanel) {
@@ -363,16 +377,17 @@ export function NavBar() {
     };
     const tabs = panel?.tabs ?? [];
     const activeTab = panel?.activeTab ?? "";
-    const onTabChange = panel?.onTabChange ?? (() => { });
+    const onTabChange = panel?.onTabChange ?? (() => {});
     const setupIncomplete = Boolean(panel?.setupIncomplete);
-    const onOpenSetup = panel?.onOpenSetup ?? (() => { });
+    const onOpenSetup = panel?.onOpenSetup ?? (() => {});
 
     return (
       <div
-        className={`sticky top-0 z-50 border-b backdrop-blur-xl ${isLightTheme
+        className={`sticky top-0 z-50 border-b backdrop-blur-xl ${
+          isLightTheme
             ? "border-[#7d71fb]/15 bg-white/80 shadow-[0_4px_40px_rgba(30,41,59,0.08)]"
             : "border-[#7d71fb]/20 bg-[#05030d]/90 shadow-[0_4px_60px_rgba(125,113,251,0.07)]"
-          }`}
+        }`}
       >
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#7d71fb]/70 to-transparent" />
         <div className="mx-auto max-w-screen-2xl px-4 sm:px-8">
@@ -383,35 +398,33 @@ export function NavBar() {
                 className={`flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl ${logoPreviewClass}`}
                 data-preview-target="siteLogo"
               >
-                {navLogoSrc ? (
-                  isLightTheme ? (
-                    <>
-                      <img
-                        src={navLogoSrc}
-                        alt=""
-                        className="hidden"
-                        onError={() => {
-                          if (navLogoSrc === configuredLogoSrc) {
-                            setFailedLogoSrc(configuredLogoSrc);
-                          }
-                        }}
-                      />
-                      <span className="h-full w-full" style={logoMaskStyle} />
-                    </>
-                  ) : (
+                {isLightTheme ? (
+                  <>
                     <img
                       src={navLogoSrc}
-                      alt="marsAI"
-                      className="h-full w-full object-contain"
-                      style={logoImgStyle}
+                      alt=""
+                      className="hidden"
                       onError={() => {
                         if (navLogoSrc === configuredLogoSrc) {
                           setFailedLogoSrc(configuredLogoSrc);
                         }
                       }}
                     />
-                  )
-                ) : null}
+                    <span className="h-full w-full" style={logoMaskStyle} />
+                  </>
+                ) : (
+                  <img
+                    src={navLogoSrc}
+                    alt="marsAI"
+                    className="h-full w-full object-contain"
+                    style={logoImgStyle}
+                    onError={() => {
+                      if (navLogoSrc === configuredLogoSrc) {
+                        setFailedLogoSrc(configuredLogoSrc);
+                      }
+                    }}
+                  />
+                )}
               </Link>
               <div>
                 <div
@@ -468,8 +481,9 @@ export function NavBar() {
               ].map((s) => (
                 <div
                   key={s.label}
-                  className={`${s.hideSm ? "hidden lg:block" : ""
-                    } px-8 text-center`}
+                  className={`${
+                    s.hideSm ? "hidden lg:block" : ""
+                  } px-8 text-center`}
                 >
                   <div className={`f-orb text-2xl font-black ${s.color}`}>
                     {s.val}
@@ -503,18 +517,23 @@ export function NavBar() {
                 onClick={() => setMenuOpen(!menuOpen)}
               >
                 <span
-                  className={`block h-px w-5 ${isLightTheme ? "bg-slate-700" : "bg-white"
-                    } transition-all duration-300 ${menuOpen ? "translate-y-1.5 rotate-45" : ""
-                    }`}
+                  className={`block h-px w-5 ${
+                    isLightTheme ? "bg-slate-700" : "bg-white"
+                  } transition-all duration-300 ${
+                    menuOpen ? "translate-y-1.5 rotate-45" : ""
+                  }`}
                 />
                 <span
-                  className={`block h-px w-5 ${isLightTheme ? "bg-slate-700" : "bg-white"
-                    } transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`}
+                  className={`block h-px w-5 ${
+                    isLightTheme ? "bg-slate-700" : "bg-white"
+                  } transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`}
                 />
                 <span
-                  className={`block h-px w-5 ${isLightTheme ? "bg-slate-700" : "bg-white"
-                    } transition-all duration-300 ${menuOpen ? "-translate-y-1.5 -rotate-45" : ""
-                    }`}
+                  className={`block h-px w-5 ${
+                    isLightTheme ? "bg-slate-700" : "bg-white"
+                  } transition-all duration-300 ${
+                    menuOpen ? "-translate-y-1.5 -rotate-45" : ""
+                  }`}
                 />
               </button>
             </div>
@@ -526,10 +545,11 @@ export function NavBar() {
                 <button
                   key={t.key}
                   onClick={() => onTabChange(t.key)}
-                  className={`f-mono relative flex min-w-[130px] flex-none cursor-pointer items-center justify-center gap-2 px-3 py-3 text-xs transition-colors sm:flex-1 sm:py-4 sm:text-sm ${activeTab === t.key
+                  className={`f-mono relative flex min-w-[130px] flex-none cursor-pointer items-center justify-center gap-2 px-3 py-3 text-xs transition-colors sm:flex-1 sm:py-4 sm:text-sm ${
+                    activeTab === t.key
                       ? "text-[#7d71fb] border-b-2 border-[#7d71fb]"
                       : "text-white hover:text-[#7d71fb] border-b-2 border-transparent hover:border-[#7d71fb]"
-                    }`}
+                  }`}
                 >
                   <span className="truncate">{t.label}</span>
                   {t.badge != null && t.badge > 0 && (
@@ -547,23 +567,26 @@ export function NavBar() {
 
           {tabs.length > 0 ? (
             <div
-              className={`overflow-hidden transition-all duration-300 md:hidden ${menuOpen ? "max-h-96" : "max-h-0"
-                }`}
+              className={`overflow-hidden transition-all duration-300 md:hidden ${
+                menuOpen ? "max-h-96" : "max-h-0"
+              }`}
             >
               <div
-                className={`f-mono flex flex-col gap-px border-t border-white/8 px-2 py-2 backdrop-blur-xl ${isLightTheme ? "bg-white/90" : "bg-[#05030d]/95"
-                  }`}
+                className={`f-mono flex flex-col gap-px border-t border-white/8 px-2 py-2 backdrop-blur-xl ${
+                  isLightTheme ? "bg-white/90" : "bg-[#05030d]/95"
+                }`}
               >
                 {tabs.map((t) => (
                   <button
                     key={`mobile-${t.key}`}
                     onClick={() => onTabChange(t.key)}
-                    className={`flex items-center justify-between rounded px-3 py-2.5 text-xs tracking-widest transition-all ${activeTab === t.key
+                    className={`flex items-center justify-between rounded px-3 py-2.5 text-xs tracking-widest transition-all ${
+                      activeTab === t.key
                         ? "bg-[#7d71fb]/10 text-[#7d71fb]"
                         : isLightTheme
                           ? "text-slate-500 hover:bg-slate-900/5 hover:text-slate-700"
                           : "text-white/40 hover:bg-white/5 hover:text-white/70"
-                      }`}
+                    }`}
                   >
                     <span>{t.label}</span>
                     {t.badge != null && t.badge > 0 ? (
@@ -596,14 +619,22 @@ export function NavBar() {
 
   if (isJury) {
     if (!showJury) return null;
-    const stats = jury?.stats ?? { voted: 0, total: 0, pct: 0, done: false };
+    const stats = jury?.stats ?? {
+      validated: 0,
+      review: 0,
+      refused: 0,
+      total: 0,
+      pct: 0,
+      done: false,
+    };
 
     return (
       <div
-        className={`sticky top-0 z-50 border-b backdrop-blur-xl ${isLightTheme
+        className={`sticky top-0 z-50 border-b backdrop-blur-xl ${
+          isLightTheme
             ? "border-[#7d71fb]/15 bg-white/80 shadow-[0_4px_40px_rgba(30,41,59,0.08)]"
             : "border-[#7d71fb]/20 bg-[#05030d]/90 shadow-[0_4px_60px_rgba(125,113,251,0.07)]"
-          }`}
+        }`}
       >
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#7d71fb]/70 to-transparent" />
         <div className="mx-auto max-w-screen-2xl px-4 sm:px-8">
@@ -665,13 +696,18 @@ export function NavBar() {
                 },
                 {
                   label: t("jury.voted"),
-                  val: stats.voted,
+                  val: stats.validated,
                   color: "text-[#22c55e]",
                 },
                 {
                   label: t("jury.remaining"),
-                  val: Math.max(0, stats.total - stats.voted),
+                  val: stats.review,
                   color: "text-[#f59e0b]",
+                },
+                {
+                  label: t("jury.refused"),
+                  val: stats.refused,
+                  color: "text-[#ef4444]",
                 },
                 {
                   label: t("nav.stats.progress"),
@@ -829,30 +865,37 @@ export function NavBar() {
               onClick={() => setMenuOpen(!menuOpen)}
             >
               <span
-                className={`block h-px w-5 ${isLightTheme ? "bg-slate-700" : "bg-white"
-                  } transition-all duration-300 ${menuOpen ? "translate-y-1.5 rotate-45" : ""
-                  }`}
+                className={`block h-px w-5 ${
+                  isLightTheme ? "bg-slate-700" : "bg-white"
+                } transition-all duration-300 ${
+                  menuOpen ? "translate-y-1.5 rotate-45" : ""
+                }`}
               />
               <span
-                className={`block h-px w-5 ${isLightTheme ? "bg-slate-700" : "bg-white"
-                  } transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`}
+                className={`block h-px w-5 ${
+                  isLightTheme ? "bg-slate-700" : "bg-white"
+                } transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`}
               />
               <span
-                className={`block h-px w-5 ${isLightTheme ? "bg-slate-700" : "bg-white"
-                  } transition-all duration-300 ${menuOpen ? "-translate-y-1.5 -rotate-45" : ""
-                  }`}
+                className={`block h-px w-5 ${
+                  isLightTheme ? "bg-slate-700" : "bg-white"
+                } transition-all duration-300 ${
+                  menuOpen ? "-translate-y-1.5 -rotate-45" : ""
+                }`}
               />
             </button>
           </div>
         </nav>
 
         <div
-          className={`overflow-hidden transition-all duration-300 md:hidden ${menuOpen ? "max-h-64" : "max-h-0"
-            }`}
+          className={`overflow-hidden transition-all duration-300 md:hidden ${
+            menuOpen ? "max-h-64" : "max-h-0"
+          }`}
         >
           <div
-            className={`f-mono flex flex-col gap-px border-t border-white/8 px-4 py-3 backdrop-blur-xl ${isLightTheme ? "bg-white/90" : "bg-[#05030d]/95"
-              }`}
+            className={`f-mono flex flex-col gap-px border-t border-white/8 px-4 py-3 backdrop-blur-xl ${
+              isLightTheme ? "bg-white/90" : "bg-[#05030d]/95"
+            }`}
           >
             {[
               {
@@ -888,11 +931,12 @@ export function NavBar() {
                   to={to}
                   onClick={() => setMenuOpen(false)}
                   className={({ isActive }) =>
-                    `flex items-center gap-2 rounded px-3 py-2.5 text-xs tracking-widest transition-all ${isActive
-                      ? "bg-[#7d71fb]/10 text-[#7d71fb]"
-                      : isLightTheme
-                        ? "text-slate-500 hover:bg-slate-900/5 hover:text-slate-700"
-                        : "text-white/40 hover:bg-white/5 hover:text-white/70"
+                    `flex items-center gap-2 rounded px-3 py-2.5 text-xs tracking-widest transition-all ${
+                      isActive
+                        ? "bg-[#7d71fb]/10 text-[#7d71fb]"
+                        : isLightTheme
+                          ? "text-slate-500 hover:bg-slate-900/5 hover:text-slate-700"
+                          : "text-white/40 hover:bg-white/5 hover:text-white/70"
                     }`
                   }
                 >

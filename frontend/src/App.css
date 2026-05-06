@@ -914,3 +914,116 @@ body {
     transform: rotate(360deg);
   }
 }
+
+/* Panneau — style adapte pour les deux themes */
+.panel {
+  @apply rounded-lg border border-border text-foreground shadow-lg transition-all;
+}
+
+:root .panel,
+[data-theme="dark"] .panel {
+  @apply bg-card/80 backdrop-blur-sm;
+}
+
+[data-theme="light"] .panel {
+  @apply bg-white shadow-md;
+}
+
+/* Classes utilitaires pour les etats visuels */
+.btn-validate {
+  @apply border-emerald-500/70 bg-emerald-950/50 text-emerald-100 hover:bg-emerald-900 hover:border-emerald-400;
+}
+
+.btn-review {
+  @apply border-amber-500/70 bg-amber-950/50 text-amber-100 hover:bg-amber-900 hover:border-amber-400;
+}
+
+.btn-refuse {
+  @apply border-red-500/70 bg-red-950/50 text-red-100 hover:bg-red-900 hover:border-red-400;
+}
+
+.status-voted {
+  @apply border-emerald-500/60 bg-emerald-950/60 text-emerald-200 font-medium;
+}
+
+.status-refused {
+  @apply border-red-500/60 bg-red-950/60 text-red-200 font-medium;
+}
+
+.status-review {
+  @apply border-amber-500/60 bg-amber-950/60 text-amber-200 font-medium;
+}
+
+.status-pending {
+  @apply border-slate-500/60 bg-slate-800/60 text-slate-300 font-medium;
+}
+
+[data-theme="light"] .btn-validate {
+  @apply bg-emerald-500/12 text-emerald-700 border-emerald-500/50 hover:bg-emerald-500/20;
+}
+
+[data-theme="light"] .btn-review {
+  @apply bg-amber-500/12 text-amber-700 border-amber-500/50 hover:bg-amber-500/20;
+}
+
+[data-theme="light"] .btn-refuse {
+  @apply bg-red-500/12 text-red-700 border-red-500/50 hover:bg-red-500/20;
+}
+
+[data-theme="light"] .status-voted {
+  @apply bg-emerald-500/12 text-emerald-700 border-emerald-500/50;
+}
+
+[data-theme="light"] .status-refused {
+  @apply bg-red-500/12 text-red-700 border-red-500/50;
+}
+
+[data-theme="light"] .status-review {
+  @apply bg-amber-500/12 text-amber-700 border-amber-500/50;
+}
+
+[data-theme="light"] .status-pending {
+  @apply bg-slate-500/16 text-slate-800 border-slate-500/50;
+}
+
+.feedback-success {
+  @apply rounded-md border border-emerald-500/50 bg-emerald-500/12 p-3 mt-4;
+}
+
+.feedback-success-text {
+  @apply text-sm text-emerald-700;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.feedback-success-action {
+  @apply text-emerald-700 hover:text-emerald-800 hover:bg-emerald-500/10;
+}
+
+.feedback-error {
+  @apply rounded-md border border-red-500/50 bg-red-500/12 p-3 mt-4;
+}
+
+.feedback-error-text {
+  @apply text-sm text-red-700;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+[data-theme="dark"] .feedback-success {
+  @apply border-emerald-500/40 bg-emerald-950/40;
+}
+
+[data-theme="dark"] .feedback-success-text {
+  @apply text-emerald-200;
+}
+
+[data-theme="dark"] .feedback-success-action {
+  @apply text-emerald-300 hover:text-emerald-200;
+}
+
+[data-theme="dark"] .feedback-error {
+  @apply border-red-500/40 bg-red-950/40;
+}
+
+[data-theme="dark"] .feedback-error-text {
+  @apply text-red-200;
+}

@@ -6,7 +6,7 @@ type AssignedFilmsProps = {
   filmsTotal: number;
   filmsRemaining: number;
   progression: number;
-  activeFilter: "all" | "voted" | "remaining";
+  activeFilter: "all" | "voted" | "review" | "refused";
   searchResults: Film[];
   selectedFilm: Film | null;
   votesByFilm: Record<string, VoteDecision>;
@@ -32,7 +32,11 @@ export function AssignedFilms({
     activeFilter === "all"
       ? t("jury.assigned", { count: displayedCount })
       : `${displayedCount} films ${
-          activeFilter === "voted" ? t("jury.voted") : t("jury.remaining")
+          activeFilter === "voted"
+            ? t("jury.voted")
+            : activeFilter === "review"
+              ? t("jury.remaining")
+              : t("jury.refused")
         }`;
 
   return (

@@ -4,8 +4,8 @@ import { Search } from "lucide-react";
 type FilmSearchProps = {
   query: string;
   onSearch: (query: string) => void;
-  activeFilter: "all" | "voted" | "remaining";
-  onFilterChange: (filter: "all" | "voted" | "remaining") => void;
+  activeFilter: "all" | "voted" | "review" | "refused";
+  onFilterChange: (filter: "all" | "voted" | "review" | "refused") => void;
   decidedFilms: number;
   totalFilms: number;
   progression: number;
@@ -59,19 +59,31 @@ export function FilmSearch({
               activeFilter === "voted" ? activeFilterClass : inactiveFilterClass
             }`}
           >
-            {t("jury.filterVotedSearch")}
+            {t("jury.voted")}
           </button>
           <button
             type="button"
-            onClick={() => onFilterChange("remaining")}
-            aria-pressed={activeFilter === "remaining"}
+            onClick={() => onFilterChange("review")}
+            aria-pressed={activeFilter === "review"}
             className={`f-mono rounded-md px-3 py-2 text-sm font-medium transition ${
-              activeFilter === "remaining"
+              activeFilter === "review"
                 ? activeFilterClass
                 : inactiveFilterClass
             }`}
           >
-            {t("jury.filterRemaining")}
+            {t("jury.remaining")}
+          </button>
+          <button
+            type="button"
+            onClick={() => onFilterChange("refused")}
+            aria-pressed={activeFilter === "refused"}
+            className={`f-mono rounded-md px-3 py-2 text-sm font-medium transition ${
+              activeFilter === "refused"
+                ? activeFilterClass
+                : inactiveFilterClass
+            }`}
+          >
+            {t("jury.refused")}
           </button>
           <button
             type="button"
