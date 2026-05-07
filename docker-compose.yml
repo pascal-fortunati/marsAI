@@ -1,0 +1,87 @@
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: marsai_mariadb
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: marsai
+      MARIADB_USER: marsai
+      MARIADB_PASSWORD: marsai
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./backend/sql/marsai.sql:/docker-entrypoint-initdb.d/00-marsai.sql:ro
+    healthcheck:
+      test:
+        ["CMD", "mariadb-admin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  backend:
+    image: node:20-alpine
+    container_name: marsai_backend
+    restart: unless-stopped
+    working_dir: /app/backend
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 4000
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:4001}
+      FFPROBE_PATH: ffprobe
+      DB_HOST: mariadb
+      DB_PORT: 3306
+      DB_USER: marsai
+      DB_PASSWORD: marsai
+      DB_NAME: marsai
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./backend:/app/backend
+      - ./frontend/public:/app/frontend/public
+      - backend_node_modules:/app/backend/node_modules
+    command: >-
+      sh -c "apk add --no-cache ffmpeg && npm ci && npm run start"
+
+  frontend:
+    image: node:20-alpine
+    container_name: marsai_frontend
+    restart: unless-stopped
+    working_dir: /app/frontend
+    depends_on:
+      - backend
+    environment:
+      NODE_ENV: production
+      VITE_API_URL: ${VITE_API_URL:-}
+    ports:
+      - "4001:4001"
+    volumes:
+      - ./frontend:/app/frontend
+      - frontend_node_modules:/app/frontend/node_modules
+    command: >-
+      sh -c "npm ci && npm run build && npm run preview -- --host 0.0.0.0 --port 4001"
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: marsai_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      PMA_HOST: mariadb
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "8080:80"
+
+volumes:
+  mariadb_data:
+  backend_node_modules:
+  frontend_node_modules:
